@@ -10,20 +10,26 @@ object Declaration {
   }
 
 
-  case class ValueType(id: Type.Id) extends Type(id = id)
+  case class ValueType(id: Type.Id)
+    extends Type(id = id)
 
-  case class UnionType(id: Type.Id) extends Type(id = id)
+  case class UnionType(id: Type.Id)
+    extends Type(id = id)
 
-  case class IntersectionType(id: Type.Id) extends Type(id = id);
+  case class IntersectionType(id: Type.Id)
+    extends Type(id = id);
 
-  case class FunctionalType(id: Type.Id) extends Type(id = id);
+  case class FunctionalType(id: Type.Id)
+    extends Type(id = id);
 
 
 }
 
-abstract class Declaration(name: String) extends Statement
+abstract class Declaration(name: String|Null)
+  extends Statement
 
-abstract class ValuableDeclaration(name: String, `type`: Declaration.Type) extends Declaration(name = name);
+abstract class ValuableDeclaration(name: String, `type`: Declaration.Type)
+  extends Declaration(name = name);
 
 case class ValueDeclaration(name: String, `type`: Declaration.Type)
   extends ValuableDeclaration(
@@ -35,18 +41,24 @@ case class ValueConstructorDeclaration(name: String, `type`: Declaration.ValueTy
     name = name, `type` = `type`
   );
 
-abstract class FunctionalDeclaration(name: String) extends Declaration
+abstract class FunctionalDeclaration(name: String|Null)
+  extends Declaration(name = name);
 
-case class FunctionDeclaration(name: String) extends FunctionalDeclaration(name = name)
-case class FunctionalConstructorDeclaration(name: String|Null) extends FunctionDeclaration(name=name)
+case class FunctionDeclaration(name: String)
+  extends FunctionalDeclaration(name = name)
+case class FunctionalConstructorDeclaration(name: String|Null)
+  extends FunctionalDeclaration(name=name)
 
 abstract class TypeDeclaration()
 
-case class ClassDeclaration() extends TypeDeclaration()
+case class ClassDeclaration()
+  extends TypeDeclaration()
 
-case class InterfaceDeclaration() extends TypeDeclaration()
+case class InterfaceDeclaration()
+  extends TypeDeclaration()
 
-case class AnnotationDeclaration() extends TypeDeclaration()
+case class AnnotationDeclaration()
+  extends TypeDeclaration()
 
 
 
