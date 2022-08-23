@@ -10,15 +10,10 @@ lazy val alax = project.in(file("."))
     scalaVersion := "3.1.3"
   )
   .aggregate(
-    model,
     parser,
     scala_compiler
   )
 
-lazy val model = project.in(file("model"))
-  .settings(
-    commonSettings
-  )
 
 lazy val parser = project.in(file("parser"))
   .settings(
