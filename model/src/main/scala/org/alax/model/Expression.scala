@@ -1,5 +1,7 @@
 package org.alax.model
 
-abstract class Expression {
+abstract class Expression
 
-}
+
+case class Invocation() extends Expression
+
