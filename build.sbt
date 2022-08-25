@@ -7,7 +7,7 @@ lazy val alax = project.in(file("."))
     commonSettings,
     name := "Alax",
     description := "Alax programming language",
-    scalaVersion := "3.1.3"
+    scalaVersion := "3.1.3",
   )
   .aggregate(
     parser,
@@ -23,3 +23,8 @@ lazy val scala_compiler = project.in(file("scala_compiler"))
   .settings(
     commonSettings
   )
+
+
+libraryDependencies ++= Seq(
+  "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test
+)
