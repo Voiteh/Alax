@@ -1,4 +1,5 @@
 package org.alax.parser
+
 import java.lang.Exception;
 
 class ParseError(
@@ -7,4 +8,4 @@ class ParseError(
                   val endIndex: Int,
                   message: String
                 )
-  extends Exception(message, new Exception());
+  extends Exception(message, new Exception())

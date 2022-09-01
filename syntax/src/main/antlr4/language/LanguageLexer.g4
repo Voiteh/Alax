@@ -2,15 +2,38 @@ lexer grammar LanguageLexer;
 
 
 
-//FIXME probably this should be parser rule
-
+fragment TRUE: 'true';
+fragment FALSE: 'false';
+fragment QUOTE :'"';
+fragment APOSTROPHE: '\'';
+fragment DOT: '.';
+fragment SEMI_COLON: ';';
+fragment COLON: ':';
+fragment COMMA: ',';
+fragment OPEN_CURLY: '{';
+fragment CLOSE_CURLY: '}';
+fragment OPEN_SQUARE: '[';
+fragment CLOSE_SQUARE: ']';
+fragment OPEN_TRIANGLE: '<';
+fragment CLOSE_TRIANGLE: '>';
+fragment OPEN_BRACKET: '(';
+fragment CLOSE_BRACKET: ')';
+fragment MINUS: '-';
+fragment PLUS: '+';
+fragment AND: '&';
+fragment PIPE: '|';
+fragment UNDERSCORE: '_';
+//TODO include UTF-? literals
+fragment CHARACTER: LOWERCASE_LETTER|UPPERCASE_LETTER|DIGIT|UNDERSCORE;
+fragment DIGITS : DIGIT+;
+fragment DIGIT: [0-9];
+fragment UPPERCASE_LETTER:[A-Z];
+fragment LOWERCASE_LETTER:[a-z];
 
 THIS :'this';
 SUPER:'super';
 OUTER:'outer';
 
-TRUE: 'true';
-FALSE: 'false';
 
 BOOLEAN_LITERAL : TRUE|FALSE;
 STRING_LITERAL: QUOTE CHARACTER* QUOTE;
@@ -23,34 +46,6 @@ INTEGER_LITERAL: MINUS? DIGITS;
 DECLARATION_NAME: LOWERCASE_LETTER  (LOWERCASE_LETTER|UPPERCASE_LETTER|DIGIT|UNDERSCORE)*;
 VALUE_TYPE_NAME: UPPERCASE_LETTER  (LOWERCASE_LETTER|UPPERCASE_LETTER|DIGIT|UNDERSCORE)*;
 
-QUOTE :'"';
-APOSTROPHE: '\'';
-DOT: '.';
-SEMI_COLON: ';';
-COLON: ':';
-COMMA: ',';
-OPEN_CURLY: '{';
-CLOSE_CURLY: '}';
-OPEN_SQUARE: '[';
-CLOSE_SQUARE: ']';
-OPEN_TRIANGLE: '<';
-CLOSE_TRIANGLE: '>';
-
-OPEN_BRACKET: '(';
-CLOSE_BRACKET: ')';
-MINUS: '-';
-PLUS: '+';
-
-AND: '&';
-PIPE: '|';
-UNDERSCORE: '_';
-//TODO include UTF-? literals
-
-fragment CHARACTER: LOWERCASE_LETTER|UPPERCASE_LETTER|DIGIT|UNDERSCORE;
-fragment DIGITS : DIGIT+;
-fragment DIGIT: [0-9];
-fragment UPPERCASE_LETTER:[A-Z];
-fragment LOWERCASE_LETTER:[a-z];
 
 
 
