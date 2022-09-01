@@ -19,6 +19,7 @@ lazy val alax = project.in(file("."))
 lazy val syntax = project.in(file("syntax"))
   .enablePlugins(Antlr4Plugin)
   .settings(
+    commonSettings,
     Antlr4 / antlr4GenVisitor := true,
     Antlr4 / antlr4GenListener := false,
     Antlr4 / antlr4PackageName := Option("org.alax.syntax")
