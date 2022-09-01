@@ -1,26 +1,37 @@
+import sbt.Keys.libraryDependencies
+
 lazy val commonSettings = Seq(
   scalaVersion := "3.1.3"
 )
-
 lazy val alax = project.in(file("."))
   .settings(
     commonSettings,
     name := "Alax",
     description := "Alax programming language",
-    scalaVersion := "3.1.3"
+    scalaVersion := "3.1.3",
   )
   .aggregate(
-    ast,
+    syntax,
+    model,
     parser,
     scala_compiler
   )
-
-lazy val ast = project.in(file("ast"))
+lazy val syntax = project.in(file("syntax"))
+  .enablePlugins(Antlr4Plugin)
   .settings(
-    commonSettings
+    Antlr4 / antlr4GenVisitor := true,
+    Antlr4 / antlr4GenListener := false,
+    Antlr4 / antlr4PackageName := Option("org.alax.syntax")
   )
-
+lazy val model = project.in(file("model"))
+  .settings(
+    commonSettings,
+    libraryDependencies ++= Seq(
+      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test
+    )
+  )
 lazy val parser = project.in(file("parser"))
+  .dependsOn(model, syntax)
   .settings(
     commonSettings
   )
@@ -28,3 +39,5 @@ lazy val scala_compiler = project.in(file("scala_compiler"))
   .settings(
     commonSettings
   )
+
+
