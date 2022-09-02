@@ -19,7 +19,7 @@ object ParseLiteralTest {
     val parser = new LanguageParser(tokens);
     val ctx=parser.literal();
 
-    val result = LanguageVisitor().visitLiteral(ctx);
+    val result = LanguageVisitor(tokens).visitLiteral(ctx);
     assert(result.isInstanceOf[BooleanLiteral]);
     assert(result.asInstanceOf[BooleanLiteral].value == true);
   }
@@ -32,7 +32,7 @@ object ParseLiteralTest {
     val parser = new LanguageParser(tokens);
     val ctx=parser.literal();
 
-    val result = LanguageVisitor().visitLiteral(ctx);
+    val result = LanguageVisitor(tokens).visitLiteral(ctx);
     assert(result.isInstanceOf[CharacterLiteral]);
     assert(result.asInstanceOf[CharacterLiteral].value == 'a');
   }
@@ -44,7 +44,7 @@ object ParseLiteralTest {
     val parser = new LanguageParser(tokens);
     val ctx=parser.literal();
 
-    val result = LanguageVisitor().visitLiteral(ctx);
+    val result = LanguageVisitor(tokens).visitLiteral(ctx);
     assert(result.isInstanceOf[IntegerLiteral]);
     assert(result.asInstanceOf[IntegerLiteral].value == -10);
   }
@@ -55,7 +55,7 @@ object ParseLiteralTest {
     val parser = new LanguageParser(tokens);
     val ctx=parser.literal();
 
-    val result = LanguageVisitor().visitLiteral(ctx);
+    val result = LanguageVisitor(tokens).visitLiteral(ctx);
     assert(result.isInstanceOf[FlaotLiteral]);
     assert(result.asInstanceOf[FlaotLiteral].value == -99.123);
   }
