@@ -1,23 +1,41 @@
 package org.alax.parser
 
-import org.alax.model.{BooleanLiteral, CharacterLiteral, CompilationUnit, FlaotLiteral, IntegerLiteral, StringLiteral}
-import org.alax.model.base._
+import org.alax.model.{BooleanLiteral, CharacterLiteral, CompilationUnit, FlaotLiteral, IntegerLiteral, StringLiteral, Value}
+import org.alax.model.base.*
 import org.alax.syntax.*
-import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.TokenStream
 import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
 
+import javax.management.ValueExp;
 
-class LanguageVisitor(tokenStream: TokenStream) extends LanguageParserBaseVisitor[Statement | Expression | Container| ParseError] {
+
+class LanguageVisitor(tokenStream: TokenStream)
+  extends LanguageParserBaseVisitor[Statement | Expression | Container | Declaration.Type | ParseError] {
 
 
-  override def visitCompilationUnit(ctx: LanguageParser.CompilationUnitContext): CompilationUnit|ParseError = {
-    super.visitCompilationUnit(ctx)
-    ParseError(
-      compilationUnit = tokenStream.getSourceName,
-      startIndex = 0,
-      endIndex = -1,
-      message = "Unknown container at path: "
+  // String a;
+  override def visitValueDeclaration(ctx: LanguageParser.ValueDeclarationContext): Value.Declaration | ParseError = {
+    super.visitValueDeclaration(ctx);
+    val declarationName = ctx.DECLARATION_NAME();
+    val declarationType = visitType(ctx.`type`);
+    return Value.Declaration(
+      name = declarationName.getText,
+      `type` = declarationType.asInstanceOf[Value.Type]
     );
+  }
+
+  override def visitType(ctx: LanguageParser.TypeContext): Declaration.Type | ParseError = {
+    super.visitType(ctx);
+    val terminalNode = ctx.children.stream()
+      .filter((parseTree: ParseTree) => parseTree.isInstanceOf[TerminalNode])
+      .map(node => node.asInstanceOf[TerminalNode])
+      .findFirst()
+      .orElseThrow(() => new ParserBugException());
+    return terminalNode.getSymbol.getType match {
+      case LanguageParser.VALUE_TYPE_NAME => Value.Type(
+        id = Declaration.Type.Id(terminalNode.getSymbol.getText)
+      );
+    }
   }
 
   override def visitLiteral(ctx: LanguageParser.LiteralContext): Literal | ParseError = {

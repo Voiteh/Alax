@@ -20,8 +20,8 @@ object ParseCompilationUnitTest {
     val parser = new LanguageParser(tokens);
     val ctx=parser.compilationUnit();
     val result = LanguageVisitor(tokens).visitCompilationUnit(ctx);
-    assert(result.isInstanceOf[ParseError]);
-    assert(result.asInstanceOf[ParseError].compilationUnit==path.toString);
+    assert(result == null);
+//    assert(result.asInstanceOf[ParseError].compilationUnit==path.toString);
   }
 
 
