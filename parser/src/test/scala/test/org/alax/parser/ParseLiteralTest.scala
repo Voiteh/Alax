@@ -1,11 +1,10 @@
 package test.org.alax.parser
 import org.alax.parser.LanguageVisitor
-import org.alax.syntax.LanguageLexer
-import org.alax.syntax.LanguageParser
 import org.junit.jupiter.api.Test
 import fixture.literal
-import org.alax.model.{BooleanLiteral, CharacterLiteral, FlaotLiteral, IntegerLiteral}
 import org.antlr.v4.runtime.{CharStream, CharStreams, CommonTokenStream}
+import org.alax.syntax._
+import org.alax.syntax.model._
 object ParseLiteralTest {
 
 
@@ -20,8 +19,8 @@ object ParseLiteralTest {
     val ctx=parser.literal();
 
     val result = LanguageVisitor(tokens).visitLiteral(ctx);
-    assert(result.isInstanceOf[BooleanLiteral]);
-    assert(result.asInstanceOf[BooleanLiteral].value == true);
+    assert(result.isInstanceOf[expressions.literals.Boolean]);
+    assert(result.asInstanceOf[expressions.literals.Boolean].value == true);
   }
 
 
@@ -33,8 +32,8 @@ object ParseLiteralTest {
     val ctx=parser.literal();
 
     val result = LanguageVisitor(tokens).visitLiteral(ctx);
-    assert(result.isInstanceOf[CharacterLiteral]);
-    assert(result.asInstanceOf[CharacterLiteral].value == 'a');
+    assert(result.isInstanceOf[expressions.literals.Character]);
+    assert(result.asInstanceOf[expressions.literals.Character].value == 'a');
   }
 
   @Test
@@ -45,8 +44,8 @@ object ParseLiteralTest {
     val ctx=parser.literal();
 
     val result = LanguageVisitor(tokens).visitLiteral(ctx);
-    assert(result.isInstanceOf[IntegerLiteral]);
-    assert(result.asInstanceOf[IntegerLiteral].value == -10);
+    assert(result.isInstanceOf[expressions.literals.Integer]);
+    assert(result.asInstanceOf[expressions.literals.Integer].value == -10);
   }
   @Test
   def parseFloatLiteral(): Unit = {
@@ -56,8 +55,8 @@ object ParseLiteralTest {
     val ctx=parser.literal();
 
     val result = LanguageVisitor(tokens).visitLiteral(ctx);
-    assert(result.isInstanceOf[FlaotLiteral]);
-    assert(result.asInstanceOf[FlaotLiteral].value == -99.123);
+    assert(result.isInstanceOf[expressions.literals.Float]);
+    assert(result.asInstanceOf[expressions.literals.Float].value == -99.123);
   }
 
 }

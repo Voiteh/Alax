@@ -1,11 +1,11 @@
 package test.org.alax.parser
 
 import org.alax.parser.LanguageVisitor
-import org.alax.syntax.{LanguageLexer, LanguageParser}
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import test.org.alax.parser.fixture.declaration
 import org.alax.model.Value
 import org.junit.jupiter.api.Test
+import org.alax.syntax._
 object ParseValueDeclarationTest {
 
   @Test

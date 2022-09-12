@@ -1,18 +1,19 @@
 parser grammar LanguageParser;
 options { tokenVocab=LanguageLexer; }
 
-compilationUnit: declaration*;
+valueDeclaratonWithInitialization: typedName ASSIGNMENT expression STATMENT_END ;
 
+valueDeclaration: typedName STATMENT_END;
 
-valueDeclaratonWithInitialization: WS* type WS* DECLARATION_NAME WS* COLON literal WS* SEMI_COLON ;
-valueDeclaration: WS* type WS* DECLARATION_NAME WS* SEMI_COLON;
+declaration: valueDeclaration|valueDeclaratonWithInitialization;
 
+typedName: type LOWERCASE_NAME;
 
-
-declaration: valueDeclaration;
-
-type: VALUE_TYPE_NAME;
 literal: BOOLEAN_LITERAL|CHARACTER_LITERAL|INTEGER_LITERAL|FLOAT_LITERAL|STRING_LITERAL;
 
+type: VALUE_TYPE_NAME;
+
+
+expression: literal;
 
 
