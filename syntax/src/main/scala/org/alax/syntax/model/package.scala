@@ -8,7 +8,7 @@ package object model {
                     val startIndex: Int,
                     val endIndex: Int,
                     message: String,
-                    cause: Throwable|Null = null
+                    cause: Throwable | Null = null
                   )
     extends Exception(message, cause)
 
@@ -18,11 +18,48 @@ package object model {
 
   abstract class Expression extends Node;
 
-  abstract class Type extends Node;
+  abstract class Partial extends Node;
+
+
+  /**
+   * Can be used as parts of statements and expressions
+   */
+  object partials {
+    trait Type extends Partial;
+
+    /**
+     * Identifiers of the statements and expressions
+     */
+    trait Name extends Partial;
+
+    object types {
+      case class Value(id: String) extends partials.Type;
+    }
+
+    object names {
+      case class LowerCaseName(val value: String) extends partials.Name;
+
+      case class UpperCaseName(val value: String) extends  partials.Name;
+    }
+
+  }
 
 
   object statements {
     abstract class Declaration extends Statement;
+
+    object declarations{
+      case class Value(
+        val name: partials.names.LowerCaseName,
+        val `type`: partials.Type
+      ) extends statements.Declaration;
+
+      case class ValueWithInitialization(
+        val name: partials.names.LowerCaseName,
+        val `type`: partials.Type,
+        val initialization: model.Expression
+      ) extends statements.Declaration;
+    }
   }
 
   object expressions {
