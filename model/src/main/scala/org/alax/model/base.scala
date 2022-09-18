@@ -2,16 +2,21 @@ package org.alax.model
 
 object base {
 
-  abstract class Node;
+  /**
+   * Language construct that provides scoping and encapsulation
+   */
+  abstract class Container
+
+
   /**
    * Something that is fully blown language construct, it is final form, statments are separated by semi-colons
    */
-  abstract class Statement extends Node;
+  abstract class Statement ;
 
   /**
    * Something that can be assigned
    */
-  abstract class Expression extends Node;
+  abstract class Expression ;
 
   /**
    * Something that changes structure of program constructs add new type / member / variable etc.
