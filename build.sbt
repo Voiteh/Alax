@@ -13,9 +13,11 @@ lazy val alax = project.in(file("."))
   .aggregate(
     syntax,
     model,
+    syntax_model_transformer,
     parser,
     scala_compiler
   )
+
 lazy val syntax = project.in(file("syntax"))
   .enablePlugins(Antlr4Plugin)
   .settings(
@@ -46,3 +48,5 @@ lazy val scala_compiler = project.in(file("scala_compiler"))
   )
 
 
+lazy val syntax_model_transformer = project.in(file("syntax_model_transformer"))
+  .settings(commonSettings)
