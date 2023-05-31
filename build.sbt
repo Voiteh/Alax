@@ -12,7 +12,6 @@ lazy val alax = project.in(file("."))
   )
   .aggregate(
     ast,
-    syntax_model_transformer,
     parser,
     scala_compiler
   )
@@ -27,6 +26,7 @@ lazy val ast = project.in(file("ast"))
     Antlr4 / antlr4PackageName := Option("org.alax.ast"),
   )
 lazy val scala_compiler = project.in(file("scala_compiler"))
+  .dependsOn(ast)
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
@@ -42,6 +42,3 @@ lazy val parser = project.in(file("parser"))
     )
   )
 
-
-lazy val syntax_model_transformer = project.in(file("syntax_model_transformer"))
-  .settings(commonSettings)
