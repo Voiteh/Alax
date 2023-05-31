@@ -1,4 +1,4 @@
-package org.alax.syntax
+package org.alax.ast
 
 package object model {
 

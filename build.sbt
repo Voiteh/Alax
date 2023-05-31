@@ -11,23 +11,22 @@ lazy val alax = project.in(file("."))
     scalaVersion := "3.1.3",
   )
   .aggregate(
-    syntax,
-    model,
+    ast,
     syntax_model_transformer,
     parser,
     scala_compiler
   )
 
-lazy val syntax = project.in(file("syntax"))
+lazy val ast = project.in(file("ast"))
   .enablePlugins(Antlr4Plugin)
   .settings(
     commonSettings,
     version := "0.1.0",
     Antlr4 / antlr4GenVisitor := true,
     Antlr4 / antlr4GenListener := false,
-    Antlr4 / antlr4PackageName := Option("org.alax.syntax"),
+    Antlr4 / antlr4PackageName := Option("org.alax.ast"),
   )
-lazy val model = project.in(file("model"))
+lazy val scala_compiler = project.in(file("scala_compiler"))
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
@@ -35,16 +34,12 @@ lazy val model = project.in(file("model"))
     )
   )
 lazy val parser = project.in(file("parser"))
-  .dependsOn(syntax)
+  .dependsOn(ast)
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
       "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test
     )
-  )
-lazy val scala_compiler = project.in(file("scala_compiler"))
-  .settings(
-    commonSettings
   )
 
 
