@@ -1,10 +1,10 @@
 package test.org.alax.parser
 import org.alax.parser.LanguageVisitor
 import org.junit.jupiter.api.Test
-import fixture.literal
 import org.antlr.v4.runtime.{CharStream, CharStreams, CommonTokenStream}
-import org.alax.syntax._
-import org.alax.syntax.model._
+import org.alax.ast.{LanguageLexer, LanguageParser}
+import org.alax.ast.model.*
+import test.org.alax.parser.fixture.literal
 object ParseLiteralTest {
 
 
@@ -13,7 +13,8 @@ object ParseLiteralTest {
 
   @Test
   def parseBooleanLiteral(): Unit = {
-    val lexer =LanguageLexer(CharStreams.fromString(literal.boolTrue));
+    val value=CharStreams.fromString(literal.boolTrue);
+    val lexer =LanguageLexer(value);
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
     val ctx=parser.literal();

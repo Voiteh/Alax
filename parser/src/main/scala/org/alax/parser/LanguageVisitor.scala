@@ -1,10 +1,10 @@
 package org.alax.parser
 
-import org.alax.syntax._;
-import org.alax.syntax.model._
+import org.alax.ast._;
+import org.alax.ast.model._
 import org.antlr.v4.runtime.TokenStream
 import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
-
+import org.alax.ast.{LanguageParser,LanguageLexer,LanguageParserBaseVisitor}
 import javax.management.ValueExp;
 
 

@@ -4,7 +4,7 @@ import org.alax.parser.LanguageVisitor
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import test.org.alax.parser.fixture.declaration
 import org.junit.jupiter.api.Test
-import org.alax.syntax._
+import org.alax.ast._
 
 object ParseValueDeclarationTest {
 
