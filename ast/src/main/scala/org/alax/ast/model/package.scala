@@ -20,7 +20,25 @@ package object model {
 
   abstract class Partial extends Node;
 
+  abstract class CompilationUnit(val path :String); // for now String but this needs to be system agnostic
+  
+  object unit{
+      
+      case class Package(
+          path:String, 
+      val imports: Seq[statements.Import]   
+      )
+       extends CompilationUnit(path=path);
 
+      
+      case class Type(
+          path:String, 
+          val imports: Seq[statements.Import]      
+      ) extends CompilationUnit(path=path);
+      
+      
+      
+  }
   /**
    * Can be used as parts of statements and expressions
    */
@@ -47,7 +65,8 @@ package object model {
 
   object statements {
     abstract class Declaration extends Statement;
-
+    class Import() extends Statement;
+    
     object declarations{
       case class Value(
         val name: partials.names.LowerCaseName,
