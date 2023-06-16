@@ -14,8 +14,8 @@ class LanguageVisitor(tokenStream: TokenStream)
 
   private def parseName(terminalNode: TerminalNode): partials.Name | ParseError = {
     return terminalNode.getSymbol.getType match {
-      case LanguageParser.LOWERCASE_NAME => partials.names.LowerCaseName(terminalNode.getText);
-      case LanguageParser.UPPERCASE_NAME => partials.names.UpperCaseName(terminalNode.getText);
+      case LanguageParser.LOWERCASE_NAME => partials.names.LowerCase(terminalNode.getText);
+      case LanguageParser.UPPERCASE_NAME => partials.names.UpperCase(terminalNode.getText);
       case _ => ParseError(
         compilationUnit = tokenStream.getSourceName,
         startIndex = terminalNode.getSymbol.getStartIndex,
@@ -56,7 +56,7 @@ class LanguageVisitor(tokenStream: TokenStream)
     return `type` match {
       case shadowType: partials.Type =>
         name match {
-          case shadowName: partials.names.LowerCaseName =>
+          case shadowName: partials.names.LowerCase =>
             statements.declarations.Value(
               name = shadowName,
               `type` = shadowType
@@ -77,7 +77,7 @@ class LanguageVisitor(tokenStream: TokenStream)
     return `type` match {
       case shadowType: partials.Type =>
         name match {
-          case shadowName: partials.names.LowerCaseName =>
+          case shadowName: partials.names.LowerCase =>
             initialization match {
               case expression: Expression => statements.declarations.ValueWithInitialization(
                 name = shadowName,

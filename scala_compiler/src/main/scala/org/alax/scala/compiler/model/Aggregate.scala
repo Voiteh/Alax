@@ -1,4 +1,4 @@
-package org.alax.model
+package org.alax.scala.compiler.model
 
 /**
  * Aggregation of different language constructs reducing effort to write code

@@ -1,4 +1,4 @@
-package org.alax.model
+package org.alax.scala.compiler.model
 
 object base {
 
@@ -41,7 +41,7 @@ object base {
     }
     object Type{
       /**
-       * Identifier of type that has been used to declarate a declaration
+       * Identifier of type that has been used to declare a declaration
        * @param fullyQualifiedName
        */
       class Id(val fullyQualifiedName: String)

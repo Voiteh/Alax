@@ -1,9 +1,8 @@
-package org.alax.model
+package org.alax.scala.compiler.model
 
-import org.alax.model.base.Statement
+import org.alax.scala.compiler.model.base.{Container, Statement}
 
 import java.nio.file.Path;
-import org.alax.model.base.{Container, Statement};
 
 /**
  * Basically a file contains code
