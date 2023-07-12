@@ -1,91 +1,101 @@
 package org.alax.ast
 
+import org.alax.ast.model.node.Metadata
+
 object model {
   class ParseError(
-                    val compilationUnit: String,
-                    val startIndex: Int,
-                    val endIndex: Int,
+                    val metadata: node.Metadata,
                     message: String,
                     cause: Throwable | Null = null
                   )
     extends Exception(message, cause)
 
-  abstract class Node;
+  abstract class Node(metadata: node.Metadata);
 
-  abstract class Statement extends Node;
+  object node {
+    class Metadata(val location: Location)
 
-  abstract class Expression extends Node;
+    class Location(val unit: String, val lineNumber: Int, val startIndex: Int, val endIndex: Int)
+  }
 
-  abstract class Partial extends Node;
+  abstract class Statement(metadata: node.Metadata) extends Node(metadata = metadata);
+
+  abstract class Expression(metadata: node.Metadata) extends Node(metadata = metadata);
+
+  abstract class Partial(metadata: node.Metadata) extends Node(metadata = metadata);
 
 
   /**
    * Can be used as parts of statements and expressions
    */
   object partials {
-    trait Type extends Partial;
+    abstract class Type(metadata: Metadata) extends Partial(metadata = metadata);
 
     /**
      * Identifiers of the statements and expressions
      */
-    trait Name extends Partial;
+    abstract class Name(metadata: Metadata) extends Partial(metadata = metadata);
 
     object types {
-      case class Value(id: String) extends partials.Type;
+      case class Value(id: names.UpperCase | names.Qualified, metadata: Metadata) extends partials.Type(metadata = metadata);
     }
 
     object names {
 
-      case class Qualified(qualifications: Seq[String]) extends partials.Name;
+      case class Qualified(qualifications: Seq[LowerCase | UpperCase], metadata: Metadata) extends partials.Name(metadata = metadata){
+        toString => qualifications.foldLeft(StringBuilder())((acu, item) => if(acu.isEmpty) then acu.append(item) else acu.append("."+item));
+      }
 
-      case class LowerCase(value: String) extends partials.Name;
+      case class LowerCase(value: String, metadata: Metadata) extends partials.Name(metadata = metadata);
 
-      case class UpperCase(value: String) extends partials.Name;
+      case class UpperCase(value: String, metadata: Metadata) extends partials.Name(metadata = metadata);
     }
 
   }
 
 
   object statements {
-    abstract class Declaration extends Statement;
+    abstract class Declaration(metadata: Metadata) extends Statement(metadata = metadata);
 
 
     object declarations {
-as
 
 
       class Import(
-                  `package`: partials.names.Qualified,
-                  members: Seq[partials.names.UpperCase|partials.names.LowerCase]
-                  ) extends statements.Declaration;
+                    `package`: partials.names.Qualified,
+                    members: Seq[partials.names.UpperCase | partials.names.LowerCase],
+                    metadata: Metadata
+                  ) extends Statement(metadata = metadata);
 
       case class Value(
-                        name: partials.names.LowerCase | partials.names.Qualified,
-                        `type`: partials.Type
-                      ) extends statements.Declaration;
+                        name: partials.names.LowerCase,
+                        `type`: partials.Type,
+                        metadata: Metadata
+                      ) extends statements.Declaration(metadata = metadata);
 
       case class ValueWithInitialization(
                                           name: partials.names.LowerCase,
                                           `type`: partials.Type,
-                                          initialization: model.Expression
-                                        ) extends statements.Declaration;
+                                          initialization: model.Expression,
+                                          metadata: Metadata
+                                        ) extends statements.Declaration(metadata = metadata);
     }
   }
 
   object expressions {
 
-    abstract class Literal extends Expression;
+    abstract class Literal(metadata: Metadata) extends Expression(metadata = metadata);
 
     object literals {
-      case class Boolean(value: java.lang.Boolean) extends Literal;
+      case class Boolean(value: java.lang.Boolean, metadata: Metadata) extends Literal(metadata = metadata);
 
-      case class Character(value: java.lang.Character) extends Literal;
+      case class Character(value: java.lang.Character, metadata: Metadata) extends Literal(metadata = metadata);
 
-      case class Integer(value: java.lang.Integer) extends Literal;
+      case class Integer(value: java.lang.Integer, metadata: Metadata) extends Literal(metadata = metadata);
 
-      case class Float(value: java.lang.Double) extends Literal;
+      case class Float(value: java.lang.Double, metadata: Metadata) extends Literal(metadata = metadata);
 
-      case class String(value: java.lang.String) extends Literal;
+      case class String(value: java.lang.String, metadata: Metadata) extends Literal(metadata = metadata);
     }
 
   }

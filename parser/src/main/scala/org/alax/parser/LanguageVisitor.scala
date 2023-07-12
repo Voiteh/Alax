@@ -2,46 +2,75 @@ package org.alax.parser
 
 import org.alax.ast._;
 import org.alax.ast.model._
-import org.antlr.v4.runtime.TokenStream
+import org.antlr.v4.runtime.{Token, TokenStream}
 import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
-import org.alax.ast.{LanguageParser,LanguageLexer,LanguageParserBaseVisitor}
+import org.alax.ast.{LanguageParser, LanguageLexer, LanguageParserBaseVisitor}
 import javax.management.ValueExp;
 
 
 class LanguageVisitor(tokenStream: TokenStream)
   extends LanguageParserBaseVisitor[Node | ParseError] {
-
+  private def metadata(token: Token): node.Metadata = {
+    return node.Metadata(
+      location = node.Location(
+        unit = token.getTokenSource.getSourceName,
+        lineNumber = token.getLine,
+        startIndex = token.getStartIndex,
+        endIndex = token.getStopIndex
+      )
+    )
+  }
 
   private def parseName(terminalNode: TerminalNode): partials.Name | ParseError = {
     return terminalNode.getSymbol.getType match {
-      case LanguageParser.LOWERCASE_NAME => partials.names.LowerCase(terminalNode.getText);
-      case LanguageParser.UPPERCASE_NAME => partials.names.UpperCase(terminalNode.getText);
-      case _ => ParseError(
-        compilationUnit = tokenStream.getSourceName,
-        startIndex = terminalNode.getSymbol.getStartIndex,
-        endIndex = terminalNode.getSymbol.getStopIndex,
+      case LanguageParser.LOWERCASE_NAME => partials.names.LowerCase(
+        terminalNode.getText, metadata(terminalNode.getSymbol)
+      );
+      case LanguageParser.UPPERCASE_NAME => partials.names.UpperCase(
+        terminalNode.getText, metadata(terminalNode.getSymbol)
+      );
+      case _ => model.ParseError(
+        metadata = metadata(terminalNode.getSymbol),
         message = "Unknown name: " + terminalNode.getText
       );
     }
   }
 
-  private def wrapParseError(wrappe: ParseError, message: String): ParseError = ParseError(
-    compilationUnit = wrappe.compilationUnit,
-    startIndex = wrappe.startIndex,
-    endIndex = wrappe.endIndex,
+  private def wrapParseError(wrappe: ParseError, message: String, metadata: node.Metadata): ParseError = ParseError(
+    metadata = metadata,
     message = message,
     cause = wrappe
   );
 
   override def visitType(ctx: LanguageParser.TypeContext): partials.Type | ParseError = {
     super.visitType(ctx)
+
     val typeName = ctx.FULLY_QUALIFIED_TYPE_NAME();
+
     return typeName.getSymbol.getType match {
-      case LanguageParser.FULLY_QUALIFIED_TYPE_NAME => partials.types.Value(typeName.getText)
+      case LanguageParser.FULLY_QUALIFIED_TYPE_NAME => partials.types.Value(
+        id = partials.names.Qualified(
+          qualifications = typeName.getSymbol.getText.split(".")
+            .map[partials.names.LowerCase | partials.names.UpperCase]
+              (item => if (item.matches("[A-Z].*")) {
+                partials.names.UpperCase(
+                  value = item,
+                  //FIXME probably invalid symbol for metadata
+                  metadata(typeName.getSymbol)
+                )
+              } else {
+                partials.names.LowerCase(
+                  value = item,
+                  //FIXME probably invalid symbol for metadata
+                  metadata(typeName.getSymbol)
+                )
+              }).toSeq,
+          metadata = metadata(typeName.getSymbol)
+        ),
+        metadata = metadata(ctx.getStart)
+      )
       case _ => ParseError(
-        compilationUnit = tokenStream.getSourceName,
-        startIndex = typeName.getSymbol.getStartIndex,
-        endIndex = typeName.getSymbol.getStopIndex,
+        metadata(ctx.getStart),
         message = "Unknown type name: " + typeName.getText
       );
     }
@@ -59,18 +88,20 @@ class LanguageVisitor(tokenStream: TokenStream)
           case shadowName: partials.names.LowerCase =>
             statements.declarations.Value(
               name = shadowName,
-              `type` = shadowType
+              `type` = shadowType,
+              metadata = metadata(ctx.getStart)
             )
-          case error: ParseError => wrapParseError(wrappe = error, message = "Invalid value name ")
+          case error: ParseError => wrapParseError(wrappe = error, message = "Invalid value name ", metadata = metadata(ctx.getStart))
           case _ => throw ParserBugException();
         }
-      case error: ParseError => wrapParseError(wrappe = error, message = "Invalid value type")
+      case error: ParseError => wrapParseError(wrappe = error, message = "Invalid value type", metadata = metadata(ctx.getStart))
     }
   }
 
   override def visitValueDeclaratonWithInitialization(ctx: LanguageParser.ValueDeclaratonWithInitializationContext):
   statements.declarations.ValueWithInitialization | ParseError = {
     super.visitValueDeclaratonWithInitialization(ctx);
+
     val `type`: partials.Type | ParseError = visitType(ctx.`type`());
     val name: partials.Name | ParseError = parseName(ctx.LOWERCASE_NAME());
     val initialization: Expression | ParseError = visitExpression(ctx.expression());
@@ -82,15 +113,27 @@ class LanguageVisitor(tokenStream: TokenStream)
               case expression: Expression => statements.declarations.ValueWithInitialization(
                 name = shadowName,
                 `type` = shadowType,
-                initialization = expression
+                initialization = expression,
+                metadata = metadata(ctx.getStart)
               );
-              case error: ParseError => wrapParseError(wrappe = error, message = "Invalid value initializaiton expression ")
+              case error: ParseError => wrapParseError(
+                wrappe = error,
+                message = "Invalid value initialization expression ",
+                metadata = metadata(ctx.getStart)
+              )
 
             }
-          case error: ParseError => wrapParseError(wrappe = error, message = "Invalid value name ")
+          case error: ParseError => wrapParseError(
+            wrappe = error,
+            message = "Invalid value name ",
+            metadata = metadata(ctx.getStart))
           case _ => throw ParserBugException();
         }
-      case error: ParseError => wrapParseError(wrappe = error, message = "Invalid value type")
+      case error: ParseError => wrapParseError(
+        wrappe = error,
+        message = "Invalid value type",
+        metadata = metadata(ctx.getStart)
+      )
     }
   }
 
@@ -109,16 +152,14 @@ class LanguageVisitor(tokenStream: TokenStream)
       .orElseThrow(() => new ParserBugException());
     val text = terminalNode.getText;
     return terminalNode.getSymbol.getType match {
-      case LanguageParser.BOOLEAN_LITERAL => expressions.literals.Boolean(text.toBoolean);
-      case LanguageParser.INTEGER_LITERAL => expressions.literals.Integer(text.toInt);
-      case LanguageParser.FLOAT_LITERAL => expressions.literals.Float(text.toDouble);
-      case LanguageParser.CHARACTER_LITERAL => expressions.literals.Character(text(1));
-      case LanguageParser.STRING_LITERAL => expressions.literals.String(text.substring(1,text.length-1));
+      case LanguageParser.BOOLEAN_LITERAL => expressions.literals.Boolean(text.toBoolean, metadata = metadata(ctx.getStart));
+      case LanguageParser.INTEGER_LITERAL => expressions.literals.Integer(text.toInt, metadata = metadata(ctx.getStart));
+      case LanguageParser.FLOAT_LITERAL => expressions.literals.Float(text.toDouble, metadata = metadata(ctx.getStart));
+      case LanguageParser.CHARACTER_LITERAL => expressions.literals.Character(text(1), metadata = metadata(ctx.getStart));
+      case LanguageParser.STRING_LITERAL => expressions.literals.String(text.substring(1, text.length - 1), metadata = metadata(ctx.getStart));
       case _ => ParseError(
-        compilationUnit = tokenStream.getSourceName,
-        startIndex = terminalNode.getSymbol.getStartIndex,
-        endIndex = terminalNode.getSymbol.getStopIndex,
-        message = "Unknown literal: " + text
+        message = "Unknown literal: " + text,
+        metadata = metadata(ctx.getStart)
       );
     }
   }

@@ -12,10 +12,10 @@ object Aggregate {
    * @param initialization - Initialization of given declaration
    */
   class DeclarationWithInitialization(
-                                       val declaration: base.Declaration,
-                                       val initialization: base.Expression
+                                       val declaration: Declaration,
+                                       val initialization: Expression
                                      )
-    extends base.Statement
+    extends Statement
 
 
 }

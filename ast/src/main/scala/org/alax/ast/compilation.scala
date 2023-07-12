@@ -8,7 +8,7 @@ object compilation {
   abstract class Unit(val path: Path);
 
 
-  object units {
+  object Unit {
 
     case class Package(
                         override val path: Path,

@@ -20,7 +20,7 @@ object ParseValueDeclarationTest {
     val cast = result.asInstanceOf[model.statements.declarations.Value];
     assert(cast.name.value == "value");
     assert(cast.`type`.isInstanceOf[model.partials.types.Value]);
-    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id == "java.lang.String");
+    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id.asInstanceOf[model.partials.names.Qualified].toString == "java.lang.String");
   }
 
   @Test
@@ -35,7 +35,7 @@ object ParseValueDeclarationTest {
     val cast = result.asInstanceOf[model.statements.declarations.ValueWithInitialization];
     assert(cast.name.value == "bool");
     assert(cast.`type`.isInstanceOf[model.partials.types.Value]);
-    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id == "java.lang.Boolean");
+    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id.asInstanceOf[model.partials.names.Qualified].toString== "java.lang.Boolean");
     assert(cast.initialization.isInstanceOf[model.expressions.literals.Boolean]);
     assert(cast.initialization.asInstanceOf[model.expressions.literals.Boolean].value==true);
 
@@ -53,7 +53,7 @@ object ParseValueDeclarationTest {
     val cast = result.asInstanceOf[model.statements.declarations.ValueWithInitialization];
     assert(cast.name.value == "char");
     assert(cast.`type`.isInstanceOf[model.partials.types.Value]);
-    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id == "java.lang.Character");
+    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id.asInstanceOf[model.partials.names.Qualified].toString == "java.lang.Character");
     assert(cast.initialization.isInstanceOf[model.expressions.literals.Character]);
     assert(cast.initialization.asInstanceOf[model.expressions.literals.Character].value=='a');
   }
@@ -69,7 +69,7 @@ object ParseValueDeclarationTest {
     val cast = result.asInstanceOf[model.statements.declarations.ValueWithInitialization];
     assert(cast.name.value == "int");
     assert(cast.`type`.isInstanceOf[model.partials.types.Value]);
-    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id == "java.lang.Integer");
+    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id.asInstanceOf[model.partials.names.Qualified].toString == "java.lang.Integer");
     assert(cast.initialization.isInstanceOf[model.expressions.literals.Integer]);
     assert(cast.initialization.asInstanceOf[model.expressions.literals.Integer].value == -3);
   }
@@ -86,7 +86,7 @@ object ParseValueDeclarationTest {
     val cast = result.asInstanceOf[model.statements.declarations.ValueWithInitialization];
     assert(cast.name.value == "float");
     assert(cast.`type`.isInstanceOf[model.partials.types.Value]);
-    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id == "java.lang.Float");
+    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id.asInstanceOf[model.partials.names.Qualified].toString == "java.lang.Float");
     assert(cast.initialization.isInstanceOf[model.expressions.literals.Float]);
     assert(cast.initialization.asInstanceOf[model.expressions.literals.Float].value == -3.12);
   }
@@ -103,7 +103,7 @@ object ParseValueDeclarationTest {
     val cast = result.asInstanceOf[model.statements.declarations.ValueWithInitialization];
     assert(cast.name.value == "string");
     assert(cast.`type`.isInstanceOf[model.partials.types.Value]);
-    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id == "java.lang.String");
+    assert(cast.`type`.asInstanceOf[model.partials.types.Value].id.asInstanceOf[model.partials.names.Qualified].toString == "java.lang.String");
     assert(cast.initialization.isInstanceOf[model.expressions.literals.String]);
     assert(cast.initialization.asInstanceOf[model.expressions.literals.String].value=="asd");
   }
