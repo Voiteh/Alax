@@ -50,7 +50,7 @@ class LanguageVisitor(tokenStream: TokenStream)
     return typeName.getSymbol.getType match {
       case LanguageParser.FULLY_QUALIFIED_TYPE_NAME => partials.types.Value(
         id = partials.names.Qualified(
-          qualifications = typeName.getSymbol.getText.split(".")
+          qualifications = typeName.getSymbol.getText.split("\\.")
             .map[partials.names.LowerCase | partials.names.UpperCase]
               (item => if (item.matches("[A-Z].*")) {
                 partials.names.UpperCase(

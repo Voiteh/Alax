@@ -2,6 +2,8 @@ package org.alax.ast
 
 import org.alax.ast.model.node.Metadata
 
+import scala.collection.mutable
+
 object model {
   class ParseError(
                     val metadata: node.Metadata,
@@ -34,7 +36,9 @@ object model {
     /**
      * Identifiers of the statements and expressions
      */
-    abstract class Name(metadata: Metadata) extends Partial(metadata = metadata);
+    abstract class Name(metadata: Metadata) extends Partial(metadata = metadata) {
+      def text(): String;
+    }
 
     object types {
       case class Value(id: names.UpperCase | names.Qualified, metadata: Metadata) extends partials.Type(metadata = metadata);
@@ -42,13 +46,22 @@ object model {
 
     object names {
 
-      case class Qualified(qualifications: Seq[LowerCase | UpperCase], metadata: Metadata) extends partials.Name(metadata = metadata){
-        toString => qualifications.foldLeft(StringBuilder())((acu, item) => if(acu.isEmpty) then acu.append(item) else acu.append("."+item));
+      case class Qualified(qualifications: Seq[LowerCase | UpperCase], metadata: Metadata) extends partials.Name(metadata = metadata) {
+
+        override def text(): String = {
+          return qualifications.foldLeft(mutable.StringBuilder())((acu:mutable.StringBuilder, item:LowerCase | UpperCase) =>
+            if (acu.isEmpty) then acu.append(item.text()) else acu.append("." + item.text())).toString()
+        };
+
       }
 
-      case class LowerCase(value: String, metadata: Metadata) extends partials.Name(metadata = metadata);
+      case class LowerCase(value: String, metadata: Metadata) extends partials.Name(metadata = metadata) {
+        override def text(): String = value;
+      }
 
-      case class UpperCase(value: String, metadata: Metadata) extends partials.Name(metadata = metadata);
+      case class UpperCase(value: String, metadata: Metadata) extends partials.Name(metadata = metadata) {
+        override def text(): String = value;
+      }
     }
 
   }
