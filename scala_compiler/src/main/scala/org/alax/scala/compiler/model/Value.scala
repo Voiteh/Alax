@@ -1,7 +1,7 @@
 package org.alax.scala.compiler.model
 
 import org.alax.scala.compiler.model
-import org.alax.scala.compiler.model.Declaration.{Name, `type`};
+import org.alax.scala.compiler.model.Declaration.{Name, Type};
 
 object Value {
 
@@ -22,8 +22,15 @@ object Value {
    *
    * @param id
    */
-  case class Type(var id: `type`.Id) extends
-    model.Declaration.Type()
-  
-  
+  case class Type(var id: model.Declaration.Type.Id) extends
+    model.Declaration.Type() {
+    override def equals(obj: Any): Boolean = {
+      return obj match {
+        case value: Type => id == value.id;
+        case _ => false
+      }
+    }
+  }
+
+
 }

@@ -13,33 +13,44 @@ class AstTransformer {
                  valueDeclaration: ast.statements.declarations.Value,
                  //TODO we could create a compilation context
                  imports: Seq[compiler.model.Import]
-               ): compiler.model.Value.Declaration = {
-    return compiler.model.Value.Declaration(
-      name = valueDeclaration.name.value,
-      `type` = compiler.model.Value.Type(
-        id = compiler.model.Declaration.`type`.Id(
-          fullyQualifiedName = valueDeclaration.`type` match {
-            case ast.partials.types.Value(id, metadata) =>
-              id match {
-                case upperCase: ast.partials.names.UpperCase => imports.flatMap(`import` => `import`.items)
-                  .find(element => element.endsWith("." + upperCase))
-                  .getOrElse(
-                    throw new CompilationError(
-                      path = valueDeclaration.metadata.location.unit,
-                      startIndex = valueDeclaration.metadata.location.startIndex,
-                      endIndex = valueDeclaration.metadata.location.endIndex,
-                      message = "No such type: " + upperCase.value)
-                  )
-                case qualified: ast.partials.names.Qualified => qualified.qualifications
-                  .foldLeft(mutable.StringBuilder(""))((acc, element) => acc.append(element match {
-                    case lower: partials.names.LowerCase => lower.value + "."
-                    case upper: partials.names.UpperCase => upper.value
-                  })).toString
-              }
-          }
+               ): compiler.model.Value.Declaration | CompilationError = {
+
+    val fullyQualifiedName: String | CompilationError = valueDeclaration.`type` match {
+      case ast.partials.types.Value(id, _) => id match {
+        case ast.partials.names.UpperCase(value, _) => imports.flatMap(`import` => `import`.items)
+          .filter(element => element.endsWith(s".$value"))
+          .reduceOption[String | CompilationError](
+            (left, right) => CompilationError(
+              path = valueDeclaration.metadata.location.unit,
+              startIndex = valueDeclaration.metadata.location.startIndex,
+              endIndex = valueDeclaration.metadata.location.endIndex,
+              message = s"Multiple imports found for $value, use fully qualified name or apply import alias for $value")
+          )
+          .getOrElse(
+            CompilationError(
+              path = valueDeclaration.metadata.location.unit,
+              startIndex = valueDeclaration.metadata.location.startIndex,
+              endIndex = valueDeclaration.metadata.location.endIndex,
+              message = s"No such type:$value"
+            )
+          )
+        case ast.partials.names.Qualified(value: Seq[ast.partials.names.LowerCase | ast.partials.names.UpperCase], _) =>
+          value.foldLeft(mutable.StringBuilder(""))((acc, element) => acc.append(element match {
+            case lower: partials.names.LowerCase => lower.value + "."
+            case upper: partials.names.UpperCase => upper.value
+          })).toString
+      }
+    }
+    return fullyQualifiedName match {
+      case name: String => compiler.model.Value.Declaration(
+        name = valueDeclaration.name.value,
+        `type` = compiler.model.Value.Type(
+          id = compiler.model.Declaration.Type.Id(name)
         )
       )
-    )
+      case error: CompilationError => error
+    }
+
   }
 
 

@@ -24,13 +24,20 @@ object Declaration {
 
   }
 
-  object `type` {
+  object Type {
     /**
      * Identifier of type that has been used to declare a declaration
      *
      * @param fullyQualifiedName
      */
-    class Id(val fullyQualifiedName: String)
+    class Id(val fullyQualifiedName: String) {
+      override def equals(obj: Any): Boolean = {
+        return obj match {
+          case id: Id => fullyQualifiedName == id.fullyQualifiedName
+          case _ => false
+        }
+      }
+    }
   }
 
 }
