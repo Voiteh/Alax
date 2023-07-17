@@ -13,7 +13,7 @@ class TransformValueDeclarationTest {
   def `when unknown type, then should return CompilationError`(): Unit = {
     val result = astTransformer.transform(
       valueDeclaration = fixture.value.declaration.`Integer int`,
-      imports = Seq.empty
+      context = fixture.context.emptyUnit
     );
     assert(result.isInstanceOf[model.CompilationError])
   }
@@ -22,26 +22,27 @@ class TransformValueDeclarationTest {
   def `when provided proper import, then should return Value Declaration`(): Unit = {
     val result = astTransformer.transform(
       valueDeclaration = fixture.value.declaration.`Integer int`,
-      imports = Seq(fixture.statement.`import`.`java.lang.Integer`)
+      context = fixture.context.unitWithImport
     );
     assert(result.isInstanceOf[model.Value.Declaration])
     val `Value Declaration` = result.asInstanceOf[model.Value.Declaration];
     assert(`Value Declaration`.name == "int");
     assert(`Value Declaration`.`type` == model.Value.Type(
-      id = model.Declaration.Type.Id("java.lang.Integer")
+      id = model.Declaration.Type.Id("scala.lang.Integer")
     ));
   }
 
   @Test
-  def `when provided 2 imports matching, then should return Compilation Error`(): Unit = {
+  def `when provided 2 imports matching but one aliased, then should return Value Declaration`(): Unit = {
     val result = astTransformer.transform(
       valueDeclaration = fixture.value.declaration.`Integer int`,
-      imports = Seq(
-        fixture.statement.`import`.`java.lang.Integer`,
-        fixture.statement.`import`.`scala.lang.Integer`
-      )
+      context = fixture.context.unitWithImportAndAlias
     );
-    assert(result.isInstanceOf[model.CompilationError])
+    val `Value Declaration` = result.asInstanceOf[model.Value.Declaration];
+    assert(`Value Declaration`.name == "int");
+    assert(`Value Declaration`.`type` == model.Value.Type(
+      id = model.Declaration.Type.Id("scala.lang.Integer")
+    ));
   }
 
 

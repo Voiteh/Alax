@@ -1,5 +1,7 @@
 package org.alax.scala.compiler.model
 
-case class Import(items:Seq[String]) extends Statement {
+
+
+case class Import(`package`: String, member: String, alias: String|Null = null) extends Statement {
 
 }

@@ -6,13 +6,27 @@ import org.alax.scala.compiler as compiler
 import scala.annotation.targetName
 
 object fixture {
+
+  object context {
+    val emptyModule = compiler.model.Context.Module(compiler.model.Context.Project())
+    val emptyPackage = compiler.model.Context.Package(emptyModule)
+    val emptyUnit = compiler.model.Context.Unit(emptyPackage)
+    val unitWithImport = compiler.model.Context.Unit(emptyPackage, Seq(statement.`import`.`scala.lang.Integer`))
+    val unitWithImportAndAlias = compiler.model.Context.Unit(emptyPackage, Seq(
+      statement.`import`.`scala.lang.Integer`,
+      statement.`import`.`java.lang.Integer as JInteger`
+    ))
+  }
+
   object statement {
     object `import` {
       val `scala.lang.Integer`: compiler.model.Import = compiler.model.Import(
-        items = Seq("scala.lang.Integer")
+        `package` = "scala.lang",
+        member = "Integer"
       );
-      val `java.lang.Integer`: compiler.model.Import = compiler.model.Import(
-        items = Seq("java.lang.Integer")
+      val `java.lang.Integer as JInteger`: compiler.model.Import = compiler.model.Import(
+        `package` = "java.lang",
+        member = "Integer",alias = "JInteger"
       );
     }
   }

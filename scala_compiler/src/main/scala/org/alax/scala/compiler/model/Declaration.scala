@@ -28,12 +28,16 @@ object Declaration {
     /**
      * Identifier of type that has been used to declare a declaration
      *
-     * @param fullyQualifiedName
      */
-    class Id(val fullyQualifiedName: String) {
+    class Id(val name: String, val `import`: Import | Null = null) {
       override def equals(obj: Any): Boolean = {
         return obj match {
-          case id: Id => fullyQualifiedName == id.fullyQualifiedName
+          case id: Id => {
+            if (`import` != null && id.`import` != null) {
+              return `import`.eq(id.`import`) && name == id.name
+            }
+            return name == id.name;
+          }
           case _ => false
         }
       }
