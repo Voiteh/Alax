@@ -32,12 +32,10 @@ object Declaration {
     class Id(val name: String, val `import`: Import | Null = null) {
       override def equals(obj: Any): Boolean = {
         return obj match {
-          case id: Id => {
-            if (`import` != null && id.`import` != null) {
-              return `import`.eq(id.`import`) && name == id.name
-            }
-            return name == id.name;
-          }
+          case id: Id =>
+            val text = Option.apply(`import`).map((element: Import) => element.text).getOrElse(name);
+            val otherText = Option.apply(id.`import`).map((element: Import) => element.text).getOrElse(id.name);
+            return text == otherText;
           case _ => false
         }
       }

@@ -1,6 +1,7 @@
 package org.alax.ast
 
 import org.alax.ast.model.node.Metadata
+import org.alax.ast.model.partials.names.UpperCase
 
 import scala.collection.mutable
 
@@ -20,7 +21,7 @@ object model {
     class Location(val unit: String, val lineNumber: Int, val startIndex: Int, val endIndex: Int)
 
     object Location {
-      val unknown:Location = node.Location(
+      val unknown: Location = node.Location(
         unit = "",
         lineNumber = -1,
         startIndex = -1,
@@ -56,6 +57,7 @@ object model {
     object names {
 
       case class Qualified(qualifications: Seq[LowerCase | UpperCase], metadata: Metadata) extends partials.Name(metadata = metadata) {
+        assert(qualifications.nonEmpty)
 
         override def text(): String = {
           return qualifications.foldLeft(mutable.StringBuilder())((acu: mutable.StringBuilder, item: LowerCase | UpperCase) =>
@@ -64,11 +66,15 @@ object model {
 
       }
 
-      case class LowerCase(value: String, metadata: Metadata) extends partials.Name(metadata = metadata) {
+      case class LowerCase(value: String, metadata: Metadata ) extends partials.Name(metadata = metadata) {
+        assert(value.matches("[a-z].*"))
+
         override def text(): String = value;
       }
 
       case class UpperCase(value: String, metadata: Metadata) extends partials.Name(metadata = metadata) {
+        assert(value.matches("[A-Z].*"))
+
         override def text(): String = value;
       }
     }
@@ -83,11 +89,36 @@ object model {
     object declarations {
 
 
-      class Import(
-                    `package`: partials.names.Qualified,
-                    members: Seq[partials.names.UpperCase | partials.names.LowerCase],
-                    metadata: Metadata
-                  ) extends Statement(metadata = metadata);
+      abstract class Import(
+                             val `package`: partials.names.Qualified | Null,
+                             val metadata: Metadata
+                           ) extends Statement(metadata = metadata);
+
+      object Import {
+        case class Alias(
+                          override val `package`: partials.names.Qualified | Null,
+                          member: partials.names.LowerCase | partials.names.UpperCase,
+                          alias: partials.names.LowerCase | partials.names.UpperCase,
+                          override val metadata: Metadata
+                        )
+          extends Import(`package` = `package`, metadata = metadata)
+
+        case class Simple(
+                           override val `package`: partials.names.Qualified | Null,
+                           member: partials.names.LowerCase | partials.names.UpperCase,
+                           override val metadata: Metadata
+                         )
+          extends Import(`package` = `package`, metadata = metadata)
+
+
+        case class Container(
+                              override val `package`: partials.names.Qualified,
+                              members: Seq[Import],
+                              override val metadata: Metadata
+                            )
+          extends Import(`package` = `package`, metadata = metadata)
+      }
+
 
       case class Value(
                         name: partials.names.LowerCase,
