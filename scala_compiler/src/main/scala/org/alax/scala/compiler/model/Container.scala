@@ -10,7 +10,7 @@ import java.nio.file.Path;
 abstract class Container
 
 
-object containers {
+object Container {
 
   /**
    * Basically a file contains code

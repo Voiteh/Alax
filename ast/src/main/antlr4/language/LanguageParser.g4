@@ -1,11 +1,11 @@
 parser grammar LanguageParser;
 options { tokenVocab=LanguageLexer; }
 
-valueDeclaratonWithInitialization: type LOWERCASE_NAME ASSIGNMENT expression STATEMENT_END ;
+valueDeclarationWithInitialization: type LOWERCASE_NAME ASSIGNMENT expression STATEMENT_END ;
 
 valueDeclaration: type LOWERCASE_NAME STATEMENT_END;
 
-declaration: valueDeclaration|valueDeclaratonWithInitialization;
+declaration: valueDeclaration|valueDeclarationWithInitialization;
 
 literal: BOOLEAN_LITERAL|CHARACTER_LITERAL|INTEGER_LITERAL|FLOAT_LITERAL|STRING_LITERAL;
 

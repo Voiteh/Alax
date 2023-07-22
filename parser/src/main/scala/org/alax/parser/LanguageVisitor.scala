@@ -7,7 +7,6 @@ import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
 import org.alax.ast.{LanguageParser, LanguageLexer, LanguageParserBaseVisitor}
 import javax.management.ValueExp;
 
-
 class LanguageVisitor(tokenStream: TokenStream)
   extends LanguageParserBaseVisitor[Node | ParseError] {
   private def metadata(token: Token): node.Metadata = {
@@ -98,9 +97,9 @@ class LanguageVisitor(tokenStream: TokenStream)
     }
   }
 
-  override def visitValueDeclaratonWithInitialization(ctx: LanguageParser.ValueDeclaratonWithInitializationContext):
+  override def visitValueDeclarationWithInitialization(ctx: LanguageParser.ValueDeclarationWithInitializationContext):
   statements.declarations.ValueWithInitialization | ParseError = {
-    super.visitValueDeclaratonWithInitialization(ctx);
+    super.visitValueDeclarationWithInitialization(ctx);
 
     val `type`: partials.Type | ParseError = visitType(ctx.`type`());
     val name: partials.Name | ParseError = parseName(ctx.LOWERCASE_NAME());

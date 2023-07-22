@@ -28,8 +28,8 @@ object ParseValueDeclarationTest {
     val lexer = LanguageLexer(CharStreams.fromString(declaration.value.withInitialization.literal.bool));
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
-    val ctx = parser.valueDeclaratonWithInitialization();
-    val result = LanguageVisitor(tokens).visitValueDeclaratonWithInitialization(ctx);
+    val ctx = parser.valueDeclarationWithInitialization();
+    val result = LanguageVisitor(tokens).visitValueDeclarationWithInitialization(ctx);
 
     assert(result.isInstanceOf[model.statements.declarations.ValueWithInitialization]);
     val cast = result.asInstanceOf[model.statements.declarations.ValueWithInitialization];
@@ -46,8 +46,8 @@ object ParseValueDeclarationTest {
     val lexer = LanguageLexer(CharStreams.fromString(declaration.value.withInitialization.literal.char));
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
-    val ctx = parser.valueDeclaratonWithInitialization();
-    val result = LanguageVisitor(tokens).visitValueDeclaratonWithInitialization(ctx);
+    val ctx = parser.valueDeclarationWithInitialization();
+    val result = LanguageVisitor(tokens).visitValueDeclarationWithInitialization(ctx);
 
     assert(result.isInstanceOf[model.statements.declarations.ValueWithInitialization]);
     val cast = result.asInstanceOf[model.statements.declarations.ValueWithInitialization];
@@ -62,8 +62,8 @@ object ParseValueDeclarationTest {
     val lexer = LanguageLexer(CharStreams.fromString(declaration.value.withInitialization.literal.integer));
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
-    val ctx = parser.valueDeclaratonWithInitialization();
-    val result = LanguageVisitor(tokens).visitValueDeclaratonWithInitialization(ctx);
+    val ctx = parser.valueDeclarationWithInitialization();
+    val result = LanguageVisitor(tokens).visitValueDeclarationWithInitialization(ctx);
 
     assert(result.isInstanceOf[model.statements.declarations.ValueWithInitialization]);
     val cast = result.asInstanceOf[model.statements.declarations.ValueWithInitialization];
@@ -82,8 +82,8 @@ object ParseValueDeclarationTest {
     val lexer = LanguageLexer(CharStreams.fromString(declaration.value.withInitialization.literal.float));
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
-    val ctx = parser.valueDeclaratonWithInitialization();
-    val result = LanguageVisitor(tokens).visitValueDeclaratonWithInitialization(ctx);
+    val ctx = parser.valueDeclarationWithInitialization();
+    val result = LanguageVisitor(tokens).visitValueDeclarationWithInitialization(ctx);
 
     assert(result.isInstanceOf[model.statements.declarations.ValueWithInitialization]);
     val cast = result.asInstanceOf[model.statements.declarations.ValueWithInitialization];
@@ -99,8 +99,8 @@ object ParseValueDeclarationTest {
     val lexer = LanguageLexer(CharStreams.fromString(declaration.value.withInitialization.literal.string));
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
-    val ctx = parser.valueDeclaratonWithInitialization();
-    val result = LanguageVisitor(tokens).visitValueDeclaratonWithInitialization(ctx);
+    val ctx = parser.valueDeclarationWithInitialization();
+    val result = LanguageVisitor(tokens).visitValueDeclarationWithInitialization(ctx);
 
     assert(result.isInstanceOf[model.statements.declarations.ValueWithInitialization]);
     val cast = result.asInstanceOf[model.statements.declarations.ValueWithInitialization];
