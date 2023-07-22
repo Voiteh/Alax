@@ -15,14 +15,17 @@ object fixture {
   }
 
   object Context {
-    val emptyModule = compiler.model.Context.Module(compiler.model.Context.Project())
-    val emptyPackage = compiler.model.Context.Package(emptyModule)
-    val emptyUnit = compiler.model.Context.Unit(emptyPackage)
-    val unitWithImport = compiler.model.Context.Unit(emptyPackage, Seq(Statement.`import`.`scala.lang.Integer`))
-    val unitWithImportAndAlias = compiler.model.Context.Unit(emptyPackage, Seq(
-      Statement.`import`.`scala.lang.Integer`,
-      Statement.`import`.`java.lang.Integer as JInteger`
-    ))
+    val emptyModule: compiler.model.Context.Module = compiler.model.Context.Module(compiler.model.Context.Project())
+    val emptyPackage: compiler.model.Context.Package = compiler.model.Context.Package(emptyModule)
+    val emptyUnit: compiler.model.Context.Unit = compiler.model.Context.Unit(emptyPackage)
+    val unitWithImport: compiler.model.Context.Unit = compiler.model.Context.Unit(emptyPackage, Seq(Statement.`import`.`scala.lang.Integer`))
+    val unitWithImportAndAlias: compiler.model.Context.Unit = compiler.model.Context.Unit(
+      parent = emptyPackage,
+      imports =
+        Seq(
+          Statement.`import`.`scala.lang.Integer`,
+          Statement.`import`.`java.lang.Integer as JInteger`
+        ))
   }
 
   object Statement {
@@ -43,13 +46,10 @@ object fixture {
       val `Integer int`: ValueDeclaration = ValueDeclaration(
         name = ast.partials.names.LowerCase(
           value = "int",
-          metadata = ast.node.Metadata(ast.node.Location.unknown)
         ),
         `type` = ast.partials.types.Value(
-          id = ast.partials.names.UpperCase("Integer", ast.node.Metadata(ast.node.Location.unknown)),
-          metadata = ast.node.Metadata(ast.node.Location.unknown)
+          id = ast.partials.names.UpperCase("Integer"),
         ),
-        metadata = ast.node.Metadata(ast.node.Location.unknown)
       )
     }
   }
@@ -61,17 +61,13 @@ object fixture {
           qualifications = Seq(
             ast.partials.names.LowerCase(
               value = "scala",
-              metadata = ast.node.Metadata(ast.node.Location.unknown)
             ),
             ast.partials.names.LowerCase(
               value = "lang",
-              metadata = ast.node.Metadata(ast.node.Location.unknown)
             ),
           ),
-          metadata = ast.node.Metadata(ast.node.Location.unknown)
         ),
-        member = ast.partials.names.UpperCase("String", ast.node.Metadata(ast.node.Location.unknown)),
-        metadata = ast.node.Metadata(ast.node.Location.unknown)
+        member = ast.partials.names.UpperCase("String"),
       )
 
       val `scala.lang.Integer as Bleh`: ast.statements.declarations.Import.Alias = ast.statements.declarations.Import.Alias(
@@ -79,96 +75,59 @@ object fixture {
           qualifications = Seq(
             ast.partials.names.LowerCase(
               value = "scala",
-              metadata = ast.node.Metadata(ast.node.Location.unknown)
             ),
             ast.partials.names.LowerCase(
               value = "lang",
-              metadata = ast.node.Metadata(ast.node.Location.unknown)
             ),
           ),
-          metadata = ast.node.Metadata(ast.node.Location.unknown)
         ),
-        member = ast.partials.names.UpperCase("Integer", ast.node.Metadata(ast.node.Location.unknown)),
-        alias = ast.partials.names.UpperCase(
-          value = "Bleh",
-          metadata = ast.node.Metadata(ast.node.Location.unknown)
-        ),
-        metadata = ast.node.Metadata(ast.node.Location.unknown)
+        member = ast.partials.names.UpperCase("Integer"),
+        alias = ast.partials.names.UpperCase("Bleh")
       )
 
       val `scala.lang [ String, Integer as Bleh ]`: ast.statements.declarations.Import.Container = ast.statements.declarations.Import.Container(
         `package` = ast.partials.names.Qualified(
           qualifications = Seq(
-            ast.partials.names.LowerCase(
-              value = "scala",
-              metadata = ast.node.Metadata(ast.node.Location.unknown)
-            ),
-            ast.partials.names.LowerCase(
-              value = "lang",
-              metadata = ast.node.Metadata(ast.node.Location.unknown)
-            ),
+            ast.partials.names.LowerCase("scala"),
+            ast.partials.names.LowerCase("lang")
           ),
-          metadata = ast.node.Metadata(ast.node.Location.unknown)
         ),
         members = Seq(
           ast.statements.declarations.Import.Simple(
             `package` = null,
-            member = ast.partials.names.UpperCase("String", ast.node.Metadata(ast.node.Location.unknown)),
-            metadata = ast.node.Metadata(ast.node.Location.unknown)
+            member = ast.partials.names.UpperCase("String"),
           ),
           ast.statements.declarations.Import.Alias(
             `package` = null,
-            member = ast.partials.names.UpperCase("Integer", ast.node.Metadata(ast.node.Location.unknown)),
-            alias = ast.partials.names.UpperCase(
-              value = "Bleh",
-              metadata = ast.node.Metadata(ast.node.Location.unknown)
-            ),
-            metadata = ast.node.Metadata(ast.node.Location.unknown)
+            member = ast.partials.names.UpperCase("Integer"),
+            alias = ast.partials.names.UpperCase("Bleh")
           )
-
-        ),
-        metadata = ast.node.Metadata(ast.node.Location.unknown)
+        )
       )
       val `scala. [ lang.String, lang.[Integer as Bleh] ]`: ast.statements.declarations.Import.Container = ast.statements.declarations.Import.Container(
-        metadata = ast.node.Metadata(ast.node.Location.unknown),
         `package` = ast.partials.names.Qualified(
           qualifications = Seq(
-            ast.partials.names.LowerCase(
-              value = "scala",
-              metadata = ast.node.Metadata(ast.node.Location.unknown)
-            )
+            ast.partials.names.LowerCase("scala")
           ),
-          metadata = ast.node.Metadata(ast.node.Location.unknown)
         ),
         members = Seq(
           ast.statements.declarations.Import.Container(
             `package` = ast.partials.names.Qualified(
               qualifications = Seq(
-                ast.partials.names.LowerCase(
-                  value = "lang",
-                  metadata = ast.node.Metadata(ast.node.Location.unknown)
-                )
+                ast.partials.names.LowerCase("lang")
               ),
-
-              metadata = ast.node.Metadata(ast.node.Location.unknown)
             ),
             members = Seq(
-             ast.statements.declarations.Import.Alias(
+              ast.statements.declarations.Import.Alias(
                 `package` = ast.partials.names.Qualified(
                   qualifications = Seq(
-                    ast.partials.names.LowerCase(
-                      value = "lang",
-                      metadata = ast.node.Metadata(ast.node.Location.unknown)
-                    ),
+                    ast.partials.names.LowerCase("lang"),
                   ),
-                  metadata = ast.node.Metadata(ast.node.Location.unknown)
                 ),
-                member = ast.partials.names.UpperCase("Integer", ast.node.Metadata(ast.node.Location.unknown)),
-                alias = ast.partials.names.UpperCase("Bleh", ast.node.Metadata(ast.node.Location.unknown)),
-                metadata = ast.node.Metadata(ast.node.Location.unknown)
+                member = ast.partials.names.UpperCase("Integer"),
+                alias = ast.partials.names.UpperCase("Bleh"),
               )
-            ),
-            metadata = ast.node.Metadata(ast.node.Location.unknown)
+            )
           )
         )
       )

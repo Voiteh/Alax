@@ -1,6 +1,7 @@
 package org.alax.ast
 
 import org.alax.ast.model.node.Metadata
+import org.alax.ast.model.node.Metadata.unknown.location
 import org.alax.ast.model.partials.names.UpperCase
 
 import scala.collection.mutable
@@ -16,7 +17,11 @@ object model {
   abstract class Node(metadata: node.Metadata);
 
   object node {
-    class Metadata(val location: Location)
+    class Metadata(val location: Location);
+
+    object Metadata {
+      val unknown: Metadata = Metadata(Location.unknown);
+    }
 
     class Location(val unit: String, val lineNumber: Int, val startIndex: Int, val endIndex: Int)
 
@@ -51,12 +56,12 @@ object model {
     }
 
     object types {
-      case class Value(id: names.UpperCase | names.Qualified, metadata: Metadata) extends partials.Type(metadata = metadata);
+      case class Value(id: names.UpperCase | names.Qualified, metadata: Metadata = Metadata.unknown) extends partials.Type(metadata = metadata);
     }
 
     object names {
 
-      case class Qualified(qualifications: Seq[LowerCase | UpperCase], metadata: Metadata) extends partials.Name(metadata = metadata) {
+      case class Qualified(qualifications: Seq[LowerCase | UpperCase], metadata: Metadata = Metadata.unknown) extends partials.Name(metadata = metadata) {
         assert(qualifications.nonEmpty)
 
         override def text(): String = {
@@ -66,13 +71,13 @@ object model {
 
       }
 
-      case class LowerCase(value: String, metadata: Metadata ) extends partials.Name(metadata = metadata) {
+      case class LowerCase(value: String, metadata: Metadata = Metadata.unknown) extends partials.Name(metadata = metadata) {
         assert(value.matches("[a-z].*"))
 
         override def text(): String = value;
       }
 
-      case class UpperCase(value: String, metadata: Metadata) extends partials.Name(metadata = metadata) {
+      case class UpperCase(value: String, metadata: Metadata = Metadata.unknown) extends partials.Name(metadata = metadata) {
         assert(value.matches("[A-Z].*"))
 
         override def text(): String = value;
@@ -91,7 +96,7 @@ object model {
 
       abstract class Import(
                              val `package`: partials.names.Qualified | Null,
-                             val metadata: Metadata
+                             val metadata: Metadata = Metadata.unknown
                            ) extends Statement(metadata = metadata);
 
       object Import {
@@ -99,14 +104,14 @@ object model {
                           override val `package`: partials.names.Qualified | Null,
                           member: partials.names.LowerCase | partials.names.UpperCase,
                           alias: partials.names.LowerCase | partials.names.UpperCase,
-                          override val metadata: Metadata
+                          override val metadata: Metadata = Metadata.unknown
                         )
           extends Import(`package` = `package`, metadata = metadata)
 
         case class Simple(
                            override val `package`: partials.names.Qualified | Null,
                            member: partials.names.LowerCase | partials.names.UpperCase,
-                           override val metadata: Metadata
+                           override val metadata: Metadata = Metadata.unknown
                          )
           extends Import(`package` = `package`, metadata = metadata)
 
@@ -114,7 +119,7 @@ object model {
         case class Container(
                               override val `package`: partials.names.Qualified,
                               members: Seq[Import],
-                              override val metadata: Metadata
+                              override val metadata: Metadata = Metadata.unknown
                             )
           extends Import(`package` = `package`, metadata = metadata)
       }
@@ -123,14 +128,14 @@ object model {
       case class Value(
                         name: partials.names.LowerCase,
                         `type`: partials.Type,
-                        metadata: Metadata
+                        metadata: Metadata = Metadata.unknown
                       ) extends statements.Declaration(metadata = metadata);
 
       case class ValueWithInitialization(
                                           name: partials.names.LowerCase,
                                           `type`: partials.Type,
                                           initialization: model.Expression,
-                                          metadata: Metadata
+                                          metadata: Metadata = Metadata.unknown
                                         ) extends statements.Declaration(metadata = metadata);
     }
   }
@@ -140,15 +145,15 @@ object model {
     abstract class Literal(metadata: Metadata) extends Expression(metadata = metadata);
 
     object literals {
-      case class Boolean(value: java.lang.Boolean, metadata: Metadata) extends Literal(metadata = metadata);
+      case class Boolean(value: java.lang.Boolean, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
 
-      case class Character(value: java.lang.Character, metadata: Metadata) extends Literal(metadata = metadata);
+      case class Character(value: java.lang.Character, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
 
-      case class Integer(value: java.lang.Integer, metadata: Metadata) extends Literal(metadata = metadata);
+      case class Integer(value: java.lang.Integer, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
 
-      case class Float(value: java.lang.Double, metadata: Metadata) extends Literal(metadata = metadata);
+      case class Float(value: java.lang.Double, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
 
-      case class String(value: java.lang.String, metadata: Metadata) extends Literal(metadata = metadata);
+      case class String(value: java.lang.String, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
     }
 
   }
