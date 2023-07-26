@@ -46,7 +46,7 @@ object model {
    * Can be used as parts of statements and expressions
    */
   object partials {
-    abstract class Type(metadata: Metadata) extends Partial(metadata = metadata);
+    abstract class TypeReference(metadata: Metadata) extends Partial(metadata = metadata);
 
     /**
      * Identifiers of the statements and expressions
@@ -56,7 +56,7 @@ object model {
     }
 
     object types {
-      case class Value(id: names.UpperCase | names.Qualified, metadata: Metadata = Metadata.unknown) extends partials.Type(metadata = metadata);
+      case class ValueTypeReference(id: names.UpperCase | names.Qualified, metadata: Metadata = Metadata.unknown) extends partials.TypeReference(metadata = metadata);
     }
 
     object names {
@@ -127,13 +127,13 @@ object model {
 
       case class Value(
                         name: partials.names.LowerCase,
-                        `type`: partials.Type,
+                        `type`: partials.TypeReference,
                         metadata: Metadata = Metadata.unknown
                       ) extends statements.Declaration(metadata = metadata);
 
       case class ValueWithInitialization(
                                           name: partials.names.LowerCase,
-                                          `type`: partials.Type,
+                                          `type`: partials.TypeReference,
                                           initialization: model.Expression,
                                           metadata: Metadata = Metadata.unknown
                                         ) extends statements.Declaration(metadata = metadata);

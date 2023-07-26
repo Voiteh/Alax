@@ -23,7 +23,7 @@ class AstTransformer {
 
 
       val typeId: compiler.model.Declaration.Type.Id | CompilationError = valueDeclaration.`type` match {
-        case ast.partials.types.Value(id, _) => id match {
+        case ast.partials.types.ValueTypeReference(id, _) => id match {
           case ast.partials.names.UpperCase(value, _) => imports.find(element => element.alias == value || element.member == value)
             .map(element => compiler.model.Declaration.Type.Id(name = value, `import` = element))
             .getOrElse(

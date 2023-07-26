@@ -47,7 +47,7 @@ object fixture {
         name = ast.partials.names.LowerCase(
           value = "int",
         ),
-        `type` = ast.partials.types.Value(
+        `type` = ast.partials.types.ValueTypeReference(
           id = ast.partials.names.UpperCase("Integer"),
         ),
       )

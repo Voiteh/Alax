@@ -17,9 +17,9 @@ object ParseLiteralTest {
     val lexer =LanguageLexer(value);
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
-    val ctx=parser.literal();
+    val ctx=parser.literalExpression();
 
-    val result = LanguageVisitor(tokens).visitLiteral(ctx);
+    val result = LanguageVisitor(tokens).visitLiteralExpression(ctx);
     assert(result.isInstanceOf[expressions.literals.Boolean]);
     assert(result.asInstanceOf[expressions.literals.Boolean].value == true);
   }
@@ -30,9 +30,9 @@ object ParseLiteralTest {
     val lexer =LanguageLexer(CharStreams.fromString(literal.charLiteral));
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
-    val ctx=parser.literal();
+    val ctx=parser.literalExpression();
 
-    val result = LanguageVisitor(tokens).visitLiteral(ctx);
+    val result = LanguageVisitor(tokens).visitLiteralExpression(ctx);
     assert(result.isInstanceOf[expressions.literals.Character]);
     assert(result.asInstanceOf[expressions.literals.Character].value == 'a');
   }
@@ -42,9 +42,9 @@ object ParseLiteralTest {
     val lexer =LanguageLexer(CharStreams.fromString(literal.intLiteral));
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
-    val ctx=parser.literal();
+    val ctx=parser.literalExpression();
 
-    val result = LanguageVisitor(tokens).visitLiteral(ctx);
+    val result = LanguageVisitor(tokens).visitLiteralExpression(ctx);
     assert(result.isInstanceOf[expressions.literals.Integer]);
     assert(result.asInstanceOf[expressions.literals.Integer].value == -10);
   }
@@ -54,9 +54,9 @@ object ParseLiteralTest {
     val lexer =LanguageLexer(CharStreams.fromString(literal.floatLiteral));
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
-    val ctx=parser.literal();
+    val ctx=parser.literalExpression();
 
-    val result = LanguageVisitor(tokens).visitLiteral(ctx);
+    val result = LanguageVisitor(tokens).visitLiteralExpression(ctx);
     assert(result.isInstanceOf[expressions.literals.Float]);
     assert(result.asInstanceOf[expressions.literals.Float].value == -99.123);
   }
@@ -66,9 +66,9 @@ object ParseLiteralTest {
     val lexer =LanguageLexer(CharStreams.fromString(literal.stringLiteral));
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
-    val ctx=parser.literal();
+    val ctx=parser.literalExpression();
 
-    val result = LanguageVisitor(tokens).visitLiteral(ctx);
+    val result = LanguageVisitor(tokens).visitLiteralExpression(ctx);
     assert(result.isInstanceOf[expressions.literals.String]);
     assert(result.asInstanceOf[expressions.literals.String].value == "str");
   }

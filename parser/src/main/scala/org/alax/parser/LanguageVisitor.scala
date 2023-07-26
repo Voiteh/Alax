@@ -1,11 +1,13 @@
 package org.alax.parser
 
-import org.alax.ast._;
-import org.alax.ast.model._
-import org.antlr.v4.runtime.{Token, TokenStream}
+import org.alax.ast.*
+import org.alax.ast.model.*
+import org.antlr.v4.runtime.{ParserRuleContext, Token, TokenStream}
 import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
-import org.alax.ast.{LanguageParser, LanguageLexer, LanguageParserBaseVisitor}
-import javax.management.ValueExp;
+import org.alax.ast.{LanguageLexer, LanguageParser, LanguageParserBaseVisitor}
+
+import javax.management.ValueExp
+import scala.jdk.CollectionConverters.*
 
 class LanguageVisitor(tokenStream: TokenStream)
   extends LanguageParserBaseVisitor[Node | ParseError] {
@@ -19,6 +21,7 @@ class LanguageVisitor(tokenStream: TokenStream)
       )
     )
   }
+
 
   private def parseName(terminalNode: TerminalNode): partials.Name | ParseError = {
     return terminalNode.getSymbol.getType match {
@@ -41,48 +44,49 @@ class LanguageVisitor(tokenStream: TokenStream)
     cause = wrappe
   );
 
-  override def visitType(ctx: LanguageParser.TypeContext): partials.Type | ParseError = {
-    super.visitType(ctx)
+  override def visitImportedName(ctx: LanguageParser.ImportedNameContext): partials.names.Qualified | ParseError = {
+    super.visitImportedName(ctx);
+    val qualifications: Seq[partials.names.LowerCase | partials.names.UpperCase] = ctx.children.asScala
+      .filter(item => item.isInstanceOf[TerminalNode])
+      .map(item => item.asInstanceOf[TerminalNode])
+      .filter(item => item.getSymbol.getType == LanguageParser.UPPERCASE_NAME || item.getSymbol.getType == LanguageParser.LOWERCASE_NAME)
+      .map(item => item.getSymbol.getType match {
+        case LanguageParser.UPPERCASE_NAME => partials.names.UpperCase(item.getText, metadata(item.getSymbol));
+        case LanguageParser.LOWERCASE_NAME => partials.names.LowerCase(item.getText, metadata(item.getSymbol));
+        case _ => return ParseError(metadata(item.getSymbol), f"Unknown token for imported name: ${item.getText}")
+      }).toSeq;
+    return partials.names.Qualified(qualifications = qualifications, metadata = metadata(ctx.getStart));
+  }
 
-    val typeName = ctx.FULLY_QUALIFIED_TYPE_NAME();
+  override def visitValueTypeReference(ctx: LanguageParser.ValueTypeReferenceContext): partials.types.ValueTypeReference | ParseError = {
+    super.visitValueTypeReference(ctx)
 
-    return typeName.getSymbol.getType match {
-      case LanguageParser.FULLY_QUALIFIED_TYPE_NAME => partials.types.Value(
-        id = partials.names.Qualified(
-          qualifications = typeName.getSymbol.getText.split("\\.")
-            .map[partials.names.LowerCase | partials.names.UpperCase]
-              (item => if (item.matches("[A-Z].*")) {
-                partials.names.UpperCase(
-                  value = item,
-                  //FIXME probably invalid symbol for metadata
-                  metadata(typeName.getSymbol)
-                )
-              } else {
-                partials.names.LowerCase(
-                  value = item,
-                  //FIXME probably invalid symbol for metadata
-                  metadata(typeName.getSymbol)
-                )
-              }).toSeq,
-          metadata = metadata(typeName.getSymbol)
-        ),
-        metadata = metadata(ctx.getStart)
+    val typeName = partials.names.UpperCase(value = ctx.typeName.getText, metadata = metadata(ctx.typeName))
+    val importedName: partials.names.Qualified | ParseError = visitImportedName(ctx.importedName());
+    return importedName match {
+      case error: ParseError => return error;
+      case qualified: partials.names.Qualified => partials.types.ValueTypeReference(
+        id = qualified.qualifications.isEmpty match {
+          case true => typeName
+          case false => partials.names.Qualified(
+            qualifications = qualified.qualifications :+ typeName,
+            //TODO fixme probably invalid symbol for metadata
+            metadata = metadata(ctx.start)
+          )
+        },
+        //TODO fixme probably invalid symbol for metadata
+        metadata = metadata(ctx.start)
       )
-      case _ => ParseError(
-        metadata(ctx.getStart),
-        message = "Unknown type name: " + typeName.getText
-      );
     }
-
   }
 
 
   override def visitValueDeclaration(ctx: LanguageParser.ValueDeclarationContext): statements.declarations.Value | ParseError = {
     super.visitValueDeclaration(ctx);
-    val `type`: partials.Type | ParseError = visitType(ctx.`type`());
+    val typeReference: partials.TypeReference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
     val name: partials.Name | ParseError = parseName(ctx.LOWERCASE_NAME());
-    return `type` match {
-      case shadowType: partials.Type =>
+    return typeReference match {
+      case shadowType: partials.TypeReference =>
         name match {
           case shadowName: partials.names.LowerCase =>
             statements.declarations.Value(
@@ -101,11 +105,11 @@ class LanguageVisitor(tokenStream: TokenStream)
   statements.declarations.ValueWithInitialization | ParseError = {
     super.visitValueDeclarationWithInitialization(ctx);
 
-    val `type`: partials.Type | ParseError = visitType(ctx.`type`());
+    val typeReference: partials.TypeReference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
     val name: partials.Name | ParseError = parseName(ctx.LOWERCASE_NAME());
     val initialization: Expression | ParseError = visitExpression(ctx.expression());
-    return `type` match {
-      case shadowType: partials.Type =>
+    return typeReference match {
+      case shadowType: partials.TypeReference =>
         name match {
           case shadowName: partials.names.LowerCase =>
             initialization match {
@@ -136,14 +140,19 @@ class LanguageVisitor(tokenStream: TokenStream)
     }
   }
 
+
   override def visitExpression(ctx: LanguageParser.ExpressionContext): Expression | ParseError = {
     super.visitExpression(ctx);
-    return visitLiteral(ctx.literal());
+    return Option(ctx.literalExpression())
+      .map(expression=> visitLiteralExpression(expression))
+      .getOrElse(
+        ParseError(message = s"Unknown expression: ${ctx.getText}", metadata = metadata(ctx.getStart))
+      );
   }
 
 
-  override def visitLiteral(ctx: LanguageParser.LiteralContext): expressions.Literal | ParseError = {
-    super.visitLiteral(ctx);
+  override def visitLiteralExpression(ctx: LanguageParser.LiteralExpressionContext): expressions.Literal | ParseError = {
+    super.visitLiteralExpression(ctx);
     val terminalNode = ctx.children.stream()
       .filter((parseTree: ParseTree) => parseTree.isInstanceOf[TerminalNode])
       .map(node => node.asInstanceOf[TerminalNode])
