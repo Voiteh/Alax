@@ -50,14 +50,14 @@ accessModifier: SHARED|PROTECTED;
 accessor:THIS|SUPER|OUTER;
 
 //Imports
-nestedImportStatement: IMPORT nestableImport SEMI_COLON;
+nestedImportDeclaration: IMPORT nestableImport SEMI_COLON;
 
-simpleImportStatement: IMPORT importedName SEMI_COLON;
+simpleImportDeclaration: IMPORT importedName SEMI_COLON;
 
-aliasImportStatement: IMPORT importAlias  SEMI_COLON;
+aliasImportDeclaration: IMPORT importAlias  SEMI_COLON;
 
 
-nestableImport: importedName OPEN_SQUARE importedName|importAlias|nestableImport (COMMA (importedName|importAlias|nestableImport))* CLOSE_SQUARE;
+nestableImport: importedName DOT OPEN_SQUARE importedName|importAlias|nestableImport (COMMA (importedName|importAlias|nestableImport))* CLOSE_SQUARE;
 
 importAlias: aliased=importedName ALIAS alias=importedName;
 

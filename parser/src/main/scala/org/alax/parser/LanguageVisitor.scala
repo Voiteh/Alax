@@ -2,6 +2,7 @@ package org.alax.parser
 
 import org.alax.ast.*
 import org.alax.ast.model.*
+import org.alax.ast.model.node.Metadata
 import org.antlr.v4.runtime.{ParserRuleContext, Token, TokenStream}
 import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
 import org.alax.ast.{LanguageLexer, LanguageParser, LanguageParserBaseVisitor}
@@ -11,6 +12,9 @@ import scala.jdk.CollectionConverters.*
 
 class LanguageVisitor(tokenStream: TokenStream)
   extends LanguageParserBaseVisitor[Node | ParseError] {
+
+
+  //FIXME should operate on ParseRuleContext rather than child token of that context
   private def metadata(token: Token): node.Metadata = {
     return node.Metadata(
       location = node.Location(
@@ -44,7 +48,18 @@ class LanguageVisitor(tokenStream: TokenStream)
     cause = wrappe
   );
 
-  override def visitImportedName(ctx: LanguageParser.ImportedNameContext): partials.names.Qualified | ParseError = {
+
+  //  override def visitSimpleImportDeclaration(ctx: LanguageParser.SimpleImportDeclarationContext): statements.declarations.Import.Simple | ParseError = {
+  //    super.visitSimpleImportDeclaration(ctx)
+  //    val importedName: partials.names.Qualified | ParseError = visitImportedName(ctx.importedName());
+  //    return importedName match {
+  //      case e: ParseError => wrapParseError(e, "Invalid import declaration", metadata(ctx.start));
+  //      case qualified: partials.names.Imported => {
+  //      }
+  //    }
+  //  }
+
+  override def visitImportedName(ctx: LanguageParser.ImportedNameContext): partials.names.Imported | ParseError = {
     super.visitImportedName(ctx);
     val qualifications: Seq[partials.names.LowerCase | partials.names.UpperCase] = ctx.children.asScala
       .filter(item => item.isInstanceOf[TerminalNode])
@@ -55,29 +70,22 @@ class LanguageVisitor(tokenStream: TokenStream)
         case LanguageParser.LOWERCASE_NAME => partials.names.LowerCase(item.getText, metadata(item.getSymbol));
         case _ => return ParseError(metadata(item.getSymbol), f"Unknown token for imported name: ${item.getText}")
       }).toSeq;
-    return partials.names.Qualified(qualifications = qualifications, metadata = metadata(ctx.getStart));
+    return if qualifications.size == 1 then qualifications.last else partials.names.Qualified(qualifications, metadata(ctx.start));
   }
 
   override def visitValueTypeReference(ctx: LanguageParser.ValueTypeReferenceContext): partials.types.ValueTypeReference | ParseError = {
     super.visitValueTypeReference(ctx)
 
     val typeName = partials.names.UpperCase(value = ctx.typeName.getText, metadata = metadata(ctx.typeName))
-    val importedName: partials.names.Qualified | ParseError = visitImportedName(ctx.importedName());
-    return importedName match {
+    val importedName: partials.names.Imported | ParseError = visitImportedName(ctx.importedName());
+    return partials.types.ValueTypeReference(id = importedName match {
       case error: ParseError => return error;
-      case qualified: partials.names.Qualified => partials.types.ValueTypeReference(
-        id = qualified.qualifications.isEmpty match {
-          case true => typeName
-          case false => partials.names.Qualified(
-            qualifications = qualified.qualifications :+ typeName,
-            //TODO fixme probably invalid symbol for metadata
-            metadata = metadata(ctx.start)
-          )
-        },
-        //TODO fixme probably invalid symbol for metadata
-        metadata = metadata(ctx.start)
-      )
-    }
+      case imported: partials.names.UpperCase => partials.names.Qualified(qualifications = Seq(imported, typeName), metadata(ctx.start))
+      case imported: partials.names.LowerCase => partials.names.Qualified(qualifications = Seq(imported, typeName), metadata(ctx.start))
+      case imported: partials.names.Qualified => partials.names.Qualified(qualifications = imported.qualifications :+ typeName, metadata(ctx.start))
+    },
+      metadata = metadata(ctx.start)
+    )
   }
 
 
@@ -144,7 +152,7 @@ class LanguageVisitor(tokenStream: TokenStream)
   override def visitExpression(ctx: LanguageParser.ExpressionContext): Expression | ParseError = {
     super.visitExpression(ctx);
     return Option(ctx.literalExpression())
-      .map(expression=> visitLiteralExpression(expression))
+      .map(expression => visitLiteralExpression(expression))
       .getOrElse(
         ParseError(message = s"Unknown expression: ${ctx.getText}", metadata = metadata(ctx.getStart))
       );
@@ -171,8 +179,9 @@ class LanguageVisitor(tokenStream: TokenStream)
       );
     }
   }
-}
 
-object LanguageVisitor {
 
+  object LanguageVisitor {
+
+  }
 }

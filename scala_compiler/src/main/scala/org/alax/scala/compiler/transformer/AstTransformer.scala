@@ -2,9 +2,10 @@ package org.alax.scala.compiler.transformer
 
 import org.alax.scala.compiler
 import org.alax.ast.model as ast
-
 import org.alax.scala.compiler.model.{CompilationError, CompilerBugException, Context, Import, Tracable}
 import ast.statements.declarations
+import ast.Node.someFun
+import org.alax.ast.model.partials.names.{LowerCase, Qualified, UpperCase}
 
 import scala.collection.mutable
 
@@ -62,50 +63,46 @@ class AstTransformer {
       endIndex = location.endIndex
     )
 
-    //TODO use streams instead of sequences
-    def `import`(`import`: ast.statements.declarations.Import, parent: ast.partials.names.Qualified | Null = null): Seq[Tracable[compiler.model.Import]] = {
+    private def foldNames(names: Seq[ast.partials.Name]): String = {
+      return names.foldLeft(mutable.StringBuilder())((acc: mutable.StringBuilder, ancestor: ast.partials.Name) =>
+        if (acc.isEmpty) then acc.append(ancestor.text())
+        else acc.append("." + ancestor.text()))
+        .toString()
+    }
 
-      `import` match {
-        case simple: declarations.Import.Simple => Seq(
-          Tracable(
-            trace = trace(`import`.metadata.location),
-            transformed = compiler.model.Import(
-              `package` = Option.apply(parent)
-                .map((par: ast.partials.names.Qualified) =>
-                  Option.apply(`import`.`package`)
-                    .map(importPackage => s"${par.text()}.${importPackage.text()}")
-                    .getOrElse(par.text())
-                )
-                .getOrElse(`import`.`package`.text()),
-              member = simple.member match {
-                case uppercase: ast.partials.names.UpperCase => uppercase.text()
-                case lowercase: ast.partials.names.LowerCase => lowercase.text()
-              }
-            )
+    //TODO use streams instead of sequences
+    def imports(`import`: ast.statements.declarations.Import, ancestors: Seq[ast.partials.names.Qualified] = Seq()): Seq[Tracable[compiler.model.Import]] = {
+      return `import` match {
+        case container: declarations.Import.Nested => container.nestee.flatMap(element => this.imports(element, ancestors :+ container.nest))
+        case simple: declarations.Import.Simple => Seq(Tracable(
+          trace = trace(simple.metadata.location),
+          transformed = compiler.model.Import(
+            ancestor = simple.member match {
+              case qualified: Qualified => foldNames(ancestors) +foldNames(qualified.prefix)
+              case _ => foldNames(ancestors)
+            },
+            member = simple.member match {
+              case qualified: Qualified => qualified.suffix.text();
+              case uppercase: UpperCase => uppercase.text();
+              case lowercase: LowerCase => lowercase.text();
+            },
           )
-        )
-        case alias: declarations.Import.Alias => Seq(
-          Tracable(
-            trace = trace(`import`.metadata.location),
-            transformed = compiler.model.Import(
-              `package` = Option.apply(parent)
-                .map((par: ast.partials.names.Qualified) =>
-                  Option.apply(`import`.`package`)
-                    .map(importPackage => s"${par.text()}.${importPackage.text()}")
-                    .getOrElse(par.text())
-                )
-                .getOrElse(`import`.`package`.text()),
-              member = alias.member match {
-                case uppercase: ast.partials.names.UpperCase => uppercase.text()
-                case lowercase: ast.partials.names.LowerCase => lowercase.text()
-              },
-              alias = alias.alias match {
-                case uppercase: ast.partials.names.UpperCase => uppercase.text()
-                case lowercase: ast.partials.names.LowerCase => lowercase.text()
-              },
-            ))
-        )
-        case container: declarations.Import.Container => container.members.flatMap(element => this.`import`(element, container.`package`))
+        ))
+        case alias: declarations.Import.Alias => Seq(Tracable(
+          trace = trace(alias.metadata.location),
+          transformed = compiler.model.Import(
+            ancestor = alias.member match {
+              case qualified: Qualified => foldNames(ancestors) + foldNames(qualified.prefix)
+              case _ => foldNames(ancestors)
+            },
+            member = alias.member match {
+              case qualified: Qualified => qualified.suffix.text();
+              case uppercase: UpperCase => uppercase.text();
+              case lowercase: LowerCase => lowercase.text();
+            },
+            alias = alias.alias.text()
+          )
+        ))
       }
     }
 
