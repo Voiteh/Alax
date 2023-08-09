@@ -30,7 +30,10 @@ lazy val scala_compiler = project.in(file("scala_compiler"))
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
-      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test
+      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
+      ("org.scalameta" %% "scalameta" % "4.8.6").cross(CrossVersion.for3Use2_13),
+      ("org.scalatest" %% "scalatest-wordspec" % "3.2.16" % "test"),
+      ("org.scalatest" %% "scalatest" % "3.2.16" % "test"),
     )
   )
 lazy val parser = project.in(file("parser"))

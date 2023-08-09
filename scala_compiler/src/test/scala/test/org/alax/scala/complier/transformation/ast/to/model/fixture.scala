@@ -1,25 +1,22 @@
-package test.org.alax.scala.complier.transformer
+package test.org.alax.scala.complier.transformation.ast.to.model
 
 import org.alax.ast.model as ast
-import ast.statements.declarations.{Import, Value as ValueDeclaration}
+import org.alax.ast.model.statements.declarations.{Import, Value as ValueDeclaration}
 import org.alax.scala.compiler
+import org.alax.scala.compiler.transformation
+import org.alax.scala.compiler.Context.Module
 
 import scala.annotation.targetName
 
 object fixture {
 
-  object Compiler {
-    object Model {
-
-    }
-  }
 
   object Context {
-    val emptyModule: compiler.model.Context.Module = compiler.model.Context.Module(compiler.model.Context.Project())
-    val emptyPackage: compiler.model.Context.Package = compiler.model.Context.Package(emptyModule)
-    val emptyUnit: compiler.model.Context.Unit = compiler.model.Context.Unit(emptyPackage)
-    val unitWithImport: compiler.model.Context.Unit = compiler.model.Context.Unit(emptyPackage, Seq(Statement.`import`.`scala.lang.Integer`))
-    val unitWithImportAndAlias: compiler.model.Context.Unit = compiler.model.Context.Unit(
+    val emptyModule: Module = compiler.Context.Module(compiler.Context.Project())
+    val emptyPackage: compiler.Context.Package = compiler.Context.Package(emptyModule)
+    val emptyUnit: compiler.Context.Unit = compiler.Context.Unit(emptyPackage)
+    val unitWithImport: compiler.Context.Unit = compiler.Context.Unit(emptyPackage, Seq(Statement.`import`.`scala.lang.Integer`))
+    val unitWithImportAndAlias: compiler.Context.Unit = compiler.Context.Unit(
       parent = emptyPackage,
       imports =
         Seq(

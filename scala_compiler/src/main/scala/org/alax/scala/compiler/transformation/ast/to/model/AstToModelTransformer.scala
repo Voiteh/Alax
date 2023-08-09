@@ -1,15 +1,16 @@
-package org.alax.scala.compiler.transformer
+package org.alax.scala.compiler.transformation.ast.to.model
 
-import org.alax.scala.compiler
 import org.alax.ast.model as ast
-import org.alax.scala.compiler.model.{CompilationError, CompilerBugException, Context, Import, Tracable}
-import ast.statements.declarations
-import ast.Node.someFun
+import org.alax.ast.model.Node.someFun
 import org.alax.ast.model.partials.names.{LowerCase, Qualified, UpperCase}
+import org.alax.ast.model.statements.declarations
+import org.alax.scala.compiler
+import org.alax.scala.compiler.Context
+import org.alax.scala.compiler.model.*
 
 import scala.collection.mutable
 
-class AstTransformer {
+class AstToModelTransformer {
 
   object transform {
 

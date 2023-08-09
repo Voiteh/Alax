@@ -1,4 +1,4 @@
-package org.alax.scala.compiler.model
+package org.alax.scala.compiler
 
 import org.alax.scala.compiler.model.Import
 

@@ -1,13 +1,14 @@
-package test.org.alax.scala.complier.transformer
+package test.org.alax.scala.complier.transformation.ast.to.model
 
-import org.alax.scala.compiler.transformer.AstTransformer
 import org.alax.scala.compiler.model
-import org.junit.jupiter.api.Test;
+import org.alax.scala.compiler.transformation.ast.to.model.AstToModelTransformer
+import org.junit.jupiter.api.Test
+import test.org.alax.scala.complier.transformation.ast.to.model.fixture
 
 
 class TransformImportTest {
 
-  val astTransformer = AstTransformer()
+  val astTransformer = AstToModelTransformer()
 
 
   @Test
