@@ -26,16 +26,7 @@ class AstToModelTransformer {
 
       val typeId: compiler.model.Declaration.Type.Id | CompilationError = valueDeclaration.`type` match {
         case ast.partials.types.ValueTypeReference(id, _) => id match {
-          case ast.partials.names.UpperCase(value, _) => imports.find(element => element.alias == value || element.member == value)
-            .map(element => compiler.model.Declaration.Type.Id(name = value, `import` = element))
-            .getOrElse(
-              CompilationError(
-                path = valueDeclaration.metadata.location.unit,
-                startIndex = valueDeclaration.metadata.location.startIndex,
-                endIndex = valueDeclaration.metadata.location.endIndex,
-                message = s"No such type:$value, did You forgot to import ?"
-              )
-            )
+          case ast.partials.names.UpperCase(value, _) => compiler.model.Declaration.Type.Id(name = value)
           case ast.partials.names.Qualified(value: Seq[ast.partials.names.LowerCase | ast.partials.names.UpperCase], _) =>
             compiler.model.Declaration.Type.Id(
               name = value.foldLeft(mutable.StringBuilder(""))((acc, element) => acc.append(element match {
@@ -79,7 +70,7 @@ class AstToModelTransformer {
           trace = trace(simple.metadata.location),
           transformed = compiler.model.Import(
             ancestor = simple.member match {
-              case qualified: Qualified => foldNames(ancestors) +foldNames(qualified.prefix)
+              case qualified: Qualified => foldNames(ancestors) + foldNames(qualified.prefix)
               case _ => foldNames(ancestors)
             },
             member = simple.member match {

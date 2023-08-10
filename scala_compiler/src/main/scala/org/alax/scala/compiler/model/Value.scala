@@ -2,6 +2,7 @@ package org.alax.scala.compiler.model
 
 import org.alax.scala.compiler.model
 import org.alax.scala.compiler.model.Declaration.{Name, Type};
+import scala.meta.{Decl, Name as MName, Type as MType, Term}
 
 object Value {
 
@@ -15,7 +16,17 @@ object Value {
                           override val name: Name,
                           override val `type`: Value.Type //|Union.Type|Intersection.Type|Functional.Type...
                         )
-    extends model.Declaration(name = name, `type` = `type`)
+    extends model.Declaration(name = name, `type` = `type`) {
+
+    override val scala: String = Decl.Val(
+      mods = collection.immutable.List(),
+      pats = collection.immutable.List(
+        Term.Name(name)
+      ),
+      decltpe = MType.Name(`type`.id.name)
+    ).toString()
+
+  }
 
   /**
    * Value type, this is internal property of declaration! And not type declaration itself

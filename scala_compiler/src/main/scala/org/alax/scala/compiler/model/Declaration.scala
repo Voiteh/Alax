@@ -29,13 +29,10 @@ object Declaration {
      * Identifier of type that has been used to declare a declaration
      *
      */
-    class Id(val name: String, val `import`: Import | Null = null) {
+    class Id(val name: String) {
       override def equals(obj: Any): Boolean = {
         return obj match {
-          case id: Id =>
-            val text = Option.apply(`import`).map((element: Import) => element.text).getOrElse(name);
-            val otherText = Option.apply(id.`import`).map((element: Import) => element.text).getOrElse(id.name);
-            return text == otherText;
+          case id: Id => name == id.name
           case _ => false
         }
       }
