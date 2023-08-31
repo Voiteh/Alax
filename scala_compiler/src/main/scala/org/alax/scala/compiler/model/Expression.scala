@@ -6,5 +6,5 @@ import scala.meta.{Term,Ref}
  * Something that can be assigned
  */
 abstract class Expression {
-  val scala: Term = ???;
+  def scala: Term = ???;
 }

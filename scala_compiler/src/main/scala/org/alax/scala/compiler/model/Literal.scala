@@ -10,7 +10,7 @@ import scala.meta.{Lit, Term}
  * @param value
  */
 abstract class Literal(val value: Object) extends Expression{
-  override val scala: Lit = ???
+  override def scala: Lit = ???
 }
 
 object Literal {

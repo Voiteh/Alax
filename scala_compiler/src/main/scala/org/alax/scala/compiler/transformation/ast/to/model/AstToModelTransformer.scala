@@ -20,8 +20,8 @@ class AstToModelTransformer {
                context: Context.Unit | Context.Package
              ): compiler.model.Value.Declaration | CompilationError = {
       val imports = context match
-        case Context.Unit(parent, imports) => imports;
-        case Context.Package(parent, imports) => imports;
+        case Context.Unit(_, imports) => imports;
+        case Context.Package(_, imports) => imports;
 
 
       val typeId: compiler.model.Declaration.Type.Id | CompilationError = valueDeclaration.`type` match {
