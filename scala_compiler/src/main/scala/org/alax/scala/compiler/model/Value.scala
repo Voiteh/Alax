@@ -1,8 +1,10 @@
 package org.alax.scala.compiler.model
 
 import org.alax.scala.compiler.model
-import org.alax.scala.compiler.model.Declaration.{Name, Type};
-import scala.meta.{Decl, Name as MName, Type as MType, Term}
+import org.alax.scala.compiler.model.Declaration.{Name, Type}
+
+import scala.meta.Defn
+import scala.meta.{Decl, Term, Name as MName, Type as MType}
 
 object Value {
 
@@ -10,7 +12,7 @@ object Value {
    * Value declaration
    *
    * @param name   - simple name of that declaration available to identifiy that value
-   * @param `type` - type of value declaraiton
+   * @param `type` - type of value declaration
    */
   case class Declaration(
                           override val name: Name,
@@ -18,13 +20,14 @@ object Value {
                         )
     extends model.Declaration(name = name, `type` = `type`) {
 
-    override val scala: String = Decl.Val(
+    override val scala: Decl.Val = Decl.Val(
       mods = collection.immutable.List(),
       pats = collection.immutable.List(
         Term.Name(name)
       ),
-      decltpe = MType.Name(`type`.id.name)
-    ).toString()
+      decltpe = MType.Name.Initial(`type`.id.name)
+    )
+
 
   }
 
@@ -43,5 +46,21 @@ object Value {
     }
   }
 
+  case class Definition(override val name: Name,
+                   override val `type`: Value.Type, //|Union.Type|Intersection.Type|Functional.Type...
+                   override val expression: Literal | Reference
+                  ) extends model.Definition(name = name, `type` = `type`, expression = expression) {
 
+    override def scala: Defn.Val = Defn.Val (
+      mods = collection.immutable.List(),
+      pats = collection.immutable.List(
+        Term.Name(name)
+      ),
+      decltpe = Option(MType.Name.Initial(`type`.id.name)),
+      rhs = expression.scala
+    )
+
+
+
+  }
 }

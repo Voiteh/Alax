@@ -8,19 +8,19 @@ import org.scalatest.wordspec.AnyWordSpec
 import scala.language.postfixOps;
 
 class ValueTest extends AnyWordSpec {
-
+  type ScalaSourceCode = String
   "Value" when {
     "declared fully qualified, then" should {
       "correspond" in {
-        val (source: Value.Declaration, target: String) = fixture.value.declaration.`java.lang.String abc`;
-        source.scala shouldBe target
+        val (source: Value.Declaration, target: ScalaSourceCode) = fixture.value.declaration.`java.lang.String abc`;
+        source.scala.toString() shouldBe target
 
       }
     }
     "declared fully simple, then" should {
       "correspond" in {
-        val (source: Value.Declaration, target: String) = fixture.value.declaration.`Integer def`;
-        source.scala shouldBe target
+        val (source: Value.Declaration, target: ScalaSourceCode) = fixture.value.declaration.`Integer def`;
+        source.scala.toString() shouldBe target
 
       }
     }

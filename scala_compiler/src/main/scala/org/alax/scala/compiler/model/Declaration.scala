@@ -1,5 +1,7 @@
 package org.alax.scala.compiler.model
 
+import scala.meta.{Decl, Stat}
+
 
 /**
  * Something that changes structure of program constructs add new type / member / variable etc.
@@ -8,7 +10,9 @@ package org.alax.scala.compiler.model
  * @param `type` - Internal property of declaration indicates the declaration type. It is not type declaration itself like Class, Interface etc. It can be a value / union / intersection / object type (reference)
  */
 abstract class Declaration(val name: Declaration.Name | Null, val `type`: Declaration.Type)
-  extends Statement
+  extends Statement {
+  override def scala: Decl = ???
+}
 
 object Declaration {
 

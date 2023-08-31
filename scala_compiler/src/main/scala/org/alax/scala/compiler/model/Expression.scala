@@ -1,8 +1,10 @@
 package org.alax.scala.compiler.model
 
+import scala.meta.{Term,Ref}
+
 /**
  * Something that can be assigned
  */
 abstract class Expression {
-  val scala: String = "";
+  val scala: Term = ???;
 }
