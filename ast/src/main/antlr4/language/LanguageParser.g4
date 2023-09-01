@@ -12,22 +12,23 @@ moduleDeclaration: MODULE LOWERCASE_NAME (DOT LOWERCASE_NAME)* OPEN_CURLY  CLOSE
 
 packageDeclaration: PACKAGE LOWERCASE_NAME (DOT LOWERCASE_NAME)* packageBody;
 //FIXME this will change when types will come
-packageBody:OPEN_CURLY (valueDeclaration|valueDeclarationWithInitialization|functionDeclaration)*  CLOSE_CURLY;
+packageBody:OPEN_CURLY (valueDeclaration|valueDefinition|functionDeclaration)*  CLOSE_CURLY;
 
-functionDeclaration: valueTypeReference? LOWERCASE_NAME OPEN_BRACKET functionParameters? CLOSE_BRACKET functionalBody|SEMI_COLON;
-functionalBody: FAT_ARROW|NOT_FAT_ARROW (expression SEMI_COLON)| OPEN_CURLY functionalBodyStatement* CLOSE_CURLY;
-functionalBodyStatement:  valueDeclaration|valueDeclarationWithInitialization|returnStatement|assignmentStatement;
+functionDefinition: valueTypeReference? LOWERCASE_NAME OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
+functionDeclaration: valueTypeReference? LOWERCASE_NAME OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
+functionalBody: (expression SEMI_COLON)| OPEN_CURLY functionalBodyStatement* CLOSE_CURLY;
+functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|assignmentStatement;
 
 
 
 functionParameters: functionParameter (COMMA functionParameter)*;
 functionParameter: valueTypeReference LOWERCASE_NAME (COLON literalExpression|referenceExpression)?;
 
-valueDeclarationWithInitialization: accessModifier? valueTypeReference LOWERCASE_NAME COLON expression SEMI_COLON ;
+valueDefinition: accessModifier? valueTypeReference LOWERCASE_NAME COLON expression SEMI_COLON ;
 valueDeclaration: accessModifier? valueTypeReference LOWERCASE_NAME SEMI_COLON;
 
 
-declaration: valueDeclaration|valueDeclarationWithInitialization|packageDeclaration|functionDeclaration;
+declaration: valueDeclaration|valueDefinition|packageDeclaration|functionDeclaration;
 
 
 

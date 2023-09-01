@@ -20,8 +20,8 @@ object ParseLiteralTest {
     val ctx=parser.literalExpression();
 
     val result = LanguageVisitor(tokens).visitLiteralExpression(ctx);
-    assert(result.isInstanceOf[expressions.literals.Boolean]);
-    assert(result.asInstanceOf[expressions.literals.Boolean].value == true);
+    assert(result.isInstanceOf[Expression.Literal.Boolean]);
+    assert(result.asInstanceOf[Expression.Literal.Boolean].value == true);
   }
 
 
@@ -33,8 +33,8 @@ object ParseLiteralTest {
     val ctx=parser.literalExpression();
 
     val result = LanguageVisitor(tokens).visitLiteralExpression(ctx);
-    assert(result.isInstanceOf[expressions.literals.Character]);
-    assert(result.asInstanceOf[expressions.literals.Character].value == 'a');
+    assert(result.isInstanceOf[Expression.Literal.Character]);
+    assert(result.asInstanceOf[Expression.Literal.Character].value == 'a');
   }
 
   @Test
@@ -45,8 +45,8 @@ object ParseLiteralTest {
     val ctx=parser.literalExpression();
 
     val result = LanguageVisitor(tokens).visitLiteralExpression(ctx);
-    assert(result.isInstanceOf[expressions.literals.Integer]);
-    assert(result.asInstanceOf[expressions.literals.Integer].value == -10);
+    assert(result.isInstanceOf[Expression.Literal.Integer]);
+    assert(result.asInstanceOf[Expression.Literal.Integer].value == -10);
   }
 
   @Test
@@ -57,8 +57,8 @@ object ParseLiteralTest {
     val ctx=parser.literalExpression();
 
     val result = LanguageVisitor(tokens).visitLiteralExpression(ctx);
-    assert(result.isInstanceOf[expressions.literals.Float]);
-    assert(result.asInstanceOf[expressions.literals.Float].value == -99.123);
+    assert(result.isInstanceOf[Expression.Literal.Float]);
+    assert(result.asInstanceOf[Expression.Literal.Float].value == -99.123);
   }
 
   @Test
@@ -69,8 +69,8 @@ object ParseLiteralTest {
     val ctx=parser.literalExpression();
 
     val result = LanguageVisitor(tokens).visitLiteralExpression(ctx);
-    assert(result.isInstanceOf[expressions.literals.String]);
-    assert(result.asInstanceOf[expressions.literals.String].value == "str");
+    assert(result.isInstanceOf[Expression.Literal.String]);
+    assert(result.asInstanceOf[Expression.Literal.String].value == "str");
   }
 
 

@@ -8,7 +8,7 @@ lazy val alax = project.in(file("."))
     commonSettings,
     name := "Alax",
     description := "Alax programming language",
-    scalaVersion := "3.1.3",
+    scalaVersion := "3.1.3"
   )
   .aggregate(
     ast,

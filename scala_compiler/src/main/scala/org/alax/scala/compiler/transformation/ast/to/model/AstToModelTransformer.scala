@@ -1,9 +1,8 @@
 package org.alax.scala.compiler.transformation.ast.to.model
 
 import org.alax.ast.model as ast
-import org.alax.ast.model.Node.someFun
-import org.alax.ast.model.partials.names.{LowerCase, Qualified, UpperCase}
-import org.alax.ast.model.statements.declarations
+import org.alax.ast.model.Partial.Name.{LowerCase, Qualified, UpperCase}
+import org.alax.ast.model.Statement.Declaration
 import org.alax.scala.compiler
 import org.alax.scala.compiler.Context
 import org.alax.scala.compiler.model.*
@@ -16,7 +15,7 @@ class AstToModelTransformer {
 
 
     def value(
-               valueDeclaration: ast.statements.declarations.Value,
+               valueDeclaration: ast.Statement.Declaration.Value,
                context: Context.Unit | Context.Package
              ): compiler.model.Value.Declaration | CompilationError = {
       val imports = context match
@@ -25,13 +24,13 @@ class AstToModelTransformer {
 
 
       val typeId: compiler.model.Declaration.Type.Id | CompilationError = valueDeclaration.`type` match {
-        case ast.partials.types.ValueTypeReference(id, _) => id match {
-          case ast.partials.names.UpperCase(value, _) => compiler.model.Declaration.Type.Id(name = value)
-          case ast.partials.names.Qualified(value: Seq[ast.partials.names.LowerCase | ast.partials.names.UpperCase], _) =>
+        case ast.Partial.types.ValueTypeReference(id, _) => id match {
+          case ast.Partial.Name.UpperCase(value, _) => compiler.model.Declaration.Type.Id(name = value)
+          case ast.Partial.Name.Qualified(value: Seq[ast.Partial.Name.LowerCase | ast.Partial.Name.UpperCase], _) =>
             compiler.model.Declaration.Type.Id(
               name = value.foldLeft(mutable.StringBuilder(""))((acc, element) => acc.append(element match {
-                case lower: ast.partials.names.LowerCase => lower.value + "."
-                case upper: ast.partials.names.UpperCase => upper.value
+                case lower: ast.Partial.Name.LowerCase => lower.value + "."
+                case upper: ast.Partial.Name.UpperCase => upper.value
               })).toString
             )
         }
@@ -48,25 +47,25 @@ class AstToModelTransformer {
 
     }
 
-    def trace(location: ast.node.Location): compiler.model.Trace = compiler.model.Trace(
+    def trace(location: ast.Node.Location): compiler.model.Trace = compiler.model.Trace(
       unit = location.unit,
       lineNumber = location.lineNumber,
       startIndex = location.startIndex,
       endIndex = location.endIndex
     )
 
-    private def foldNames(names: Seq[ast.partials.Name]): String = {
-      return names.foldLeft(mutable.StringBuilder())((acc: mutable.StringBuilder, ancestor: ast.partials.Name) =>
+    private def foldNames(names: Seq[ast.Partial.Name]): String = {
+      return names.foldLeft(mutable.StringBuilder())((acc: mutable.StringBuilder, ancestor: ast.Partial.Name) =>
         if (acc.isEmpty) then acc.append(ancestor.text())
         else acc.append("." + ancestor.text()))
         .toString()
     }
 
     //TODO use streams instead of sequences
-    def imports(`import`: ast.statements.declarations.Import, ancestors: Seq[ast.partials.names.Qualified] = Seq()): Seq[Tracable[compiler.model.Import]] = {
+    def imports(`import`: ast.Statement.Declaration.Import, ancestors: Seq[ast.Partial.Name.Qualified] = Seq()): Seq[Tracable[compiler.model.Import]] = {
       return `import` match {
-        case container: declarations.Import.Nested => container.nestee.flatMap(element => this.imports(element, ancestors :+ container.nest))
-        case simple: declarations.Import.Simple => Seq(Tracable(
+        case container: Declaration.Import.Nested => container.nestee.flatMap(element => this.imports(element, ancestors :+ container.nest))
+        case simple: Declaration.Import.Simple => Seq(Tracable(
           trace = trace(simple.metadata.location),
           transformed = compiler.model.Import(
             ancestor = simple.member match {
@@ -80,7 +79,7 @@ class AstToModelTransformer {
             },
           )
         ))
-        case alias: declarations.Import.Alias => Seq(Tracable(
+        case alias: Declaration.Import.Alias => Seq(Tracable(
           trace = trace(alias.metadata.location),
           transformed = compiler.model.Import(
             ancestor = alias.member match {

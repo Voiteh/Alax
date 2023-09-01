@@ -1,7 +1,7 @@
 package test.org.alax.scala.complier.transformation.ast.to.model
 
 import org.alax.ast.model as ast
-import org.alax.ast.model.statements.declarations.{Import, Value as ValueDeclaration}
+import org.alax.ast.model.Statement.Declaration.{Import,Value as ValueDeclaration}
 import org.alax.scala.compiler
 import org.alax.scala.compiler.transformation
 import org.alax.scala.compiler.Context.Module
@@ -41,11 +41,11 @@ object fixture {
   object Value {
     object Declaration {
       val `Integer int`: ValueDeclaration = ValueDeclaration(
-        name = ast.partials.names.LowerCase(
+        name = ast.Partial.Name.LowerCase(
           value = "int",
         ),
-        `type` = ast.partials.types.ValueTypeReference(
-          id = ast.partials.names.UpperCase("Integer"),
+        `type` = ast.Partial.types.ValueTypeReference(
+          id = ast.Partial.Name.UpperCase("Integer"),
         ),
       )
     }
@@ -53,76 +53,76 @@ object fixture {
 
   object Ast {
     object Import {
-      val `scala.lang.String`: ast.statements.declarations.Import.Simple = ast.statements.declarations.Import.Simple(
-        member = ast.partials.names.Qualified(
+      val `scala.lang.String`: ast.Statement.Declaration.Import.Simple = ast.Statement.Declaration.Import.Simple(
+        member = ast.Partial.Name.Qualified(
           qualifications = Seq(
-            ast.partials.names.LowerCase(
+            ast.Partial.Name.LowerCase(
               value = "scala",
             ),
-            ast.partials.names.LowerCase(
+            ast.Partial.Name.LowerCase(
               value = "lang",
             ),
-            ast.partials.names.UpperCase(value = "String")
+            ast.Partial.Name.UpperCase(value = "String")
           ),
         )
       )
 
 
-      val `scala.lang.Integer as Bleh`: ast.statements.declarations.Import.Alias = ast.statements.declarations.Import.Alias(
-        member = ast.partials.names.Qualified(
+      val `scala.lang.Integer as Bleh`: ast.Statement.Declaration.Import.Alias = ast.Statement.Declaration.Import.Alias(
+        member = ast.Partial.Name.Qualified(
           qualifications = Seq(
-            ast.partials.names.LowerCase(
+            ast.Partial.Name.LowerCase(
               value = "scala",
             ),
-            ast.partials.names.LowerCase(
+            ast.Partial.Name.LowerCase(
               value = "lang",
             ),
-            ast.partials.names.UpperCase("Integer")
+            ast.Partial.Name.UpperCase("Integer")
 
           )
         ),
-        alias = ast.partials.names.UpperCase("Bleh"),
+        alias = ast.Partial.Name.UpperCase("Bleh"),
       )
 
 
-      val `scala.lang [ String, Integer as Bleh ]`: ast.statements.declarations.Import.Nested = ast.statements.declarations.Import.Nested(
-        nest = ast.partials.names.Qualified(
+      val `scala.lang [ String, Integer as Bleh ]`: ast.Statement.Declaration.Import.Nested = ast.Statement.Declaration.Import.Nested(
+        nest = ast.Partial.Name.Qualified(
           qualifications = Seq(
-            ast.partials.names.LowerCase("scala"),
-            ast.partials.names.LowerCase("lang")
+            ast.Partial.Name.LowerCase("scala"),
+            ast.Partial.Name.LowerCase("lang")
           ),
         ),
         nestee = Seq(
-          ast.statements.declarations.Import.Simple(
-            member = ast.partials.names.UpperCase("String")
+          ast.Statement.Declaration.Import.Simple(
+            member = ast.Partial.Name.UpperCase("String")
           ),
-          ast.statements.declarations.Import.Alias(
-            member = ast.partials.names.UpperCase("Integer"),
-            alias = ast.partials.names.UpperCase("Bleh"),
+          ast.Statement.Declaration.Import.Alias(
+            member = ast.Partial.Name.UpperCase("Integer"),
+            alias = ast.Partial.Name.UpperCase("Bleh"),
           ),
         )
       )
-      val `scala. [ lang.String, lang.[Integer as Bleh] ]`: ast.statements.declarations.Import.Nested = ast.statements.declarations.Import.Nested(
-        nest = ast.partials.names.Qualified(
+      val `scala. [ lang.String, lang.[Integer as Bleh] ]`: ast.Statement.Declaration.Import.Nested = ast.Statement.Declaration.Import.Nested(
+        nest = ast.Partial.Name.Qualified(
           qualifications = Seq(
-            ast.partials.names.LowerCase("scala")
+            ast.Partial.Name.LowerCase("scala")
           ),
         ),
         nestee = Seq(
-          ast.statements.declarations.Import.Nested(
-            nest = ast.partials.names.Qualified(
+          ast.Statement.Declaration.Import.Nested(
+            nest = ast.Partial.Name.Qualified(
               qualifications = Seq(
-                ast.partials.names.LowerCase("lang")
+                ast.Partial.Name.LowerCase("lang")
               ),
             ),
             nestee = Seq(
-              ast.statements.declarations.Import.Alias(
-                member = ast.partials.names.Qualified(
+              ast.Statement.Declaration.Import.Alias(
+                member = ast.Partial.Name.Qualified(
                   qualifications = Seq(
-                    ast.partials.names.UpperCase("Integer")
+                    ast.Partial.Name.UpperCase("Integer")
                   ),
                 ),
-                alias = ast.partials.names.UpperCase("Bleh")
+                alias = ast.Partial.Name.UpperCase("Bleh")
               )
             )
           )

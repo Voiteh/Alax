@@ -1,25 +1,24 @@
 package org.alax.ast
 
-import org.alax.ast.model.node.Metadata
-import org.alax.ast.model.node.Metadata.unknown.location
-import org.alax.ast.model.partials.names.UpperCase
+import org.alax.ast.model.Node.Metadata
+import org.alax.ast.model.Node.Metadata.unknown.location
+import org.alax.ast.model.Partial.Name.UpperCase
 
 import scala.collection.mutable
 
 //TODO change naming of objects to uppercase singular
 object model {
   class ParseError(
-                    val metadata: node.Metadata,
+                    val metadata: Node.Metadata,
                     message: String,
                     cause: Throwable | Null = null
                   )
     extends Exception(message, cause)
-  object Node{
-    def someFun():Unit={}
-  }
-  abstract class Node(metadata: node.Metadata);
 
-  object node {
+
+  abstract class Node(metadata: Node.Metadata);
+
+  object Node {
     class Metadata(val location: Location);
 
     object Metadata {
@@ -29,7 +28,7 @@ object model {
     class Location(val unit: String, val lineNumber: Int, val startIndex: Int, val endIndex: Int)
 
     object Location {
-      val unknown: Location = node.Location(
+      val unknown: Location = Node.Location(
         unit = "",
         lineNumber = -1,
         startIndex = -1,
@@ -38,17 +37,17 @@ object model {
     }
   }
 
-  abstract class Statement(metadata: node.Metadata) extends Node(metadata = metadata);
+  abstract class Statement(metadata: Node.Metadata) extends Node(metadata = metadata);
 
-  abstract class Expression(metadata: node.Metadata) extends Node(metadata = metadata);
+  abstract class Expression(metadata: Node.Metadata) extends Node(metadata = metadata);
 
-  abstract class Partial(metadata: node.Metadata) extends Node(metadata = metadata);
+  abstract class Partial(metadata: Node.Metadata) extends Node(metadata = metadata);
 
 
   /**
    * Can be used as parts of statements and expressions
    */
-  object partials {
+  object Partial {
     abstract class TypeReference(metadata: Metadata) extends Partial(metadata = metadata);
 
     /**
@@ -59,20 +58,21 @@ object model {
     }
 
     object types {
-      case class ValueTypeReference(id: names.UpperCase | names.Qualified, metadata: Metadata = Metadata.unknown) extends partials.TypeReference(metadata = metadata);
+      case class ValueTypeReference(id: Name.UpperCase | Name.Qualified, metadata: Metadata = Metadata.unknown) extends Partial.TypeReference(metadata = metadata);
     }
 
-    object names {
+    object Name {
 
-      type Imported = Qualified|LowerCase|UpperCase;
+      type Imported = Qualified | LowerCase | UpperCase;
 
-      case class Qualified(qualifications: Seq[LowerCase | UpperCase], metadata: Metadata = Metadata.unknown) extends partials.Name(metadata = metadata) {
+      case class Qualified(qualifications: Seq[LowerCase | UpperCase], metadata: Metadata = Metadata.unknown) extends Partial.Name(metadata = metadata) {
         assert(qualifications.nonEmpty)
 
         def prefix: Seq[LowerCase | UpperCase] = qualifications.dropRight(1);
 
         /**
          * Not empty
+         *
          * @return
          */
         def suffix: LowerCase | UpperCase = qualifications.last;
@@ -84,13 +84,13 @@ object model {
 
       }
 
-      case class LowerCase(value: String, metadata: Metadata = Metadata.unknown) extends partials.Name(metadata = metadata) {
+      case class LowerCase(value: String, metadata: Metadata = Metadata.unknown) extends Partial.Name(metadata = metadata) {
         assert(value.matches("[a-z].*"))
 
         override def text(): String = value;
       }
 
-      case class UpperCase(value: String, metadata: Metadata = Metadata.unknown) extends partials.Name(metadata = metadata) {
+      case class UpperCase(value: String, metadata: Metadata = Metadata.unknown) extends Partial.Name(metadata = metadata) {
         assert(value.matches("[A-Z].*"))
 
         override def text(): String = value;
@@ -101,34 +101,45 @@ object model {
   }
 
 
-  object statements {
+  object Statement {
     abstract class Declaration(metadata: Metadata) extends Statement(metadata = metadata);
 
+    abstract class Definition(metadata: Metadata) extends Statement(metadata = metadata);
 
-    object declarations {
+    object Definition {
+      case class Value(
+                        name: Partial.Name.LowerCase,
+                        `type`: Partial.TypeReference,
+                        initialization: model.Expression,
+                        metadata: Metadata = Metadata.unknown
+                      ) extends Statement.Definition(metadata = metadata);
+    }
+
+
+    object Declaration {
 
 
       abstract class Import(
                              val metadata: Metadata = Metadata.unknown
-                           ) extends Declaration(metadata = metadata);
+                           ) extends Statement.Declaration(metadata = metadata);
 
       object Import {
         case class Alias(
-                          member: partials.names.Imported,
-                          alias: partials.names.Imported,
+                          member: Partial.Name.Imported,
+                          alias: Partial.Name.Imported,
                           override val metadata: Metadata = Metadata.unknown
                         )
           extends Import(metadata = metadata)
 
         case class Simple(
-                           member: partials.names.Imported,
+                           member: Partial.Name.Imported,
                            override val metadata: Metadata = Metadata.unknown
                          )
           extends Import(metadata = metadata)
 
 
         case class Nested(
-                           nest: partials.names.Qualified,
+                           nest: Partial.Name.Qualified,
                            nestee: Seq[Import],
                            override val metadata: Metadata = Metadata.unknown
                          )
@@ -137,25 +148,20 @@ object model {
 
 
       case class Value(
-                        name: partials.names.LowerCase,
-                        `type`: partials.TypeReference,
+                        name: Partial.Name.LowerCase,
+                        `type`: Partial.TypeReference,
                         metadata: Metadata = Metadata.unknown
-                      ) extends statements.Declaration(metadata = metadata);
+                      ) extends Statement.Declaration(metadata = metadata);
 
-      case class ValueWithInitialization(
-                                          name: partials.names.LowerCase,
-                                          `type`: partials.TypeReference,
-                                          initialization: model.Expression,
-                                          metadata: Metadata = Metadata.unknown
-                                        ) extends statements.Declaration(metadata = metadata);
+
     }
   }
 
-  object expressions {
+  object Expression {
 
     abstract class Literal(metadata: Metadata) extends Expression(metadata = metadata);
 
-    object literals {
+    object Literal {
       case class Boolean(value: java.lang.Boolean, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
 
       case class Character(value: java.lang.Character, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
@@ -168,4 +174,5 @@ object model {
     }
 
   }
+
 }
