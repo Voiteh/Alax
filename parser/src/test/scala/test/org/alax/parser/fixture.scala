@@ -1,25 +1,25 @@
 package test.org.alax.parser
 
 object fixture {
+  object value {
 
-  object declaration {
-
-    object value {
-
-      val simple: String = """java.lang.String value;""";
-
-      object withInitialization {
-        object literal {
-          val bool: String = """java.lang.Boolean bool:true ;"""
-          val char: String = """java.lang.Character char :'a';"""
-          val string: String = """java.lang.String string: "asd"  ;"""
-          val integer: String = """java.lang.Integer int   : -3;"""
-          val float: String = """java.lang.Float float: -3.12;"""
-        }
+    object definition {
+      object literal {
+        val `java.lang.Boolean bool:true;`: String = """java.lang.Boolean bool:true ;"""
+        val `java.lang.Character char :'a';`: String = """java.lang.Character char :'a';"""
+        val `java.lang.String string: "asd"  ;`: String = """java.lang.String string: "asd"  ;"""
+        val `java.lang.Integer int   : -3;`: String = """java.lang.Integer int   : -3;"""
+        val `java.lang.Float float: -3.12;`: String = """java.lang.Float float: -3.12;"""
       }
     }
 
+    object declaration {
+      val `java.lang.String value;`: String = """java.lang.String value;""";
+
+    }
+
   }
+
 
   object literal {
     val boolTrue = "true";

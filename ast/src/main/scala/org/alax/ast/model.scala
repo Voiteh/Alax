@@ -109,7 +109,7 @@ object model {
     object Definition {
       case class Value(
                         name: Partial.Name.LowerCase,
-                        `type`: Partial.TypeReference,
+                        typeReference: Partial.TypeReference,
                         initialization: model.Expression,
                         metadata: Metadata = Metadata.unknown
                       ) extends Statement.Definition(metadata = metadata);

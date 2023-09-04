@@ -4,12 +4,12 @@ import org.alax.parser.LanguageVisitor
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.junit.jupiter.api.Test
 import org.alax.ast.{model,LanguageLexer,LanguageParser}
-
+//TODO refactor to scala test instead of junit
 object ParseValueDeclarationTest {
 
   @Test
   def parseSimpleValueDeclaration(): Unit = {
-    val lexer = LanguageLexer(CharStreams.fromString(fixture.declaration.value.simple));
+    val lexer = LanguageLexer(CharStreams.fromString(fixture.value.declaration.`java.lang.String value;`));
     val tokens = new CommonTokenStream(lexer)
     val parser = new LanguageParser(tokens);
     val ctx = parser.valueDeclaration();

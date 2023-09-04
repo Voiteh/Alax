@@ -109,8 +109,7 @@ class LanguageVisitor(tokenStream: TokenStream)
     }
   }
 
-  override def visitValueDefinition(ctx: LanguageParser.ValueDefinitionContext):
-  Statement.Definition.Value | ParseError = {
+  override def visitValueDefinition(ctx: LanguageParser.ValueDefinitionContext): Statement.Definition.Value | ParseError = {
     super.visitValueDefinition(ctx);
 
     val typeReference: Partial.TypeReference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
@@ -123,7 +122,7 @@ class LanguageVisitor(tokenStream: TokenStream)
             initialization match {
               case expression: Expression => Statement.Definition.Value(
                 name = shadowName,
-                `type` = shadowType,
+                typeReference = shadowType,
                 initialization = expression,
                 metadata = metadata(ctx.getStart)
               );

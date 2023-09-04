@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.{CharStream, CharStreams, CommonTokenStream}
 import org.alax.ast.{LanguageLexer, LanguageParser}
 import org.alax.ast.model.*
 import test.org.alax.parser.fixture.literal
+//TODO refactor to scala test instead of junit
 object ParseLiteralTest {
 
 
