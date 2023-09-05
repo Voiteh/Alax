@@ -24,7 +24,7 @@ class AstToModelTransformer {
 
 
       val typeId: compiler.model.Declaration.Type.Id | CompilationError = valueDeclaration.`type` match {
-        case ast.Partial.types.ValueTypeReference(id, _) => id match {
+        case ast.Partial.Type.ValueTypeReference(id, _) => id match {
           case ast.Partial.Name.UpperCase(value, _) => compiler.model.Declaration.Type.Id(name = value)
           case ast.Partial.Name.Qualified(value: Seq[ast.Partial.Name.LowerCase | ast.Partial.Name.UpperCase], _) =>
             compiler.model.Declaration.Type.Id(

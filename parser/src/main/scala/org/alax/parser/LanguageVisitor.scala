@@ -73,19 +73,25 @@ class LanguageVisitor(tokenStream: TokenStream)
     return if qualifications.size == 1 then qualifications.last else Partial.Name.Qualified(qualifications, metadata(ctx.start));
   }
 
-  override def visitValueTypeReference(ctx: LanguageParser.ValueTypeReferenceContext): Partial.types.ValueTypeReference | ParseError = {
+  override def visitValueTypeReference(ctx: LanguageParser.ValueTypeReferenceContext): Partial.Type.ValueTypeReference | ParseError = {
     super.visitValueTypeReference(ctx)
-
     val typeName = Partial.Name.UpperCase(value = ctx.typeName.getText, metadata = metadata(ctx.typeName))
-    val importedName: Partial.Name.Imported | ParseError = visitImportedName(ctx.importedName());
-    return Partial.types.ValueTypeReference(id = importedName match {
-      case error: ParseError => return error;
-      case imported: Partial.Name.UpperCase => Partial.Name.Qualified(qualifications = Seq(imported, typeName), metadata(ctx.start))
-      case imported: Partial.Name.LowerCase => Partial.Name.Qualified(qualifications = Seq(imported, typeName), metadata(ctx.start))
-      case imported: Partial.Name.Qualified => Partial.Name.Qualified(qualifications = imported.qualifications :+ typeName, metadata(ctx.start))
-    },
-      metadata = metadata(ctx.start)
-    )
+    val fullName: Partial.Name.Qualified | Partial.Name.UpperCase | ParseError = Option(ctx.importedName())
+      .map(context => visitImportedName(context))
+      .map[ParseError|Partial.Name.Qualified|Partial.Name.UpperCase] {
+        case error: ParseError => error;
+        case imported: Partial.Name.UpperCase => Partial.Name.Qualified(qualifications = Seq(imported, typeName), metadata(ctx.start))
+        case imported: Partial.Name.LowerCase => Partial.Name.Qualified(qualifications = Seq(imported, typeName), metadata(ctx.start))
+        case imported: Partial.Name.Qualified => Partial.Name.Qualified(qualifications = imported.qualifications :+ typeName, metadata(ctx.start))
+      }
+      .getOrElse[ParseError|Partial.Name.Qualified|Partial.Name.UpperCase](typeName);
+    return fullName match {
+      case id@(_: Partial.Name.UpperCase | _: Partial.Name.Qualified) => Partial.Type.ValueTypeReference(
+        id = id, metadata = metadata(ctx.start)
+      )
+      case default: ParseError => default
+    }
+
   }
 
 

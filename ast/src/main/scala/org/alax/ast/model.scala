@@ -57,7 +57,7 @@ object model {
       def text(): String;
     }
 
-    object types {
+    object Type {
       case class ValueTypeReference(id: Name.UpperCase | Name.Qualified, metadata: Metadata = Metadata.unknown) extends Partial.TypeReference(metadata = metadata);
     }
 

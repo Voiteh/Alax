@@ -3,7 +3,7 @@ package test.org.alax.parser
 import org.alax.ast.LanguageParser.{AS, ValueDefinitionContext}
 import org.alax.ast.model.Node.Metadata
 import org.alax.ast.model.Partial.Name
-import org.alax.ast.model.Partial.types.ValueTypeReference
+import org.alax.ast.model.Partial.Type.ValueTypeReference
 import org.alax.ast.model.{ParseError, Statement}
 import org.alax.ast.{LanguageLexer, LanguageParser, model}
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
@@ -44,94 +44,100 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         }
       }
     }
+
+    "java.lang.Character char :'a';" should{
+      "parse to value definition" in {
+        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Character char :'a';`)
+          .context((parser: LanguageParser) => parser.valueDefinition())
+          .visit((visitor, context) => visitor.visitValueDefinition(context))
+        result mustBe a[Statement.Definition.Value];
+        inside(result.asInstanceOf[Statement.Definition.Value]) {
+          case Statement.Definition.Value(name, typeReference, initialization, _) =>
+            name.text() mustBe "char"
+            typeReference mustBe a[ValueTypeReference]
+            inside(typeReference.asInstanceOf[ValueTypeReference]) {
+              case ValueTypeReference(id, _) =>
+                id mustBe a[model.Partial.Name.Qualified]
+                id.text() mustBe "java.lang.Character"
+
+            }
+            initialization mustBe a[model.Expression.Literal.Character]
+            inside(initialization) {
+              case model.Expression.Literal.Character(value, _) => value mustBe 'a'
+            }
+        }
+      }
+    }
+    "java.lang.String string: \"asd\"  ;" should {
+      "parse to value definition" in {
+        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.String string: "asd"  ;`)
+          .context((parser: LanguageParser) => parser.valueDefinition())
+          .visit((visitor, context) => visitor.visitValueDefinition(context))
+        result mustBe a[Statement.Definition.Value];
+        inside(result.asInstanceOf[Statement.Definition.Value]) {
+          case Statement.Definition.Value(name, typeReference, initialization, _) =>
+            name.text() mustBe "string"
+            typeReference mustBe a[ValueTypeReference]
+            inside(typeReference.asInstanceOf[ValueTypeReference]) {
+              case ValueTypeReference(id, _) =>
+                id mustBe a[model.Partial.Name.Qualified]
+                id.text() mustBe "java.lang.String"
+
+            }
+            initialization mustBe a[model.Expression.Literal.String]
+            inside(initialization) {
+              case model.Expression.Literal.String(value, _) => value mustBe "asd"
+            }
+        }
+      }
+    }
+    "Integer int   : -3;" should {
+      "parse to value definition" in {
+        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`Integer int   : -3;`)
+          .context((parser: LanguageParser) => parser.valueDefinition())
+          .visit((visitor, context) => visitor.visitValueDefinition(context))
+        result mustBe a[Statement.Definition.Value];
+        inside(result.asInstanceOf[Statement.Definition.Value]) {
+          case Statement.Definition.Value(name, typeReference, initialization, _) =>
+            name.text() mustBe "int"
+            typeReference mustBe a[ValueTypeReference]
+            inside(typeReference.asInstanceOf[ValueTypeReference]) {
+              case ValueTypeReference(id, _) =>
+                id mustBe a[model.Partial.Name.UpperCase]
+                id.text() mustBe "Integer"
+
+            }
+            initialization mustBe a[model.Expression.Literal.Integer]
+            inside(initialization) {
+              case model.Expression.Literal.Integer(value, _) => value mustBe -3
+            }
+        }
+      }
+    }
+    "Float float: -3.12;" should {
+      "parse to value definition" in {
+        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`Float float: -3.12;`)
+          .context((parser: LanguageParser) => parser.valueDefinition())
+          .visit((visitor, context) => visitor.visitValueDefinition(context))
+        result mustBe a[Statement.Definition.Value];
+        inside(result.asInstanceOf[Statement.Definition.Value]) {
+          case Statement.Definition.Value(name, typeReference, initialization, _) =>
+            name.text() mustBe "float"
+            typeReference mustBe a[ValueTypeReference]
+            inside(typeReference.asInstanceOf[ValueTypeReference]) {
+              case ValueTypeReference(id, _) =>
+                id mustBe a[model.Partial.Name.UpperCase]
+                id.text() mustBe "Float"
+
+            }
+            initialization mustBe a[model.Expression.Literal.Float]
+            inside(initialization) {
+              case model.Expression.Literal.Float(value, _) => value mustBe -3.12
+            }
+        }
+      }
+    }
+
   }
 
-//  @Test
-//  def parseValueWithBooleanInitializationDeclaration(): Unit = {
-//    val lexer = LanguageLexer(CharStreams.fromString(fixture.declaration.value.withInitialization.literal.bool));
-//    val tokens = new CommonTokenStream(lexer)
-//    val parser = new LanguageParser(tokens);
-//    val ctx = parser.valueDefinition();
-//    val result = LanguageVisitor(tokens).visitValueDefinition(ctx);
-//
-//    assert(result.isInstanceOf[model.Statement.Definition.Value]);
-//    val cast = result.asInstanceOf[model.Statement.Definition.Value];
-//    assert(cast.name.value == "bool");
-//    assert(cast.typeReference.isInstanceOf[model.Partial.types.ValueTypeReference]);
-//    assert(cast.typeReference.asInstanceOf[model.Partial.types.ValueTypeReference].id.asInstanceOf[model.Partial.Name.Qualified].text() == "java.lang.Boolean");
-//    assert(cast.initialization.isInstanceOf[model.Expression.Literal.Boolean]);
-//    assert(cast.initialization.asInstanceOf[model.Expression.Literal.Boolean].value == true);
-//
-//  }
-//
-//  @Test
-//  def parseValueWithCharInitializationDeclaration(): Unit = {
-//    val lexer = LanguageLexer(CharStreams.fromString(fixture.declaration.value.withInitialization.literal.char));
-//    val tokens = new CommonTokenStream(lexer)
-//    val parser = new LanguageParser(tokens);
-//    val ctx = parser.valueDefinition();
-//    val result = LanguageVisitor(tokens).visitValueDefinition(ctx);
-//
-//    assert(result.isInstanceOf[model.Statement.Definition.Value]);
-//    val cast = result.asInstanceOf[model.Statement.Definition.Value];
-//    assert(cast.name.value == "char");
-//    assert(cast.typeReference.isInstanceOf[model.Partial.types.ValueTypeReference]);
-//    assert(cast.typeReference.asInstanceOf[model.Partial.types.ValueTypeReference].id.asInstanceOf[model.Partial.Name.Qualified].text() == "java.lang.Character");
-//    assert(cast.initialization.isInstanceOf[model.Expression.Literal.Character]);
-//    assert(cast.initialization.asInstanceOf[model.Expression.Literal.Character].value == 'a');
-//  }
-//
-//  @Test
-//  def parseValueWithIntegerInitializationDeclaration(): Unit = {
-//    val lexer = LanguageLexer(CharStreams.fromString(fixture.declaration.value.withInitialization.literal.integer));
-//    val tokens = new CommonTokenStream(lexer)
-//    val parser = new LanguageParser(tokens);
-//    val ctx = parser.valueDefinition();
-//    val result = LanguageVisitor(tokens).visitValueDefinition(ctx);
-//
-//    assert(result.isInstanceOf[model.Statement.Definition.Value]);
-//    val cast = result.asInstanceOf[model.Statement.Definition.Value];
-//    assert(cast.name.value == "int");
-//    assert(cast.typeReference.isInstanceOf[model.Partial.types.ValueTypeReference]);
-//    val value = cast.typeReference.asInstanceOf[model.Partial.types.ValueTypeReference];
-//    assert(value.id.isInstanceOf[model.Partial.Name.Qualified]);
-//    val valueName = value.id.asInstanceOf[model.Partial.Name.Qualified];
-//    assert(valueName.text() == "java.lang.Integer");
-//    assert(cast.initialization.isInstanceOf[model.Expression.Literal.Integer]);
-//    assert(cast.initialization.asInstanceOf[model.Expression.Literal.Integer].value == -3);
-//  }
-//
-//  @Test
-//  def parseValueWithFloatInitializationDeclaration(): Unit = {
-//    val lexer = LanguageLexer(CharStreams.fromString(fixture.declaration.value.withInitialization.literal.float));
-//    val tokens = new CommonTokenStream(lexer)
-//    val parser = new LanguageParser(tokens);
-//    val ctx = parser.valueDefinition();
-//    val result = LanguageVisitor(tokens).visitValueDefinition(ctx);
-//
-//    assert(result.isInstanceOf[model.Statement.Definition.Value]);
-//    val cast = result.asInstanceOf[model.Statement.Definition.Value];
-//    assert(cast.name.value == "float");
-//    assert(cast.typeReference.isInstanceOf[model.Partial.types.ValueTypeReference]);
-//    assert(cast.typeReference.asInstanceOf[model.Partial.types.ValueTypeReference].id.asInstanceOf[model.Partial.Name.Qualified].text() == "java.lang.Float");
-//    assert(cast.initialization.isInstanceOf[model.Expression.Literal.Float]);
-//    assert(cast.initialization.asInstanceOf[model.Expression.Literal.Float].value == -3.12);
-//  }
-//
-//  @Test
-//  def parseValueWithStringInitializationDeclaration(): Unit = {
-//    val lexer = LanguageLexer(CharStreams.fromString(fixture.declaration.value.withInitialization.literal.string));
-//    val tokens = new CommonTokenStream(lexer)
-//    val parser = new LanguageParser(tokens);
-//    val ctx = parser.valueDefinition();
-//    val result = LanguageVisitor(tokens).visitValueDefinition(ctx);
-//
-//    assert(result.isInstanceOf[model.Statement.Definition.Value]);
-//    val cast = result.asInstanceOf[model.Statement.Definition.Value];
-//    assert(cast.name.value == "string");
-//    assert(cast.typeReference.isInstanceOf[model.Partial.types.ValueTypeReference]);
-//    assert(cast.typeReference.asInstanceOf[model.Partial.types.ValueTypeReference].id.asInstanceOf[model.Partial.Name.Qualified].text() == "java.lang.String");
-//    assert(cast.initialization.isInstanceOf[model.Expression.Literal.String]);
-//    assert(cast.initialization.asInstanceOf[model.Expression.Literal.String].value == "asd");
-//  }
 }
