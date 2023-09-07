@@ -5,7 +5,7 @@ import org.alax.ast.model.Partial.Name.{LowerCase, Qualified, UpperCase}
 import org.alax.ast.model.Statement.Declaration
 import org.alax.scala.compiler
 import org.alax.scala.compiler.Context
-import org.alax.scala.compiler.model.*
+import org.alax.scala.compiler.model.{CompilationError, *}
 
 import scala.collection.mutable
 
@@ -14,10 +14,11 @@ class AstToModelTransformer {
   object transform {
 
 
-    def value(
-               valueDeclaration: ast.Statement.Declaration.Value,
-               context: Context.Unit | Context.Package
-             ): compiler.model.Value.Declaration | CompilationError = {
+
+    def valueDeclaration(
+                          valueDeclaration: ast.Statement.Declaration.Value,
+                          context: Context.Unit | Context.Package
+                        ): compiler.model.Value.Declaration | CompilationError = {
       val imports = context match
         case Context.Unit(_, imports) => imports;
         case Context.Package(_, imports) => imports;
@@ -25,13 +26,24 @@ class AstToModelTransformer {
 
       val typeId: compiler.model.Declaration.Type.Id | CompilationError = valueDeclaration.`type` match {
         case ast.Partial.Type.ValueTypeReference(id, _) => id match {
-          case ast.Partial.Name.UpperCase(value, _) => compiler.model.Declaration.Type.Id(name = value)
+          case ast.Partial.Name.UpperCase(value, _) => imports.find(element => value.equals(element.alias) || value.equals(element.member))
+            .map(element => s"${element.ancestor}.${element.member}")
+            .map(result => compiler.model.Declaration.Type.Id(name = result))
+            .getOrElse(new CompilationError(
+              path = valueDeclaration.metadata.location.unit,
+              startIndex = valueDeclaration.metadata.location.startIndex,
+              endIndex = valueDeclaration.metadata.location.endIndex,
+              message = s"Unknown type: ${valueDeclaration.`type`}, did You forget to import?"
+            ))
           case ast.Partial.Name.Qualified(value: Seq[ast.Partial.Name.LowerCase | ast.Partial.Name.UpperCase], _) =>
             compiler.model.Declaration.Type.Id(
-              name = value.foldLeft(mutable.StringBuilder(""))((acc, element) => acc.append(element match {
-                case lower: ast.Partial.Name.LowerCase => lower.value + "."
-                case upper: ast.Partial.Name.UpperCase => upper.value
-              })).toString
+              name = {
+                val prefix = imports.find(element => element.alias.equals(value.head.text()) || element.member.equals(value.head.text()))
+                  .map(element => s"${element.ancestor}").getOrElse("")
+                value.foldLeft(mutable.StringBuilder(prefix))((acc, element) => acc.append(if (acc.isEmpty) then element.text() else s".${element.text()}")).toString
+              }
+
+
             )
         }
       }

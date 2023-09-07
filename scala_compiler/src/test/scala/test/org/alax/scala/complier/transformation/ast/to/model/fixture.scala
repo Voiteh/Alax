@@ -1,7 +1,7 @@
 package test.org.alax.scala.complier.transformation.ast.to.model
 
 import org.alax.ast.model as ast
-import org.alax.ast.model.Statement.Declaration.{Import,Value as ValueDeclaration}
+import org.alax.ast.model.Statement.Declaration.{Import, Value as ValueDeclaration}
 import org.alax.scala.compiler
 import org.alax.scala.compiler.transformation
 import org.alax.scala.compiler.Context.Module
@@ -12,12 +12,12 @@ object fixture {
 
 
   object Context {
-    val emptyModule: Module = compiler.Context.Module(compiler.Context.Project())
-    val emptyPackage: compiler.Context.Package = compiler.Context.Package(emptyModule)
-    val emptyUnit: compiler.Context.Unit = compiler.Context.Unit(emptyPackage)
-    val unitWithImport: compiler.Context.Unit = compiler.Context.Unit(emptyPackage, Seq(Statement.`import`.`scala.lang.Integer`))
-    val unitWithImportAndAlias: compiler.Context.Unit = compiler.Context.Unit(
-      parent = emptyPackage,
+    val `module`: Module = compiler.Context.Module(compiler.Context.Project())
+    val `package`: compiler.Context.Package = compiler.Context.Package(`module`)
+    val unit: compiler.Context.Unit = compiler.Context.Unit(`package`)
+    val `unit with import`: compiler.Context.Unit = compiler.Context.Unit(`package`, Seq(Statement.`import`.`scala.lang.Integer`))
+    val `unit with import and alias`: compiler.Context.Unit = compiler.Context.Unit(
+      parent = `package`,
       imports =
         Seq(
           Statement.`import`.`scala.lang.Integer`,
@@ -33,6 +33,10 @@ object fixture {
       );
       val `java.lang.Integer as JInteger`: compiler.model.Import = compiler.model.Import(
         ancestor = "java.lang",
+        member = "Integer", alias = "JInteger"
+      );
+      val `scala.lang.Integer as JInteger`: compiler.model.Import = compiler.model.Import(
+        ancestor = "scala.lang",
         member = "Integer", alias = "JInteger"
       );
     }

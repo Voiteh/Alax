@@ -33,10 +33,10 @@ object Declaration {
      * Identifier of type that has been used to declare a declaration
      *
      */
-    class Id(val name: String) {
+    class Id(val value: String) {
       override def equals(obj: Any): Boolean = {
         return obj match {
-          case id: Id => name == id.name
+          case id: Id => value == id.value
           case _ => false
         }
       }

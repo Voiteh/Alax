@@ -25,7 +25,7 @@ object Value {
       pats = collection.immutable.List(
         Term.Name(name)
       ),
-      decltpe = MType.Name.Initial(`type`.id.name)
+      decltpe = MType.Name.Initial(`type`.id.value)
     )
 
 
@@ -56,7 +56,7 @@ object Value {
       pats = collection.immutable.List(
         Term.Name(name)
       ),
-      decltpe = Option(MType.Name.Initial(`type`.id.name)),
+      decltpe = Option(MType.Name.Initial(`type`.id.value)),
       rhs = expression.scala
     )
 
