@@ -7,17 +7,16 @@ import org.alax.scala.compiler.transformation
 import org.alax.scala.compiler.Context.Module
 
 import scala.annotation.targetName
+import java.nio.file.Path
 
 object fixture {
 
 
   object Context {
-    val `module`: Module = compiler.Context.Module(compiler.Context.Project())
-    val `package`: compiler.Context.Package = compiler.Context.Package(`module`)
-    val unit: compiler.Context.Unit = compiler.Context.Unit(`package`)
-    val `unit with import`: compiler.Context.Unit = compiler.Context.Unit(`package`, Seq(Statement.`import`.`scala.lang.Integer`))
+    val unit = compiler.Context.Unit(path = Path.of(""), imports = Seq.empty)
+    val `unit with import`: compiler.Context.Unit = new compiler.Context.Unit(path = Path.of(""), imports = Seq(Statement.`import`.`scala.lang.Integer`))
     val `unit with import and alias`: compiler.Context.Unit = compiler.Context.Unit(
-      parent = `package`,
+      path = Path.of(""),
       imports =
         Seq(
           Statement.`import`.`scala.lang.Integer`,
