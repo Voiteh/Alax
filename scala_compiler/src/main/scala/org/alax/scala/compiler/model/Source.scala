@@ -11,46 +11,59 @@ import org.alax.scala.compiler.Context
  */
 abstract class Source[C <: Context](
                                      val path: Path,
-                                     val statements: Seq[Statement],
+                                     val members: Seq[Statement],
+                                     val errors: Seq[CompilationError],
                                      val context: Context | Null
                                    ) {
 
 
   def scala: meta.Tree = meta.Source(
-    stats = statements.map(statement => statement.scala).toList
+    stats = members.map(statement => statement.scala).toList
   )
 }
 
 
 object Source {
-
-  //TODO reduce Statements type
   case class Unit(
-                 override val path: Path,
-                   override val statements: Seq[Statement],
+                   override val path: Path,
+                   override val members: Seq[Unit.Member],
+                   override val errors: Seq[CompilationError],
                    override val context: Context.Package | Null = null
-                 ) extends Source[Context.Package](path,statements, context)
+                 ) extends Source[Context.Package](path, members, errors, context)
 
-  //TODO reduce Statements type
+  object Unit {
+    type Member = Declaration | Definition;
+  }
+
   case class Package(
                       override val path: Path,
-                      override val statements: Seq[Statement],
+                      override val members: Seq[Package.Member],
+                      override val errors: Seq[CompilationError],
                       override val context: Context.Package | Context.Module | Null = null
-                    ) extends Source[Context.Package | Context.Module](path,statements, context)
+                    ) extends Source[Context.Package | Context.Module](path, members, errors, context)
 
-  //TODO reduce Statements type
+  object Package {
+    type Member = Definition;
+  }
+
   case class Module(
                      override val path: Path,
-                     override val statements: Seq[Statement],
+                     override val members: Seq[Module.Member],
+                     override val errors: Seq[CompilationError],
                      override val context: Context.Project | Null = null
-                   ) extends Source[Context.Project](path,statements, context)
+                   ) extends Source[Context.Project](path, members, errors, context)
 
+  object Module {
+    type Member = Nothing;
+  }
 
-  //TODO reduce Statements type
   case class Project(
                       override val path: Path,
-                      override val statements: Seq[Statement]
-                    ) extends Source[Null](path,statements, null)
+                      override val members: Seq[Project.Member],
+                      override val errors: Seq[CompilationError],
+                    ) extends Source[Null](path, members, errors, null)
 
-
+  object Project {
+    type Member = Nothing;
+  }
 }

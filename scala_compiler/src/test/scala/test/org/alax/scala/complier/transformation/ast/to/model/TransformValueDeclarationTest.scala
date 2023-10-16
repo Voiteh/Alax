@@ -17,8 +17,8 @@ class TransformValueDeclarationTest extends AnyWordSpec {
     val astTransformer = AstToModelTransformer()
     "unknown type, then" must{
       "transform to CompilationError" in {
-        val result = astTransformer.transform.valueDeclaration(
-          valueDeclaration = fixture.Value.Declaration.`Integer int`,
+        val result = astTransformer.transform.value.declaration(
+          valueDeclaration = fixture.Ast.Value.Declaration.`Integer int`,
           context = fixture.Context.unit
         );
         result mustBe a[model.CompilationError]
@@ -28,8 +28,8 @@ class TransformValueDeclarationTest extends AnyWordSpec {
     }
     "provided proper import and, then" must{
       "transform to model.Value.Declaration" in {
-        val result = astTransformer.transform.valueDeclaration(
-          valueDeclaration = fixture.Value.Declaration.`Integer int`,
+        val result = astTransformer.transform.value.declaration(
+          valueDeclaration = fixture.Ast.Value.Declaration.`Integer int`,
           context = fixture.Context.`unit with import`
         );
         result mustBe a[model.Value.Declaration]
@@ -42,8 +42,8 @@ class TransformValueDeclarationTest extends AnyWordSpec {
     }
     "provided 2 imports but only one matching with member, second aliased, then" must {
       "transform to model.Value.Declaration" in {
-        val result = astTransformer.transform.valueDeclaration(
-          valueDeclaration = fixture.Value.Declaration.`Integer int`,
+        val result = astTransformer.transform.value.declaration(
+          valueDeclaration = fixture.Ast.Value.Declaration.`Integer int`,
           context = fixture.Context.`unit with import and alias`
         );
         result mustBe a[model.Value.Declaration]

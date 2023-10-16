@@ -22,11 +22,11 @@ class ParseValueDeclarationTest extends AnyWordSpec {
           .visit((visitor, context) => visitor.visitValueDeclaration(context))
         result mustBe a[Statement.Declaration.Value];
         inside(result.asInstanceOf[Statement.Declaration.Value]) {
-          case Statement.Declaration.Value(name: Partial.Name.LowerCase, tpe: Partial.TypeReference, _) =>
+          case Statement.Declaration.Value(name: Partial.Name.LowerCase, tpe: Partial.Type.Reference, _) =>
               name.text() mustBe "value"
-              tpe mustBe a[Partial.Type.ValueTypeReference]
-              inside(tpe.asInstanceOf[Partial.Type.ValueTypeReference]){
-                case Partial.Type.ValueTypeReference(id,_) =>
+              tpe mustBe a[Partial.Type.Reference.Value]
+              inside(tpe){
+                case Partial.Type.Reference.Value(id,_) =>
                   id.text() mustBe "java.lang.String"
               }
         }
@@ -40,11 +40,11 @@ class ParseValueDeclarationTest extends AnyWordSpec {
           .visit((visitor, context) => visitor.visitValueDeclaration(context))
         result mustBe a[Statement.Declaration.Value];
         inside(result.asInstanceOf[Statement.Declaration.Value]) {
-          case Statement.Declaration.Value(name: Partial.Name.LowerCase, tpe: Partial.TypeReference, _) =>
+          case Statement.Declaration.Value(name: Partial.Name.LowerCase, tpe: Partial.Type.Reference.Value, _) =>
             name.text() mustBe "value"
-            tpe mustBe a[Partial.Type.ValueTypeReference]
-            inside(tpe.asInstanceOf[Partial.Type.ValueTypeReference]) {
-              case Partial.Type.ValueTypeReference(id, _) =>
+            tpe mustBe a[Partial.Type.Reference.Value]
+            inside(tpe) {
+              case Partial.Type.Reference.Value(id, _) =>
                 id.text() mustBe "Integer"
             }
         }

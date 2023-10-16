@@ -73,20 +73,20 @@ class LanguageVisitor(tokenStream: TokenStream)
     return if qualifications.size == 1 then qualifications.last else Partial.Name.Qualified(qualifications, metadata(ctx.start));
   }
 
-  override def visitValueTypeReference(ctx: LanguageParser.ValueTypeReferenceContext): Partial.Type.ValueTypeReference | ParseError = {
+  override def visitValueTypeReference(ctx: LanguageParser.ValueTypeReferenceContext): Partial.Type.Reference.Value | ParseError = {
     super.visitValueTypeReference(ctx)
     val typeName = Partial.Name.UpperCase(value = ctx.typeName.getText, metadata = metadata(ctx.typeName))
     val fullName: Partial.Name.Qualified | Partial.Name.UpperCase | ParseError = Option(ctx.importedName())
       .map(context => visitImportedName(context))
-      .map[ParseError|Partial.Name.Qualified|Partial.Name.UpperCase] {
+      .map[ParseError | Partial.Name.Qualified | Partial.Name.UpperCase] {
         case error: ParseError => error;
         case imported: Partial.Name.UpperCase => Partial.Name.Qualified(qualifications = Seq(imported, typeName), metadata(ctx.start))
         case imported: Partial.Name.LowerCase => Partial.Name.Qualified(qualifications = Seq(imported, typeName), metadata(ctx.start))
         case imported: Partial.Name.Qualified => Partial.Name.Qualified(qualifications = imported.qualifications :+ typeName, metadata(ctx.start))
       }
-      .getOrElse[ParseError|Partial.Name.Qualified|Partial.Name.UpperCase](typeName);
+      .getOrElse[ParseError | Partial.Name.Qualified | Partial.Name.UpperCase](typeName);
     return fullName match {
-      case id@(_: Partial.Name.UpperCase | _: Partial.Name.Qualified) => Partial.Type.ValueTypeReference(
+      case id@(_: Partial.Name.UpperCase | _: Partial.Name.Qualified) => Partial.Type.Reference.Value(
         id = id, metadata = metadata(ctx.start)
       )
       case default: ParseError => default
@@ -97,38 +97,42 @@ class LanguageVisitor(tokenStream: TokenStream)
 
   override def visitValueDeclaration(ctx: LanguageParser.ValueDeclarationContext): Statement.Declaration.Value | ParseError = {
     super.visitValueDeclaration(ctx);
-    val typeReference: Partial.TypeReference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
+    val typeReference: Partial.Type.Reference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
     val name: Partial.Name | ParseError = parseName(ctx.LOWERCASE_NAME());
     return typeReference match {
-      case shadowType: Partial.TypeReference =>
+      case valueType: Partial.Type.Reference.Value =>
         name match {
           case shadowName: Partial.Name.LowerCase =>
             Statement.Declaration.Value(
               name = shadowName,
-              `type` = shadowType,
+              typeReference = valueType,
               metadata = metadata(ctx.getStart)
             )
           case error: ParseError => wrapParseError(wrappe = error, message = "Invalid value name ", metadata = metadata(ctx.getStart))
           case _ => throw ParserBugException();
         }
       case error: ParseError => wrapParseError(wrappe = error, message = "Invalid value type", metadata = metadata(ctx.getStart))
+      case other => ParseError(
+        message = f"Not Implemented, parsing type: ${other}!",
+        metadata = metadata(ctx.getStart)
+      )
     }
   }
 
   override def visitValueDefinition(ctx: LanguageParser.ValueDefinitionContext): Statement.Definition.Value | ParseError = {
     super.visitValueDefinition(ctx);
 
-    val typeReference: Partial.TypeReference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
+    val typeReference: Partial.Type.Reference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
     val name: Partial.Name | ParseError = parseName(ctx.LOWERCASE_NAME());
     val initialization: Expression | ParseError = visitExpression(ctx.expression());
     return typeReference match {
-      case shadowType: Partial.TypeReference =>
+      case valueType: Partial.Type.Reference.Value =>
         name match {
           case shadowName: Partial.Name.LowerCase =>
             initialization match {
               case expression: Expression => Statement.Definition.Value(
                 name = shadowName,
-                typeReference = shadowType,
+                typeReference = valueType,
                 initialization = expression,
                 metadata = metadata(ctx.getStart)
               );
@@ -150,6 +154,12 @@ class LanguageVisitor(tokenStream: TokenStream)
         message = "Invalid value type",
         metadata = metadata(ctx.getStart)
       )
+      case other => ParseError(
+        message = f"Not Implemented, parsing type: ${other}!",
+        metadata = metadata(ctx.getStart)
+      )
+
+
     }
   }
 

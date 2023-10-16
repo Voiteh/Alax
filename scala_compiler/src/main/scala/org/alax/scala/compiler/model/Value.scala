@@ -32,7 +32,7 @@ object Value {
   }
 
   /**
-   * Value type, this is internal property of declaration! And not type declaration itself
+   * Value type, this is internal property of declaration/definition! And not type declaration itself
    *
    * @param id
    */

@@ -48,7 +48,7 @@ object model {
    * Can be used as parts of statements and expressions
    */
   object Partial {
-    abstract class TypeReference(metadata: Metadata) extends Partial(metadata = metadata);
+
 
     /**
      * Identifiers of the statements and expressions
@@ -58,7 +58,11 @@ object model {
     }
 
     object Type {
-      case class ValueTypeReference(id: Name.UpperCase | Name.Qualified, metadata: Metadata = Metadata.unknown) extends Partial.TypeReference(metadata = metadata);
+      abstract class Reference(val metadata: Metadata) extends Partial(metadata = metadata);
+      object Reference{
+        case class Value(id: Name.UpperCase | Name.Qualified,override val metadata: Metadata = Metadata.unknown) extends Reference(metadata = metadata);
+      }
+
     }
 
     object Name {
@@ -102,14 +106,14 @@ object model {
 
 
   object Statement {
-    abstract class Declaration(metadata: Metadata) extends Statement(metadata = metadata);
+    abstract class Declaration(metadata: Metadata) extends Statement(metadata = metadata)
 
     abstract class Definition(metadata: Metadata) extends Statement(metadata = metadata);
 
     object Definition {
       case class Value(
                         name: Partial.Name.LowerCase,
-                        typeReference: Partial.TypeReference,
+                        typeReference: Partial.Type.Reference.Value,
                         initialization: model.Expression,
                         metadata: Metadata = Metadata.unknown
                       ) extends Statement.Definition(metadata = metadata);
@@ -149,7 +153,7 @@ object model {
 
       case class Value(
                         name: Partial.Name.LowerCase,
-                        `type`: Partial.TypeReference,
+                        typeReference: Partial.Type.Reference.Value,
                         metadata: Metadata = Metadata.unknown
                       ) extends Statement.Declaration(metadata = metadata);
 

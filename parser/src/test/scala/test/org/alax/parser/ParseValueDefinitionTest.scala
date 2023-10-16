@@ -3,7 +3,7 @@ package test.org.alax.parser
 import org.alax.ast.LanguageParser.{AS, ValueDefinitionContext}
 import org.alax.ast.model.Node.Metadata
 import org.alax.ast.model.Partial.Name
-import org.alax.ast.model.Partial.Type.ValueTypeReference
+import org.alax.ast.model.Partial
 import org.alax.ast.model.{ParseError, Statement}
 import org.alax.ast.{LanguageLexer, LanguageParser, model}
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
@@ -30,9 +30,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         inside(result.asInstanceOf[Statement.Definition.Value]) {
           case Statement.Definition.Value(name, typeReference, initialization, _) =>
             name.text() mustBe "bool"
-            typeReference mustBe a[ValueTypeReference]
-            inside(typeReference.asInstanceOf[ValueTypeReference]) {
-              case ValueTypeReference(id, _) =>
+            typeReference mustBe a[Partial.Type.Reference.Value]
+            inside(typeReference) {
+              case Partial.Type.Reference.Value(id, _) =>
                 id mustBe a[model.Partial.Name.Qualified]
                 id.text() mustBe "java.lang.Boolean"
 
@@ -54,9 +54,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         inside(result.asInstanceOf[Statement.Definition.Value]) {
           case Statement.Definition.Value(name, typeReference, initialization, _) =>
             name.text() mustBe "char"
-            typeReference mustBe a[ValueTypeReference]
-            inside(typeReference.asInstanceOf[ValueTypeReference]) {
-              case ValueTypeReference(id, _) =>
+            typeReference mustBe a[Partial.Type.Reference.Value]
+            inside(typeReference.asInstanceOf[Partial.Type.Reference.Value]) {
+              case Partial.Type.Reference.Value(id, _) =>
                 id mustBe a[model.Partial.Name.Qualified]
                 id.text() mustBe "java.lang.Character"
 
@@ -77,9 +77,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         inside(result.asInstanceOf[Statement.Definition.Value]) {
           case Statement.Definition.Value(name, typeReference, initialization, _) =>
             name.text() mustBe "string"
-            typeReference mustBe a[ValueTypeReference]
-            inside(typeReference.asInstanceOf[ValueTypeReference]) {
-              case ValueTypeReference(id, _) =>
+            typeReference mustBe a[Partial.Type.Reference.Value]
+            inside(typeReference.asInstanceOf[Partial.Type.Reference.Value]) {
+              case Partial.Type.Reference.Value(id, _) =>
                 id mustBe a[model.Partial.Name.Qualified]
                 id.text() mustBe "java.lang.String"
 
@@ -100,9 +100,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         inside(result.asInstanceOf[Statement.Definition.Value]) {
           case Statement.Definition.Value(name, typeReference, initialization, _) =>
             name.text() mustBe "int"
-            typeReference mustBe a[ValueTypeReference]
-            inside(typeReference.asInstanceOf[ValueTypeReference]) {
-              case ValueTypeReference(id, _) =>
+            typeReference mustBe a[Partial.Type.Reference.Value]
+            inside(typeReference.asInstanceOf[Partial.Type.Reference.Value]) {
+              case Partial.Type.Reference.Value(id, _) =>
                 id mustBe a[model.Partial.Name.UpperCase]
                 id.text() mustBe "Integer"
 
@@ -123,9 +123,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         inside(result.asInstanceOf[Statement.Definition.Value]) {
           case Statement.Definition.Value(name, typeReference, initialization, _) =>
             name.text() mustBe "float"
-            typeReference mustBe a[ValueTypeReference]
-            inside(typeReference.asInstanceOf[ValueTypeReference]) {
-              case ValueTypeReference(id, _) =>
+            typeReference mustBe a[Partial.Type.Reference.Value]
+            inside(typeReference.asInstanceOf[Partial.Type.Reference.Value]) {
+              case Partial.Type.Reference.Value(id, _) =>
                 id mustBe a[model.Partial.Name.UpperCase]
                 id.text() mustBe "Float"
 
