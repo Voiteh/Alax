@@ -1,11 +1,11 @@
 package org.alax.scala.compiler.transformation.ast.to.model
 
-import org.alax.scala.compiler.model.{CompilationError, Import, Tracable}
+import org.alax.scala.compiler.model.{CompilationError, CompilerError, Import, Tracable}
 
 object ImportsValidator {
 
 
-  def validate(imports: Seq[Tracable[Import]]): Seq[CompilationError] = {
+  def validate(imports: Seq[Tracable[Import]]): Seq[CompilerError] = {
     val ancestralGroups = imports.groupBy(tracable => tracable.transformed.ancestor);
     val memberAliasGroups = imports.groupBy(tracable => if tracable.transformed.alias != null
     then tracable.transformed.alias else tracable.transformed.member)

@@ -11,13 +11,17 @@ object fixture {
 
     object definition {
       val `java.lang.String abc="abc"`: (Value.Definition, ScalaSourceCode) = (Value.Definition(
-        name = "def",
-        `type` = Value.Type(Declaration.Type.Id(
-          value = "Integer",
-        )),
-        expression = Literal.String("abc")
-
-      ), "val abc: `java.lang.String` = \"abc\""
+        declaration = Value.Declaration(
+          name = "def",
+          `type` = Value.Type(
+            Declaration.Type.Id(
+              value = "Integer"
+            )
+          )
+        ),
+        initialization = Literal.String("abc")
+      ),
+        "val abc: `java.lang.String` = \"abc\""
       )
     }
 

@@ -21,7 +21,7 @@ class TransformValueDeclarationTest extends AnyWordSpec {
           valueDeclaration = fixture.Ast.Value.Declaration.`Integer int`,
           context = fixture.Context.unit
         );
-        result mustBe a[model.CompilationError]
+        result mustBe a[model.CompilerError]
 
       }
 

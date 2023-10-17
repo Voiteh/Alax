@@ -12,7 +12,7 @@ import org.alax.scala.compiler.Context
 abstract class Source[C <: Context](
                                      val path: Path,
                                      val members: Seq[Statement],
-                                     val errors: Seq[CompilationError],
+                                     val errors: Seq[CompilerError],
                                      val context: Context | Null
                                    ) {
 
@@ -27,7 +27,7 @@ object Source {
   case class Unit(
                    override val path: Path,
                    override val members: Seq[Unit.Member],
-                   override val errors: Seq[CompilationError],
+                   override val errors: Seq[CompilerError],
                    override val context: Context.Package | Null = null
                  ) extends Source[Context.Package](path, members, errors, context)
 
@@ -38,7 +38,7 @@ object Source {
   case class Package(
                       override val path: Path,
                       override val members: Seq[Package.Member],
-                      override val errors: Seq[CompilationError],
+                      override val errors: Seq[CompilerError],
                       override val context: Context.Package | Context.Module | Null = null
                     ) extends Source[Context.Package | Context.Module](path, members, errors, context)
 
@@ -49,7 +49,7 @@ object Source {
   case class Module(
                      override val path: Path,
                      override val members: Seq[Module.Member],
-                     override val errors: Seq[CompilationError],
+                     override val errors: Seq[CompilerError],
                      override val context: Context.Project | Null = null
                    ) extends Source[Context.Project](path, members, errors, context)
 
@@ -60,7 +60,7 @@ object Source {
   case class Project(
                       override val path: Path,
                       override val members: Seq[Project.Member],
-                      override val errors: Seq[CompilationError],
+                      override val errors: Seq[CompilerError],
                     ) extends Source[Null](path, members, errors, null)
 
   object Project {

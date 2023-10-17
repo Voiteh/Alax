@@ -46,20 +46,18 @@ object Value {
     }
   }
 
-  case class Definition(override val name: Name,
-                   override val `type`: Value.Type, //|Union.Type|Intersection.Type|Functional.Type...
-                   override val expression: Literal | Reference
-                  ) extends model.Definition(name = name, `type` = `type`, expression = expression) {
+  case class Definition(override val declaration: Declaration,
+                        override val initialization: Literal | Reference
+                       ) extends model.Definition(declaration = declaration, initialization = initialization) {
 
-    override def scala: Defn.Val = Defn.Val (
+    override def scala: Defn.Val = Defn.Val(
       mods = collection.immutable.List(),
       pats = collection.immutable.List(
-        Term.Name(name)
+        Term.Name(declaration.name)
       ),
-      decltpe = Option(MType.Name.Initial(`type`.id.value)),
-      rhs = expression.scala
+      decltpe = Option(MType.Name.Initial(declaration.`type`.id.value)),
+      rhs = initialization.scala
     )
-
 
 
   }
