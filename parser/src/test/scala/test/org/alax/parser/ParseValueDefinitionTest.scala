@@ -23,7 +23,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
   "text" when {
     "java.lang.Boolean bool:true;" should {
       "parse to value definition" in {
-        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Boolean bool:true;`)
+        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Boolean bool=true;`)
           .context( (parser:LanguageParser )=>  parser.valueDefinition())
           .visit((visitor,context)=>visitor.visitValueDefinition(context))
         result mustBe a[Statement.Definition.Value];
@@ -47,7 +47,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
 
     "java.lang.Character char :'a';" should{
       "parse to value definition" in {
-        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Character char :'a';`)
+        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Character char ='a';`)
           .context((parser: LanguageParser) => parser.valueDefinition())
           .visit((visitor, context) => visitor.visitValueDefinition(context))
         result mustBe a[Statement.Definition.Value];
@@ -70,7 +70,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
     }
     "java.lang.String string: \"asd\"  ;" should {
       "parse to value definition" in {
-        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.String string: "asd"  ;`)
+        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.String string= "asd"  ;`)
           .context((parser: LanguageParser) => parser.valueDefinition())
           .visit((visitor, context) => visitor.visitValueDefinition(context))
         result mustBe a[Statement.Definition.Value];
@@ -93,7 +93,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
     }
     "Integer int   : -3;" should {
       "parse to value definition" in {
-        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`Integer int   : -3;`)
+        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`Integer int   = -3;`)
           .context((parser: LanguageParser) => parser.valueDefinition())
           .visit((visitor, context) => visitor.visitValueDefinition(context))
         result mustBe a[Statement.Definition.Value];
@@ -116,7 +116,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
     }
     "Float float: -3.12;" should {
       "parse to value definition" in {
-        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`Float float: -3.12;`)
+        val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`Float float= -3.12;`)
           .context((parser: LanguageParser) => parser.valueDefinition())
           .visit((visitor, context) => visitor.visitValueDefinition(context))
         result mustBe a[Statement.Definition.Value];

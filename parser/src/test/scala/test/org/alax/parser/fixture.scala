@@ -5,11 +5,11 @@ object fixture {
 
     object definition {
       object literal {
-        val `java.lang.Boolean bool:true;`: String = """java.lang.Boolean bool:true ;"""
-        val `java.lang.Character char :'a';`: String = """java.lang.Character char :'a';"""
-        val `java.lang.String string: "asd"  ;`: String = """java.lang.String string: "asd"  ;"""
-        val `Integer int   : -3;`: String = """Integer int   : -3;"""
-        val `Float float: -3.12;`: String = """Float float: -3.12;"""
+        val `java.lang.Boolean bool=true;`: String = """java.lang.Boolean bool=true ;"""
+        val `java.lang.Character char ='a';`: String = """java.lang.Character char ='a';"""
+        val `java.lang.String string= "asd"  ;`: String = """java.lang.String string= "asd"  ;"""
+        val `Integer int   = -3;`: String = """Integer int   = -3;"""
+        val `Float float= -3.12;`: String = """Float float= -3.12;"""
       }
     }
 

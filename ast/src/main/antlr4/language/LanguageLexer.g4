@@ -1,13 +1,12 @@
 lexer grammar LanguageLexer;
 
 
-NOT_FAT_ARROW: '=!>';
-FAT_ARROW: '=>';
-
-
-
 fragment TRUE: 'true';
 fragment FALSE: 'false';
+
+
+NOT_FAT_ARROW: '=!>';
+FAT_ARROW: '=>';
 QUOTE :'"';
 APOSTROPHE: '\'';
 DOT:'.';
@@ -27,6 +26,7 @@ PLUS: '+';
 AND: '&';
 PIPE: '|';
 UNDERSCORE: '_';
+EQUALS : '=';
 
 //TODO include UTF-? literals
 fragment CHARACTER: LOWERCASE_LETTER|UPPERCASE_LETTER|DIGIT|UNDERSCORE;

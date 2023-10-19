@@ -4,15 +4,16 @@ options { tokenVocab=LanguageLexer; }
 
 
 
-//Declarations
+definition: valueDefinition|functionDefinition|packageDefinition;
+declaration: valueDeclaration|packageDeclaration|functionDeclaration;
 
 //TODO
 moduleDeclaration: MODULE LOWERCASE_NAME (DOT LOWERCASE_NAME)* OPEN_CURLY  CLOSE_CURLY;
 
-
-packageDeclaration: PACKAGE LOWERCASE_NAME (DOT LOWERCASE_NAME)* packageBody;
+packageDefinition: PACKAGE LOWERCASE_NAME (DOT LOWERCASE_NAME)* packageBody;
+packageDeclaration: PACKAGE LOWERCASE_NAME (DOT LOWERCASE_NAME)* SEMI_COLON;
 //FIXME this will change when types will come
-packageBody:OPEN_CURLY (valueDeclaration|valueDefinition|functionDeclaration)*  CLOSE_CURLY;
+packageBody:OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
 
 functionDefinition: valueTypeReference? LOWERCASE_NAME OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
 functionDeclaration: valueTypeReference? LOWERCASE_NAME OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
@@ -22,22 +23,21 @@ functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|assig
 
 
 functionParameters: functionParameter (COMMA functionParameter)*;
-functionParameter: valueTypeReference LOWERCASE_NAME (COLON literalExpression|referenceExpression)?;
+functionParameter: valueTypeReference LOWERCASE_NAME (EQUALS literalExpression|referenceExpression)?;
 
-valueDefinition: accessModifier? valueTypeReference LOWERCASE_NAME COLON expression SEMI_COLON ;
+valueDefinition: accessModifier? valueTypeReference LOWERCASE_NAME EQUALS expression SEMI_COLON ;
 valueDeclaration: accessModifier? valueTypeReference LOWERCASE_NAME SEMI_COLON;
 
 
-declaration: valueDeclaration|valueDefinition|packageDeclaration|functionDeclaration;
 
 
 
 functionCallExpression: accessor? OPEN_BRACKET functionCallArguments?  CLOSE_BRACKET;
 functionCallArguments:  positionalArguments| namedArguments ;
 positionalArguments: expression (COMMA expression)*;
-namedArguments: LOWERCASE_NAME COLON expression (COMMA LOWERCASE_NAME COLON expression)*;
+namedArguments: LOWERCASE_NAME EQUALS expression (COMMA LOWERCASE_NAME EQUALS expression)*;
 
-assignmentStatement: accessor? functionOrValueReference COLON expression SEMI_COLON;
+assignmentStatement: accessor? functionOrValueReference EQUALS expression SEMI_COLON;
 returnStatement: RETURN expression SEMI_COLON;
 
 //Refernces
