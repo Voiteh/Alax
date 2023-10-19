@@ -1,10 +1,10 @@
 package org.alax.scala.compiler.model
 
 import org.alax.scala.compiler.model.Statement
+import org.alax.scala.compiler.transformation.Context
 
 import java.nio.file.Path
 import scala.meta
-import org.alax.scala.compiler.Context
 
 /**
  * Language construct that provides scoping and encapsulation

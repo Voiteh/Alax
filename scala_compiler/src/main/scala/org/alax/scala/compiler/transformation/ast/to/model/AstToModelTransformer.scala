@@ -6,8 +6,9 @@ import org.alax.ast.model.Partial
 import org.alax.ast.model.Partial.Name.{LowerCase, Qualified, UpperCase}
 import org.alax.ast.model.Statement.Declaration
 import org.alax.scala.compiler
-import org.alax.scala.compiler.{Context, model}
+import org.alax.scala.compiler.model
 import org.alax.scala.compiler.model.{CompilerError, *}
+import org.alax.scala.compiler.transformation.Context
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable

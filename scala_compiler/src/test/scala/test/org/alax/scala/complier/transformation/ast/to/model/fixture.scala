@@ -1,11 +1,11 @@
 package test.org.alax.scala.complier.transformation.ast.to.model
 
-import org.alax.ast as ast
+import org.alax.ast
 import org.alax.ast.model.Statement.Declaration.Value as ValueDeclaration
 import org.alax.ast.model.Statement.Definition.Value as ValueDefinition
 import org.alax.scala.compiler
 import org.alax.scala.compiler.transformation
-import org.alax.scala.compiler.Context.Module
+import org.alax.scala.compiler.transformation.Context.Module
 import org.alax.scala.compiler.model.{Import, Trace}
 
 import scala.annotation.targetName
@@ -48,11 +48,11 @@ object fixture {
       )
     }
 
-    val `package` = compiler.Context.Package(path = Path.of(""), imports = Seq.empty)
-    val `package with import = scala.lang.Integer` = compiler.Context.Package(path = Path.of(""), imports = Seq(Statement.`import`.`scala.lang.Integer`))
-    val unit = compiler.Context.Unit(path = Path.of(""), imports = Seq.empty)
-    val `unit with import`: compiler.Context.Unit = new compiler.Context.Unit(path = Path.of(""), imports = Seq(Statement.`import`.`scala.lang.Integer`))
-    val `unit with import and alias`: compiler.Context.Unit = compiler.Context.Unit(
+    val `package` = transformation.Context.Package(path = Path.of(""), imports = Seq.empty)
+    val `package with import = scala.lang.Integer` = transformation.Context.Package(path = Path.of(""), imports = Seq(Statement.`import`.`scala.lang.Integer`))
+    val unit = transformation.Context.Unit(path = Path.of(""), imports = Seq.empty)
+    val `unit with import`: transformation.Context.Unit = new transformation.Context.Unit(path = Path.of(""), imports = Seq(Statement.`import`.`scala.lang.Integer`))
+    val `unit with import and alias`: transformation.Context.Unit = transformation.Context.Unit(
       path = Path.of(""),
       imports =
         Seq(
