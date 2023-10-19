@@ -4,7 +4,7 @@ import org.alax.scala.compiler.model
 import org.alax.scala.compiler.model.Declaration.{Name, Type}
 
 import scala.meta.Defn
-import scala.meta.{Decl, Term, Name as MName, Type as MType}
+import scala.meta.{Decl, Term, Pat, Name as MName, Type as MType}
 
 object Value {
 
@@ -51,12 +51,15 @@ object Value {
                        ) extends model.Definition(declaration = declaration, initialization = initialization) {
 
     override def scala: Defn.Val = Defn.Val(
+      rhs = initialization.scala,
       mods = collection.immutable.List(),
       pats = collection.immutable.List(
-        Term.Name(declaration.name)
+        Pat.Var(
+          Term.Name(declaration.name)
+        )
       ),
       decltpe = Option(MType.Name.Initial(declaration.`type`.id.value)),
-      rhs = initialization.scala
+
     )
 
 

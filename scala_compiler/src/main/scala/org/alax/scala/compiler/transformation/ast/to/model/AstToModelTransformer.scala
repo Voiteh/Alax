@@ -48,7 +48,7 @@ class AstToModelTransformer {
       def reference(typeReference: ast.model.Partial.Type.Reference, imports: Seq[compiler.model.Import]): compiler.model.Declaration.Type | CompilerError = {
         return typeReference match {
           case valueTypeReference: ast.model.Partial.Type.Reference.Value => transform.`type`.reference.value(valueTypeReference, imports);
-          case _ => throw compiler.model.CompilerBugException(cause = Exception("Not implemented!"))
+          case other => compiler.model.CompilerBugException(cause = Exception(s"Not implemented - $other !"))
         }
       }
 

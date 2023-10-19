@@ -48,6 +48,8 @@ object fixture {
       )
     }
 
+    val `package` = compiler.Context.Package(path = Path.of(""), imports = Seq.empty)
+    val `package with import = scala.lang.Integer` = compiler.Context.Package(path = Path.of(""), imports = Seq(Statement.`import`.`scala.lang.Integer`))
     val unit = compiler.Context.Unit(path = Path.of(""), imports = Seq.empty)
     val `unit with import`: compiler.Context.Unit = new compiler.Context.Unit(path = Path.of(""), imports = Seq(Statement.`import`.`scala.lang.Integer`))
     val `unit with import and alias`: compiler.Context.Unit = compiler.Context.Unit(
@@ -75,8 +77,22 @@ object fixture {
       );
     }
 
-    object Definition {
+    object Declaration {
+      val `int: scala.lang.Integer` = compiler.model.Value.Declaration(
+        name = "int",
+        `type` = compiler.model.Value.Type(
+          id = compiler.model.Declaration.Type.Id(
+            value = "scala.lang.Integer"
+          )
+        )
+      )
+    }
 
+    object Definition {
+      val `val int: scala.lang.Integer = 4` = compiler.model.Value.Definition(
+        declaration = Declaration.`int: scala.lang.Integer`,
+        initialization = compiler.model.Literal.Integer(4L)
+      )
     }
 
   }

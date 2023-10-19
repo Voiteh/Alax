@@ -5,6 +5,6 @@ import scala.meta.{Term,Ref}
 /**
  * Something that can be assigned
  */
-abstract class Expression {
+abstract class Expression extends ScalaMetaNode {
   def scala: Term = ???;
 }
