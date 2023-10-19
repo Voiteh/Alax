@@ -1,76 +1,75 @@
 package test.org.alax.parser
+
 import org.alax.parser.LanguageVisitor
 import org.junit.jupiter.api.Test
-import fixture.literal
 import org.antlr.v4.runtime.{CharStream, CharStreams, CommonTokenStream}
-import org.alax.syntax._
-import org.alax.syntax.model._
-object ParseLiteralTest {
+import org.alax.ast.{LanguageLexer, LanguageParser}
+import org.alax.ast.model.*
+import org.scalatest.matchers.must.Matchers.{a, mustBe}
+import org.scalatest.wordspec.AnyWordSpec
+import test.org.alax.parser.base.AntlrSupport
+import org.scalatest.Inside.inside
 
+class ParseLiteralTest extends AnyWordSpec {
 
+  "text" when {
+    "true" should {
+      "parse to literal" in {
+        val result = AntlrSupport.language.tokenize(fixture.literal.`true`)
+          .context((parser: LanguageParser) => parser.literalExpression())
+          .visit((visitor, context) => visitor.visitLiteralExpression(context))
+        result mustBe a[Expression.Literal.Boolean];
+        inside(result.asInstanceOf[Expression.Literal.Boolean]) {
+          case Expression.Literal.Boolean(value, _) => value mustBe true
+        }
+      }
+    }
 
+    "'a'" should {
+      "parse to literal" in {
+        val result = AntlrSupport.language.tokenize(fixture.literal.`'a'`)
+          .context((parser: LanguageParser) => parser.literalExpression())
+          .visit((visitor, context) => visitor.visitLiteralExpression(context))
+        result mustBe a[Expression.Literal.Character];
+        inside(result.asInstanceOf[Expression.Literal.Character]) {
+          case Expression.Literal.Character(value, _) => value mustBe 'a'
+        }
+      }
+    }
 
-
-  @Test
-  def parseBooleanLiteral(): Unit = {
-    val lexer =LanguageLexer(CharStreams.fromString(literal.boolTrue));
-    val tokens = new CommonTokenStream(lexer)
-    val parser = new LanguageParser(tokens);
-    val ctx=parser.literal();
-
-    val result = LanguageVisitor(tokens).visitLiteral(ctx);
-    assert(result.isInstanceOf[expressions.literals.Boolean]);
-    assert(result.asInstanceOf[expressions.literals.Boolean].value == true);
+    "-10" should {
+      "parse to literal" in {
+        val result = AntlrSupport.language.tokenize(fixture.literal.`-10`)
+          .context((parser: LanguageParser) => parser.literalExpression())
+          .visit((visitor, context) => visitor.visitLiteralExpression(context))
+        result mustBe a[Expression.Literal.Integer];
+        inside(result.asInstanceOf[Expression.Literal.Integer]) {
+          case Expression.Literal.Integer(value, _) => value mustBe -10
+        }
+      }
+    }
+    "-99.123" should {
+      "parse to literal" in {
+        val result = AntlrSupport.language.tokenize(fixture.literal.`-99.123`)
+          .context((parser: LanguageParser) => parser.literalExpression())
+          .visit((visitor, context) => visitor.visitLiteralExpression(context))
+        result mustBe a[Expression.Literal.Float];
+        inside(result.asInstanceOf[Expression.Literal.Float]) {
+          case Expression.Literal.Float(value, _) => value mustBe -99.123
+        }
+      }
+    }
+    "\"str\"" should {
+      "parse to literal" in {
+        val result = AntlrSupport.language.tokenize(fixture.literal.`"str"`)
+          .context((parser: LanguageParser) => parser.literalExpression())
+          .visit((visitor, context) => visitor.visitLiteralExpression(context))
+        result mustBe a[Expression.Literal.String];
+        inside(result.asInstanceOf[Expression.Literal.String]) {
+          case Expression.Literal.String(value, _) => value mustBe "str"
+        }
+      }
+    }
   }
-
-
-  @Test
-  def parseCharLiteral(): Unit = {
-    val lexer =LanguageLexer(CharStreams.fromString(literal.charLiteral));
-    val tokens = new CommonTokenStream(lexer)
-    val parser = new LanguageParser(tokens);
-    val ctx=parser.literal();
-
-    val result = LanguageVisitor(tokens).visitLiteral(ctx);
-    assert(result.isInstanceOf[expressions.literals.Character]);
-    assert(result.asInstanceOf[expressions.literals.Character].value == 'a');
-  }
-
-  @Test
-  def parseIntegerLiteral(): Unit = {
-    val lexer =LanguageLexer(CharStreams.fromString(literal.intLiteral));
-    val tokens = new CommonTokenStream(lexer)
-    val parser = new LanguageParser(tokens);
-    val ctx=parser.literal();
-
-    val result = LanguageVisitor(tokens).visitLiteral(ctx);
-    assert(result.isInstanceOf[expressions.literals.Integer]);
-    assert(result.asInstanceOf[expressions.literals.Integer].value == -10);
-  }
-
-  @Test
-  def parseFloatLiteral(): Unit = {
-    val lexer =LanguageLexer(CharStreams.fromString(literal.floatLiteral));
-    val tokens = new CommonTokenStream(lexer)
-    val parser = new LanguageParser(tokens);
-    val ctx=parser.literal();
-
-    val result = LanguageVisitor(tokens).visitLiteral(ctx);
-    assert(result.isInstanceOf[expressions.literals.Float]);
-    assert(result.asInstanceOf[expressions.literals.Float].value == -99.123);
-  }
-
-  @Test
-  def parseStringLiteral(): Unit ={
-    val lexer =LanguageLexer(CharStreams.fromString(literal.stringLiteral));
-    val tokens = new CommonTokenStream(lexer)
-    val parser = new LanguageParser(tokens);
-    val ctx=parser.literal();
-
-    val result = LanguageVisitor(tokens).visitLiteral(ctx);
-    assert(result.isInstanceOf[expressions.literals.String]);
-    assert(result.asInstanceOf[expressions.literals.String].value == "str");
-  }
-
 
 }

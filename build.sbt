@@ -8,7 +8,7 @@ lazy val alax = project.in(file("."))
     commonSettings,
     name := "Alax",
     description := "Alax programming language",
-    scalaVersion := "3.1.3",
+    scalaVersion := "3.1.3"
   )
   .aggregate(
     ast,
@@ -30,7 +30,11 @@ lazy val scala_compiler = project.in(file("scala_compiler"))
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
-      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test
+      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
+      ("org.scalameta" %% "scalameta" % "4.8.6").cross(CrossVersion.for3Use2_13),
+      ("org.scalatest" %% "scalatest-wordspec" % "3.2.16" % "test"),
+      ("org.scalatest" %% "scalatest" % "3.2.16" % "test"),
+      ("com.google.jimfs" % "jimfs" % "1.3.0" % Test),
     )
   )
 lazy val parser = project.in(file("parser"))
@@ -38,7 +42,9 @@ lazy val parser = project.in(file("parser"))
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
-      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test
+      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
+      ("org.scalatest" %% "scalatest-wordspec" % "3.2.16" % "test"),
+      ("org.scalatest" %% "scalatest" % "3.2.16" % "test"),
     )
   )
 
