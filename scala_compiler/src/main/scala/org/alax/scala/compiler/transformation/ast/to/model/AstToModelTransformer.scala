@@ -10,6 +10,7 @@ import org.alax.scala.compiler.model
 import org.alax.scala.compiler.model.{CompilerError, *}
 import org.alax.scala.compiler.transformation.Context
 
+import java.nio.file.Path
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
 
@@ -126,8 +127,8 @@ class AstToModelTransformer {
 
         object `type` {
           def reference(valueTypeReference: Partial.Type.Reference.Value, imports: Seq[compiler.model.Import]): compiler.model.Value.Type | compiler.model.CompilerError = {
-             val typeReferenceOrError:compiler.model.Declaration.Type | CompilerError=transform.`type`.reference(typeReference = valueTypeReference, imports = imports);
-             return typeReferenceOrError match {
+            val typeReferenceOrError: compiler.model.Declaration.Type | CompilerError = transform.`type`.reference(typeReference = valueTypeReference, imports = imports);
+            return typeReferenceOrError match {
               case valueTypeReference: compiler.model.Value.Type => valueTypeReference
               case error: compiler.model.CompilerError => error
               case other => compiler.model.CompilerBugException(cause = Exception(f"Unhandled type: $other !"))
@@ -215,6 +216,21 @@ class AstToModelTransformer {
     }
 
     object source {
+
+      def path(path: Path, parentContext: Context | Null): os.Path | CompilerError = {
+        if (path.isAbsolute) {
+          return os.Path(path);
+        }
+        return parentContext match {
+          case context: Context => transform.source.path(path = context.path, parentContext = context.parent) match {
+            //It should be absolute as now
+            case parentPath: os.Path => os.Path(Path.of(parentPath.toString(), path.toString))
+            case error: CompilerError => error
+          }
+          case null => CompilerBugException(new Exception(s"Couldn't resolve path: $path, to absolute "))
+        }
+      }
+
       def `package`(source: ast.Source.Unit.Package, parentContext: Context.Package | Context.Module | Null = null): compiler.model.Source.Package | Seq[CompilerError] = {
         val imports = source.imports.flatMap(element => transform.imports(element));
         val errors = ImportsValidator.validate(imports)
@@ -234,7 +250,10 @@ class AstToModelTransformer {
               }
             )
             return Source.Package(
-              path = source.path,
+              path = path(source.path, parentContext) match {
+                case osPath: os.Path => osPath;
+                case error: CompilerError => return Seq(error)
+              },
               members = membersOrErrors.filter(item => item.isInstanceOf[Source.Package.Member])
                 .map(item => item.asInstanceOf[Source.Package.Member]),
               errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
@@ -267,7 +286,10 @@ class AstToModelTransformer {
               }
             )
             return Source.Unit(
-              path = source.path,
+              path = path(source.path, parentContext) match {
+                case osPath: os.Path => osPath;
+                case error: CompilerError => return Seq(error)
+              },
               members = membersOrErrors.filter(item => item.isInstanceOf[Source.Unit.Member])
                 .map(item => item.asInstanceOf[Source.Unit.Member]),
               errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
@@ -299,7 +321,10 @@ class AstToModelTransformer {
               }
             )
             return Source.Unit(
-              path = source.path,
+              path = path(source.path, parentContext) match {
+                case osPath: os.Path => osPath
+                case error: CompilerError => return Seq(error);
+              },
               members = membersOrErrors.filter(item => item.isInstanceOf[Source.Unit.Member])
                 .map(item => item.asInstanceOf[Source.Unit.Member]),
               errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])

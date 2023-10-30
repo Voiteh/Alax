@@ -3,7 +3,7 @@ package org.alax.scala.compiler.model
 import org.alax.scala.compiler.model.Statement
 import org.alax.scala.compiler.transformation.Context
 
-import java.nio.file.Path
+import os.Path
 import scala.meta
 
 /**

@@ -35,6 +35,7 @@ lazy val scala_compiler = project.in(file("scala_compiler"))
       ("org.scalatest" %% "scalatest-wordspec" % "3.2.16" % "test"),
       ("org.scalatest" %% "scalatest" % "3.2.16" % "test"),
       ("com.google.jimfs" % "jimfs" % "1.3.0" % Test),
+      ("org.scala-lang" %% "toolkit" % "0.2.1").cross(CrossVersion.for3Use2_13)
     )
   )
 lazy val parser = project.in(file("parser"))
