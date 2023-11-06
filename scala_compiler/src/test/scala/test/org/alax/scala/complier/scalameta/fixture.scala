@@ -1,4 +1,4 @@
-package test.org.alax.scala.complier.model
+package test.org.alax.scala.complier.scalameta
 
 import org.alax.scala.compiler.model.{Declaration, Import, Value, Literal}
 import org.alax.scala.compiler.model.Literal

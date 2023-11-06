@@ -217,19 +217,7 @@ class AstToModelTransformer {
 
     object source {
 
-      def path(path: Path, parentContext: Context | Null): os.Path | CompilerError = {
-        if (path.isAbsolute) {
-          return os.Path(path);
-        }
-        return parentContext match {
-          case context: Context => transform.source.path(path = context.path, parentContext = context.parent) match {
-            //It should be absolute as now
-            case parentPath: os.Path => os.Path(Path.of(parentPath.toString(), path.toString))
-            case error: CompilerError => error
-          }
-          case null => CompilerBugException(new Exception(s"Couldn't resolve path: $path, to absolute "))
-        }
-      }
+
 
       def `package`(source: ast.Source.Unit.Package, parentContext: Context.Package | Context.Module | Null = null): compiler.model.Source.Package | Seq[CompilerError] = {
         val imports = source.imports.flatMap(element => transform.imports(element));
@@ -250,10 +238,7 @@ class AstToModelTransformer {
               }
             )
             return Source.Package(
-              path = path(source.path, parentContext) match {
-                case osPath: os.Path => osPath;
-                case error: CompilerError => return Seq(error)
-              },
+              name = source.path.getFileName.toString,
               members = membersOrErrors.filter(item => item.isInstanceOf[Source.Package.Member])
                 .map(item => item.asInstanceOf[Source.Package.Member]),
               errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
@@ -286,10 +271,7 @@ class AstToModelTransformer {
               }
             )
             return Source.Unit(
-              path = path(source.path, parentContext) match {
-                case osPath: os.Path => osPath;
-                case error: CompilerError => return Seq(error)
-              },
+              name = source.path.getFileName.toString,
               members = membersOrErrors.filter(item => item.isInstanceOf[Source.Unit.Member])
                 .map(item => item.asInstanceOf[Source.Unit.Member]),
               errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
@@ -321,10 +303,7 @@ class AstToModelTransformer {
               }
             )
             return Source.Unit(
-              path = path(source.path, parentContext) match {
-                case osPath: os.Path => osPath
-                case error: CompilerError => return Seq(error);
-              },
+              name = source.path.getFileName.toString,
               members = membersOrErrors.filter(item => item.isInstanceOf[Source.Unit.Member])
                 .map(item => item.asInstanceOf[Source.Unit.Member]),
               errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
