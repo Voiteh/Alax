@@ -10,9 +10,9 @@ import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.base.model.{CompilationError, CompilerError, Expression, Import, Reference, Tracable, Trace}
 import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.base.model.*
-import org.alax.scala.compiler.model.{Literals, Sources, Value}
+import org.alax.scala.compiler.model.{Literals, Value}
 import org.alax.scala.compiler.transformation.Context
-
+import org.alax.scala.compiler.model.sources
 import java.nio.file.Path
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
@@ -78,7 +78,7 @@ class AstToModelTransformer {
                   value = {
                     val prefix = imports.find(element => element.alias.equals(value.head.text()) || element.member.equals(value.head.text()))
                       .map(element => s"${element.ancestor}").getOrElse("")
-                    value.foldLeft(mutable.StringBuilder(prefix))((acc, element) => acc.append(if (acc.isEmpty) then element.text() else s".${element.text()}")).toString
+                    value.foldLeft(mutable.StringBuilder(prefix))((acc, element) => acc.append(if acc.isEmpty then element.text() else s".${element.text()}")).toString
                   }
                 )
               )
@@ -95,9 +95,9 @@ class AstToModelTransformer {
           case Context.Unit(_, imports, _) => imports;
           case Context.Package(_, imports, _) => imports;
 
-        val typeOrError: Value.Type | CompilerError = transform.`type`.reference.value(valueDefinition.typeReference, imports);
-        val nameOrError: String | CompilerError = transform.value.declaration.name(name = valueDefinition.name);
-        val expressionOrError: Expression | CompilerError = transform.expression(valueDefinition.initialization);
+        val typeOrError: Value.Type | CompilerError = transform.`type`.reference.value(valueDefinition.typeReference, imports)
+        val nameOrError: String | CompilerError = transform.value.declaration.name(name = valueDefinition.name)
+        val expressionOrError: Expression | CompilerError = transform.expression(valueDefinition.initialization)
         return typeOrError match {
           case tpe: Value.Type =>
             nameOrError match {
@@ -176,7 +176,7 @@ class AstToModelTransformer {
 
     private def foldNames(names: Seq[ast.model.Partial.Name]): String = {
       return names.foldLeft(mutable.StringBuilder())((acc: mutable.StringBuilder, ancestor: ast.model.Partial.Name) =>
-        if (acc.isEmpty) then acc.append(ancestor.text())
+        if acc.isEmpty then acc.append(ancestor.text())
         else acc.append("." + ancestor.text()))
         .toString()
     }
@@ -222,8 +222,8 @@ class AstToModelTransformer {
 
 
 
-      def `package`(source: ast.Source.Unit.Package, parentContext: Context.Package | Context.Module | Null = null): Sources.Package | Seq[CompilerError] = {
-        val imports = source.imports.flatMap(element => transform.imports(element));
+      def `package`(source: ast.Source.Unit.Package, parentContext: Context.Package | Context.Module | Null = null): sources.Package | Seq[CompilerError] = {
+        val imports = source.imports.flatMap(element => transform.imports(element))
         val errors = ImportsValidator.validate(imports)
         return errors match {
           case Nil =>
@@ -240,10 +240,10 @@ class AstToModelTransformer {
                 )
               }
             )
-            return Sources.Package(
+            return sources.Package(
               name = source.path.getFileName.toString,
-              members = membersOrErrors.filter(item => item.isInstanceOf[Sources.Package.Member])
-                .map(item => item.asInstanceOf[Sources.Package.Member]),
+              members = membersOrErrors.filter(item => item.isInstanceOf[sources.Package.Member])
+                .map(item => item.asInstanceOf[sources.Package.Member]),
               errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
                 .map(item => item.asInstanceOf[CompilerError]),
               context = context
@@ -254,8 +254,8 @@ class AstToModelTransformer {
 
 
       //TODO probably there will be context for nested classes
-      def `class`(source: ast.Source.Unit.Class, parentContext: Context.Package | Null = null): Sources.Unit | Seq[CompilerError] = {
-        val imports = source.imports.flatMap(element => transform.imports(element));
+      def `class`(source: ast.Source.Unit.Class, parentContext: Context.Package | Null = null): sources.Unit | Seq[CompilerError] = {
+        val imports = source.imports.flatMap(element => transform.imports(element))
         val errors = ImportsValidator.validate(imports)
         return errors match {
           case Nil =>
@@ -273,10 +273,10 @@ class AstToModelTransformer {
                 case _ => compiler.base.model.CompilerBugException(cause = Exception("Not implemented!"))
               }
             )
-            return Sources.Unit(
+            return sources.Unit(
               name = source.path.getFileName.toString,
-              members = membersOrErrors.filter(item => item.isInstanceOf[Sources.Unit.Member])
-                .map(item => item.asInstanceOf[Sources.Unit.Member]),
+              members = membersOrErrors.filter(item => item.isInstanceOf[sources.Unit.Member])
+                .map(item => item.asInstanceOf[sources.Unit.Member]),
               errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
                 .map(item => item.asInstanceOf[CompilerError]),
               context = parentContext
@@ -286,8 +286,8 @@ class AstToModelTransformer {
       }
 
       //TODO probably there will be context for nested classes
-      def `interface`(source: ast.Source.Unit.Interface, parentContext: Context.Package | Null = null): Sources.Unit | Seq[CompilerError] = {
-        val imports = source.imports.flatMap(element => transform.imports(element));
+      def `interface`(source: ast.Source.Unit.Interface, parentContext: Context.Package | Null = null): sources.Unit | Seq[CompilerError] = {
+        val imports = source.imports.flatMap(element => transform.imports(element))
         val errors = ImportsValidator.validate(imports)
         return errors match {
           case Nil =>
@@ -305,10 +305,10 @@ class AstToModelTransformer {
                 case _ => compiler.base.model.CompilerBugException(cause = Exception("Not implemented!"))
               }
             )
-            return Sources.Unit(
+            return sources.Unit(
               name = source.path.getFileName.toString,
-              members = membersOrErrors.filter(item => item.isInstanceOf[Sources.Unit.Member])
-                .map(item => item.asInstanceOf[Sources.Unit.Member]),
+              members = membersOrErrors.filter(item => item.isInstanceOf[sources.Unit.Member])
+                .map(item => item.asInstanceOf[sources.Unit.Member]),
               errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
                 .map(item => item.asInstanceOf[CompilerError]),
               context = parentContext
