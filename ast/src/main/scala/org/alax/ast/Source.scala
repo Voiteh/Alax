@@ -1,15 +1,17 @@
 package org.alax.ast
 
-import java.nio.file.Path
+import org.alax.ast.base.model
 
+import java.nio.file.Path
+import org.alax.ast.base.Source.Unit
 
 // For further analysis -> I think object for example in scala/ceylon is actually a top level static Class
 object Source {
 
-  abstract class Unit(val path: Path);
 
 
-  object Unit {
+
+  object Units {
 
     case class Project(override val path: Path) extends Unit(path = path)
 

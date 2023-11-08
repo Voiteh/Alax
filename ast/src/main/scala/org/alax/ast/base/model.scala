@@ -1,8 +1,9 @@
-package org.alax.ast
+package org.alax.ast.base
 
-import org.alax.ast.model.Node.Metadata
-import org.alax.ast.model.Node.Metadata.unknown.location
-import org.alax.ast.model.Partial.Name.UpperCase
+import org.alax.ast.base.expressions.Literal
+import org.alax.ast.base.model.Node.Metadata
+import org.alax.ast.base.model.Node.Metadata.unknown.location
+import org.alax.ast.base.model.Partial.Name.UpperCase
 
 import scala.collection.mutable
 
@@ -163,19 +164,9 @@ object model {
 
   object Expression {
 
-    abstract class Literal(metadata: Metadata) extends Expression(metadata = metadata);
+   
 
-    object Literal {
-      case class Boolean(value: java.lang.Boolean, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
-
-      case class Character(value: java.lang.Character, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
-
-      case class Integer(value: java.lang.Integer, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
-
-      case class Float(value: java.lang.Double, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
-
-      case class String(value: java.lang.String, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
-    }
+    
 
   }
 

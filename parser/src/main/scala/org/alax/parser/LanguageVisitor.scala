@@ -1,8 +1,9 @@
 package org.alax.parser
 
 import org.alax.ast.*
-import org.alax.ast.model.*
-import org.alax.ast.model.Node.Metadata
+import org.alax.ast.base.model
+import org.alax.ast.base.model.*
+import org.alax.ast.base.model.Node.Metadata
 import org.antlr.v4.runtime.{ParserRuleContext, Token, TokenStream}
 import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
 import org.alax.ast.{LanguageLexer, LanguageParser, LanguageParserBaseVisitor}
@@ -174,7 +175,7 @@ class LanguageVisitor(tokenStream: TokenStream)
   }
 
 
-  override def visitLiteralExpression(ctx: LanguageParser.LiteralExpressionContext): Expression.Literal | ParseError = {
+  override def visitLiteralExpression(ctx: LanguageParser.LiteralExpressionContext): base.expressions.Literal | ParseError = {
     super.visitLiteralExpression(ctx);
     val terminalNode = ctx.children.stream()
       .filter((parseTree: ParseTree) => parseTree.isInstanceOf[TerminalNode])
@@ -183,11 +184,11 @@ class LanguageVisitor(tokenStream: TokenStream)
       .orElseThrow(() => new ParserBugException());
     val text = terminalNode.getText;
     return terminalNode.getSymbol.getType match {
-      case LanguageParser.BOOLEAN_LITERAL => Expression.Literal.Boolean(text.toBoolean, metadata = metadata(ctx.getStart));
-      case LanguageParser.INTEGER_LITERAL => Expression.Literal.Integer(text.toInt, metadata = metadata(ctx.getStart));
-      case LanguageParser.FLOAT_LITERAL => Expression.Literal.Float(text.toDouble, metadata = metadata(ctx.getStart));
-      case LanguageParser.CHARACTER_LITERAL => Expression.Literal.Character(text(1), metadata = metadata(ctx.getStart));
-      case LanguageParser.STRING_LITERAL => Expression.Literal.String(text.substring(1, text.length - 1), metadata = metadata(ctx.getStart));
+      case LanguageParser.BOOLEAN_LITERAL => Literals.Boolean(text.toBoolean, metadata = metadata(ctx.getStart));
+      case LanguageParser.INTEGER_LITERAL => Literals.Integer(text.toInt, metadata = metadata(ctx.getStart));
+      case LanguageParser.FLOAT_LITERAL => Literals.Float(text.toDouble, metadata = metadata(ctx.getStart));
+      case LanguageParser.CHARACTER_LITERAL => Literals.Character(text(1), metadata = metadata(ctx.getStart));
+      case LanguageParser.STRING_LITERAL => Literals.String(text.substring(1, text.length - 1), metadata = metadata(ctx.getStart));
       case _ => ParseError(
         message = "Unknown literal: " + text,
         metadata = metadata(ctx.getStart)

@@ -1,11 +1,12 @@
 package test.org.alax.parser
 
 import org.alax.ast.LanguageParser.{AS, ValueDefinitionContext}
-import org.alax.ast.model.Node.Metadata
-import org.alax.ast.model.Partial.Name
-import org.alax.ast.model.Partial
-import org.alax.ast.model.{ParseError, Statement}
-import org.alax.ast.{LanguageLexer, LanguageParser, model}
+import org.alax.ast.base.model
+import org.alax.ast.base.model.Node.Metadata
+import org.alax.ast.base.model.Partial.Name
+import org.alax.ast.base.model.Partial
+import org.alax.ast.base.model.{ParseError, Statement}
+import org.alax.ast.{LanguageLexer, LanguageParser, Literals}
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.junit.jupiter.api.Test
 import org.alax.parser.LanguageVisitor
@@ -37,9 +38,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
                 id.text() mustBe "java.lang.Boolean"
 
             }
-            initialization mustBe a[model.Expression.Literal.Boolean]
+            initialization mustBe a[Literals.Boolean]
             inside(initialization) {
-              case model.Expression.Literal.Boolean(value, _) => value mustBe true
+              case Literals.Boolean(value, _) => value mustBe true
             }
         }
       }
@@ -61,9 +62,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
                 id.text() mustBe "java.lang.Character"
 
             }
-            initialization mustBe a[model.Expression.Literal.Character]
+            initialization mustBe a[Literals.Character]
             inside(initialization) {
-              case model.Expression.Literal.Character(value, _) => value mustBe 'a'
+              case Literals.Character(value, _) => value mustBe 'a'
             }
         }
       }
@@ -84,9 +85,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
                 id.text() mustBe "java.lang.String"
 
             }
-            initialization mustBe a[model.Expression.Literal.String]
+            initialization mustBe a[Literals.String]
             inside(initialization) {
-              case model.Expression.Literal.String(value, _) => value mustBe "asd"
+              case Literals.String(value, _) => value mustBe "asd"
             }
         }
       }
@@ -107,9 +108,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
                 id.text() mustBe "Integer"
 
             }
-            initialization mustBe a[model.Expression.Literal.Integer]
+            initialization mustBe a[Literals.Integer]
             inside(initialization) {
-              case model.Expression.Literal.Integer(value, _) => value mustBe -3
+              case Literals.Integer(value, _) => value mustBe -3
             }
         }
       }
@@ -130,9 +131,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
                 id.text() mustBe "Float"
 
             }
-            initialization mustBe a[model.Expression.Literal.Float]
+            initialization mustBe a[Literals.Float]
             inside(initialization) {
-              case model.Expression.Literal.Float(value, _) => value mustBe -3.12
+              case Literals.Float(value, _) => value mustBe -3.12
             }
         }
       }

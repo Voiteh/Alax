@@ -1,11 +1,12 @@
 package test.org.alax.parser
 
-import org.alax.ast.model.Partial.Name
-import org.alax.ast.model.{Partial, Statement}
+import org.alax.ast.base.model
+import org.alax.ast.base.model.Partial.Name
+import org.alax.ast.base.model.{Partial, Statement}
 import org.alax.parser.LanguageVisitor
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.junit.jupiter.api.Test
-import org.alax.ast.{LanguageLexer, LanguageParser, model}
+import org.alax.ast.{LanguageLexer, LanguageParser}
 import org.scalatest.matchers.must.Matchers.{a, mustBe}
 import org.scalatest.wordspec.AnyWordSpec
 import test.org.alax.parser.base.AntlrSupport
