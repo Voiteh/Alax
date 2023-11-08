@@ -4,7 +4,9 @@ import org.alax.ast
 import org.alax.ast.model.Statement.Declaration.Value as ValueDeclaration
 import org.alax.ast.model.Statement.Definition.Value as ValueDefinition
 import org.alax.scala.compiler
-import org.alax.scala.compiler.model.{Import, Trace}
+import org.alax.scala.compiler.base.model
+import org.alax.scala.compiler.base.model.{Import, Trace}
+import org.alax.scala.compiler.model.{Literals, Value}
 import org.alax.scala.compiler.transformation
 import org.alax.scala.compiler.transformation.Context.Module
 import os.Path
@@ -67,25 +69,25 @@ object Model {
 
   object Statement {
     object `import` {
-      val `scala.lang.Integer`: compiler.model.Import = compiler.model.Import(
+      val `scala.lang.Integer`: Import = compiler.base.model.Import(
         ancestor = "scala.lang",
         member = "Integer"
       );
-      val `java.lang.Integer as JInteger`: compiler.model.Import = compiler.model.Import(
+      val `java.lang.Integer as JInteger`: Import = compiler.base.model.Import(
         ancestor = "java.lang",
         member = "Integer", alias = "JInteger"
       );
-      val `scala.lang.Integer as JInteger`: compiler.model.Import = compiler.model.Import(
+      val `scala.lang.Integer as JInteger`: Import = compiler.base.model.Import(
         ancestor = "scala.lang",
         member = "Integer", alias = "JInteger"
       );
     }
 
     object Declaration {
-      val `int: scala.lang.Integer` = compiler.model.Value.Declaration(
+      val `int: scala.lang.Integer` = Value.Declaration(
         name = "int",
-        `type` = compiler.model.Value.Type(
-          id = compiler.model.Declaration.Type.Id(
+        `type` = Value.Type(
+          id = model.Declaration.Type.Id(
             value = "scala.lang.Integer"
           )
         )
@@ -95,7 +97,7 @@ object Model {
     object Definition {
       val `val int: scala.lang.Integer = 4` = compiler.model.Value.Definition(
         declaration = Declaration.`int: scala.lang.Integer`,
-        initialization = compiler.model.Literal.Integer(4L)
+        initialization = Literals.Integer(4L)
       )
     }
 

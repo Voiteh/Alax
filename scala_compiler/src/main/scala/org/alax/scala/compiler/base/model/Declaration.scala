@@ -1,4 +1,4 @@
-package org.alax.scala.compiler.model
+package org.alax.scala.compiler.base.model
 
 import scala.meta.{Decl, Stat}
 

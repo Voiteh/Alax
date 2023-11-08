@@ -1,29 +1,15 @@
 package org.alax.scala.compiler.model
 
-import org.alax.scala.compiler.model.Statement
+import org.alax.scala.compiler.base.model.{CompilerError, Declaration, Definition, Source}
 import org.alax.scala.compiler.transformation.Context
-
 import os.Path
+
 import scala.meta
 
-/**
- * Language construct that provides scoping and encapsulation
- */
-abstract class Source[C <: Context](
-                                     val name: String,
-                                     val members: Seq[Statement],
-                                     val errors: Seq[CompilerError],
-                                     val context: Context | Null
-                                   ) {
 
 
-  def scala: meta.Tree = meta.Source(
-    stats = members.map(statement => statement.scala).toList
-  )
-}
 
-
-object Source {
+object Sources {
   case class Unit(
                    override val name: String,
                    override val members: Seq[Unit.Member],

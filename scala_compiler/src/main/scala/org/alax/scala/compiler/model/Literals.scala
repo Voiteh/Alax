@@ -1,19 +1,12 @@
 package org.alax.scala.compiler.model
 
-import org.alax.scala.compiler.model
+import org.alax.scala.compiler.base.model
+import org.alax.scala.compiler.base.model.Literal
 
 import scala.meta.{Lit, Term}
 
-/**
- * The most basic language construct indicating some hardcoded value
- *
- * @param value
- */
-abstract class Literal(val value: Object) extends Expression{
-  override def scala: Lit = ???
-}
 
-object Literal {
+object Literals {
 
   case class Boolean(override val value: java.lang.Boolean) extends Literal(value = value) {
 

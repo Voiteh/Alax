@@ -3,7 +3,7 @@ import org.alax.ast
 import org.alax.ast.model.Statement.Declaration.Value as ValueDeclaration
 import org.alax.ast.model.Statement.Definition.Value as ValueDefinition
 import org.alax.scala.compiler
-import org.alax.scala.compiler.model.{Import, Trace}
+import org.alax.scala.compiler.base.model.{Import, Trace}
 import org.alax.scala.compiler.transformation
 import org.alax.scala.compiler.transformation.Context.Module
 import os.Path

@@ -1,5 +1,4 @@
-package org.alax.scala.compiler.model
-
+package org.alax.scala.compiler.base.model
 
 abstract class CompilerError(val message: String,val cause:Throwable|Null = null) extends Throwable
 

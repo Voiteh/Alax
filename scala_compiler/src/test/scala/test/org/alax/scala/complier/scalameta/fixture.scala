@@ -1,7 +1,7 @@
 package test.org.alax.scala.complier.scalameta
 
-import org.alax.scala.compiler.model.{Declaration, Import, Value, Literal}
-import org.alax.scala.compiler.model.Literal
+import org.alax.scala.compiler.base.model.{Declaration, Import}
+import org.alax.scala.compiler.model.{Literals, Value}
 
 object fixture {
 
@@ -19,7 +19,7 @@ object fixture {
             )
           )
         ),
-        initialization = Literal.String("abc")
+        initialization = Literals.String("abc")
       ),
         "val abc: `java.lang.String` = \"abc\""
       )
@@ -46,10 +46,10 @@ object fixture {
   }
 
   object literal {
-    val `4.21`: (Literal.Float, ScalaSourceCode) = (Literal.Float(4.21), "4.21d")
-    val `a`: (Literal.Character, ScalaSourceCode) = (Literal.Character('a'), "'a'")
-    val `true`: (Literal.Boolean, ScalaSourceCode) = (Literal.Boolean(true), "true")
-    val `str`: (Literal.String, ScalaSourceCode) = (Literal.String("str"), "\"str\"");
+    val `4.21`: (Literals.Float, ScalaSourceCode) = (Literals.Float(4.21), "4.21d")
+    val `a`: (Literals.Character, ScalaSourceCode) = (Literals.Character('a'), "'a'")
+    val `true`: (Literals.Boolean, ScalaSourceCode) = (Literals.Boolean(true), "true")
+    val `str`: (Literals.String, ScalaSourceCode) = (Literals.String("str"), "\"str\"");
   }
 
 

@@ -1,4 +1,5 @@
-package org.alax.scala.compiler.model
+package org.alax.scala.compiler.base.model
+
 import scala.meta.{Tree,Term}
 
 /**

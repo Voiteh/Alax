@@ -1,7 +1,6 @@
 package org.alax.scala.compiler.transformation
 
-import org.alax.scala.compiler.model.Import
-
+import org.alax.scala.compiler.base.model.Import
 import java.nio.file.Path
 
 

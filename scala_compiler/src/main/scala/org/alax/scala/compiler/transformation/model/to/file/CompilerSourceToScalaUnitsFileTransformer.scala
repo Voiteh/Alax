@@ -1,6 +1,7 @@
 package org.alax.scala.compiler.transformation.model.to.file
 
-import org.alax.scala.compiler.model.{CompilationError, CompilerBugException, CompilerError, Source}
+import org.alax.scala.compiler.base.model.{CompilationError, CompilerBugException, CompilerError}
+import org.alax.scala.compiler.model.Sources
 
 import scala.meta.inputs.Input.File
 import org.alax.scala.compiler.transformation.Context
@@ -27,11 +28,11 @@ class CompilerSourceToScalaUnitsFileTransformer(charset: Charset) {
       }
     }
 
-    def unit(source: Source.Unit, context: Context): Seq[File | CompilationError] = {
+    def unit(source: Sources.Unit, context: Context): Seq[File | CompilationError] = {
       ???
     }
 
-    def `package`(source: Source.Package, context: Context): Seq[File | CompilationError] = {
+    def `package`(source: Sources.Package, context: Context): Seq[File | CompilationError] = {
       ???
     }
 

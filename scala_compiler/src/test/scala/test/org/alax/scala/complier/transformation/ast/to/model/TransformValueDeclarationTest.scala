@@ -1,7 +1,9 @@
 package test.org.alax.scala.complier.transformation.ast.to.model
 
 import org.alax.ast.model as ast
-import org.alax.scala.compiler.model as model
+import org.alax.scala.compiler.base.model.CompilerError
+import org.alax.scala.compiler.base.model
+import org.alax.scala.compiler.model.Value
 import org.junit.jupiter.api.Test
 import org.scalatest.Inside.inside
 import org.scalatest.matchers.must.Matchers.{a, mustBe}
@@ -20,7 +22,7 @@ class TransformValueDeclarationTest extends AnyWordSpec {
           valueDeclaration = Ast.Value.Declaration.`Integer int`,
           context = Model.Context.unit
         );
-        result mustBe a[model.CompilerError]
+        result mustBe a[CompilerError]
 
       }
 
@@ -31,9 +33,9 @@ class TransformValueDeclarationTest extends AnyWordSpec {
           valueDeclaration = Ast.Value.Declaration.`Integer int`,
           context = Model.Context.`unit with import`
         );
-        result mustBe a[model.Value.Declaration]
-        inside(result.asInstanceOf[model.Value.Declaration]){
-          case model.Value.Declaration(name,tpe) =>
+        result mustBe a[Value.Declaration]
+        inside(result.asInstanceOf[Value.Declaration]){
+          case Value.Declaration(name,tpe) =>
             name mustBe "int"
             tpe.id.value mustBe "scala.lang.Integer"
         }
@@ -45,9 +47,9 @@ class TransformValueDeclarationTest extends AnyWordSpec {
           valueDeclaration = Ast.Value.Declaration.`Integer int`,
           context = Model.Context.`unit with import and alias`
         );
-        result mustBe a[model.Value.Declaration]
-        inside(result.asInstanceOf[model.Value.Declaration]) {
-          case model.Value.Declaration(name, tpe) =>
+        result mustBe a[Value.Declaration]
+        inside(result.asInstanceOf[Value.Declaration]) {
+          case Value.Declaration(name, tpe) =>
             name mustBe "int"
             tpe.id.value mustBe "scala.lang.Integer"
         }

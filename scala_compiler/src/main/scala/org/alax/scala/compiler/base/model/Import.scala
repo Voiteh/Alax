@@ -1,5 +1,4 @@
-package org.alax.scala.compiler.model
-
+package org.alax.scala.compiler.base.model
 
 case class Import(ancestor: String, member: String, alias: String | Null = null) extends Statement {
 

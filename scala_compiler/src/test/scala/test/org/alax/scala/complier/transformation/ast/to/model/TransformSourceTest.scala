@@ -1,7 +1,7 @@
 package test.org.alax.scala.complier.transformation.ast.to.model
 
+import org.alax.scala.compiler.model.Sources
 import org.scalatest.wordspec.AnyWordSpec
-import org.alax.scala.compiler.model.Source
 import org.alax.scala.compiler.transformation.ast.to.model.AstToModelTransformer
 import test.org.alax.scala.complier.transformation.ast.to.model.fixture.Ast;
 

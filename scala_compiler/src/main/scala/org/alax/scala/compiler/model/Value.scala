@@ -1,10 +1,10 @@
 package org.alax.scala.compiler.model
 
-import org.alax.scala.compiler.model
-import org.alax.scala.compiler.model.Declaration.{Name, Type}
+import org.alax.scala.compiler.base.model
+import org.alax.scala.compiler.base.model.Declaration.Name
+import org.alax.scala.compiler.base.model.{Literal, Reference}
 
-import scala.meta.Defn
-import scala.meta.{Decl, Term, Pat, Name as MName, Type as MType}
+import scala.meta.{Decl, Defn, Pat, Term, Name as MName, Type as MType}
 
 object Value {
 

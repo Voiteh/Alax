@@ -1,6 +1,5 @@
 package test.org.alax.scala.complier.scalameta
 
-
 import org.alax.scala.compiler.model.Value
 import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatest.wordspec.AnyWordSpec
