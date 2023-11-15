@@ -1,8 +1,6 @@
 package test.org.alax.scala.complier.transformation.ast.to.model.fixture
 
 import org.alax.ast
-import org.alax.ast.base.model.Statement.Declaration.Value as ValueDeclaration
-import org.alax.ast.base.model.Statement.Definition.Value as ValueDefinition
 import org.alax.scala.compiler
 import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.base.model.{Import, Trace}

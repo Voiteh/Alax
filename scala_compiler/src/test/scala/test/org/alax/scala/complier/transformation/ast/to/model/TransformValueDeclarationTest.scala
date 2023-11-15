@@ -1,6 +1,5 @@
 package test.org.alax.scala.complier.transformation.ast.to.model
 
-import org.alax.ast.base.model as ast
 import org.alax.scala.compiler.base.model.CompilerError
 import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.model.Value

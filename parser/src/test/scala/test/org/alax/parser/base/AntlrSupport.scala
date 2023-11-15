@@ -1,8 +1,7 @@
 package test.org.alax.parser.base
 
 import org.alax.ast.LanguageParser
-import org.alax.ast.base.model
-import org.alax.ast.base.model.Node
+import org.alax.ast.base.Node
 import org.alax.parser.LanguageVisitor
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream, ParserRuleContext}
 import org.alax.ast.{LanguageLexer, LanguageParser}

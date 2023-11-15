@@ -30,7 +30,7 @@ object Value {
 
 
   }
-
+  //FIXME this should be Value.Type.Reference
   /**
    * Value type, this is internal property of declaration/definition! And not type declaration itself
    *

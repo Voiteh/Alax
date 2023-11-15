@@ -4,7 +4,6 @@ import org.alax.parser.LanguageVisitor
 import org.junit.jupiter.api.Test
 import org.antlr.v4.runtime.{CharStream, CharStreams, CommonTokenStream}
 import org.alax.ast.{LanguageLexer, LanguageParser, Literals}
-import org.alax.ast.base.model.*
 import org.scalatest.matchers.must.Matchers.{a, mustBe}
 import org.scalatest.wordspec.AnyWordSpec
 import test.org.alax.parser.base.AntlrSupport

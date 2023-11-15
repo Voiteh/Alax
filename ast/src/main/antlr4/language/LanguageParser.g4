@@ -10,8 +10,8 @@ declaration: valueDeclaration|packageDeclaration|functionDeclaration;
 //TODO
 moduleDeclaration: MODULE LOWERCASE_NAME (DOT LOWERCASE_NAME)* OPEN_CURLY  CLOSE_CURLY;
 
-packageDefinition: PACKAGE LOWERCASE_NAME (DOT LOWERCASE_NAME)* packageBody;
-packageDeclaration: PACKAGE LOWERCASE_NAME (DOT LOWERCASE_NAME)* SEMI_COLON;
+packageDefinition: PACKAGE LOWERCASE_NAME packageBody;
+packageDeclaration: PACKAGE LOWERCASE_NAME SEMI_COLON;
 //FIXME this will change when types will come
 packageBody:OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
 

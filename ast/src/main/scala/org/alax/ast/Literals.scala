@@ -1,7 +1,7 @@
 package org.alax.ast
 
 import org.alax.ast.base.expressions.Literal
-import org.alax.ast.base.model.Node.Metadata
+import org.alax.ast.base.Node.Metadata
 
 object Literals {
   case class Boolean(value: java.lang.Boolean, metadata: Metadata = Metadata.unknown) extends Literal(metadata = metadata);
