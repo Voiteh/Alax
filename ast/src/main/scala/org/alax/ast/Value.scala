@@ -6,7 +6,6 @@ import org.alax.ast.base.statements.Declaration as BaseDeclaration
 import org.alax.ast.base.statements.Definition as BaseDefinition
 import org.alax.ast.base.Partial.Type.Reference as BaseReference
 import org.alax.ast.partial.Names
-//TODO potencjalnie mogli bysmy uzyc Declaracji jako pole w Definicji
 object Value {
 
   case class Declaration(name: Names.LowerCase,

@@ -53,17 +53,6 @@ object Ast {
     }
   }
 
-  object Source {
-    object Package {
-      val `empty package` = ast.Source.Units.Package(path = JPath.of(""), imports = Seq(), members = Seq())
-      val `simple package with Integer value` = ast.Source.Units.Package(path = JPath.of(""),
-        imports = Seq(Import.`scala.lang.String`),
-        members = Seq(Value.Definition.`Integer int = 4;`)
-      )
-
-
-    }
-  }
 
   object Import {
     val `scala.lang.String`: ast.Imports.Simple =ast.Imports.Simple(

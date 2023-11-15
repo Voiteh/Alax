@@ -26,5 +26,8 @@ object Partial {
     abstract class Reference(val metadata: Metadata) extends Partial(metadata = metadata);
   }
 
+  abstract class Body(val metadata: Metadata) extends Partial(metadata = metadata){
+
+  }
 
 }

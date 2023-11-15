@@ -3,7 +3,7 @@ package org.alax.parser
 import org.alax.ast.base.*
 import org.alax.ast.base.Node.Metadata
 import org.alax.ast.partial.Names
-import org.alax.ast.{LanguageLexer, LanguageParser, LanguageParserBaseVisitor, Literals, base}
+import org.alax.ast.{LanguageLexer, LanguageParser, LanguageParserBaseVisitor, Literals, Value, base}
 import org.alax.ast
 import org.antlr.v4.runtime.{ParserRuleContext, Token, TokenStream}
 import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
@@ -60,6 +60,7 @@ class LanguageVisitor(tokenStream: TokenStream)
   //    }
   //  }
 
+
   override def visitImportedName(ctx: LanguageParser.ImportedNameContext): ast.Imports.ImportedName | ParseError = {
     super.visitImportedName(ctx);
     val qualifications: Seq[Names.LowerCase | Names.UpperCase] = ctx.children.asScala
@@ -95,8 +96,22 @@ class LanguageVisitor(tokenStream: TokenStream)
 
   }
 
+  override def visitPackageDeclaration(ctx: LanguageParser.PackageDeclarationContext): ast.Package.Declaration | ParseError = {
+    super.visitPackageDeclaration(ctx)
+    val name: base.Partial.Name | ParseError = parseName(ctx.LOWERCASE_NAME())
+    return name match {
+      case shadowName: Names.LowerCase =>
+        ast.Package.Declaration(
+          name = shadowName,
+          metadata = metadata(ctx.getStart)
+        )
+      case error: ParseError => wrapParseError(wrappe = error, message = "Invalid package name ", metadata = metadata(ctx.getStart))
+      case _ => new ParseError(message = "Invalid package name ", metadata = metadata(ctx.getStart))
+    }
 
-  override def visitValueDeclaration(ctx: LanguageParser.ValueDeclarationContext):ast.Value.Declaration | ParseError = {
+  }
+
+  override def visitValueDeclaration(ctx: LanguageParser.ValueDeclarationContext): ast.Value.Declaration | ParseError = {
     super.visitValueDeclaration(ctx);
     val typeReference: Partial.Type.Reference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
     val name: base.Partial.Name | ParseError = parseName(ctx.LOWERCASE_NAME());
@@ -120,11 +135,44 @@ class LanguageVisitor(tokenStream: TokenStream)
     }
   }
 
+  override def visitPackageDefinition(ctx: LanguageParser.PackageDefinitionContext): ast.Package.Definition | ParseError = {
+    super.visitPackageDefinition(ctx)
+    val name: base.Partial.Name | ParseError = parseName(ctx.LOWERCASE_NAME())
+    val body: ast.Package.Body | ParseError = visitPackageBody(ctx.packageBody());
+    return name match {
+      case shadowName: Names.LowerCase =>
+        body match {
+          case shadowBody: ast.Package.Body => ast.Package.Definition(
+            name = shadowName,
+            body = shadowBody,
+            metadata = metadata(ctx.getStart)
+          )
+          case parseError: ParseError => wrapParseError(wrappe = parseError, message = "Invalid body definition", metadata = metadata(ctx.getStart))
+        }
+
+      case error: ParseError => wrapParseError(wrappe = error, message = "Invalid package name ", metadata = metadata(ctx.getStart))
+      case _ => new ParseError(message = "Invalid package name ", metadata = metadata(ctx.getStart))
+    }
+  }
+
+  override def visitPackageBody(ctx: LanguageParser.PackageBodyContext): ast.Package.Body | ParseError = {
+    super.visitPackageBody(ctx)
+    val valueDefinitions: Seq[ast.Value.Definition | ParseError] = ctx.valueDefinition().asScala.map(item => visitValueDefinition(item)).toSeq
+
+    return ast.Package.Body(
+      members = valueDefinitions.filter(item => item.isInstanceOf[Value.Definition])
+        .map(item => item.asInstanceOf[Value.Definition]),
+      errors = valueDefinitions.filter(item => item.isInstanceOf[ParseError])
+        .map(item => item.asInstanceOf[ParseError]),
+      metadata = metadata(ctx.getStart)
+    )
+  }
+
   override def visitValueDefinition(ctx: LanguageParser.ValueDefinitionContext): ast.Value.Definition | ParseError = {
     super.visitValueDefinition(ctx);
 
     val typeReference: Partial.Type.Reference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
-    val name:  base.Partial.Name  | ParseError = parseName(ctx.LOWERCASE_NAME());
+    val name: base.Partial.Name | ParseError = parseName(ctx.LOWERCASE_NAME());
     val initialization: Expression | ParseError = visitExpression(ctx.expression());
     return typeReference match {
       case valueType: ast.Value.Type.Reference =>
