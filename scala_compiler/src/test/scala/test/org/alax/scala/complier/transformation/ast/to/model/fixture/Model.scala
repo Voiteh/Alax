@@ -3,10 +3,9 @@ package test.org.alax.scala.complier.transformation.ast.to.model.fixture
 import org.alax.ast
 import org.alax.scala.compiler
 import org.alax.scala.compiler.base.model
-import org.alax.scala.compiler.base.model.{Import, Trace}
-import org.alax.scala.compiler.model.{Literals, Value}
+import org.alax.scala.compiler.base.model.{Import, Trace,Type}
+import org.alax.scala.compiler.model.{Contexts, Literals, Value}
 import org.alax.scala.compiler.transformation
-import org.alax.scala.compiler.transformation.Context.Module
 import os.Path
 
 import java.nio.file.Path as JPath
@@ -52,12 +51,11 @@ object Model {
       )
     }
 
-    val `package` = transformation.Context.Package(path = JPath.of(""), imports = Seq.empty)
-    val `package with import = scala.lang.Integer` = transformation.Context.Package(path = JPath.of(""), imports = Seq(Statement.`import`.`scala.lang.Integer`))
-    val unit = transformation.Context.Unit(path = JPath.of(""), imports = Seq.empty)
-    val `unit with import`: transformation.Context.Unit = new transformation.Context.Unit(path = JPath.of(""), imports = Seq(Statement.`import`.`scala.lang.Integer`))
-    val `unit with import and alias`: transformation.Context.Unit = transformation.Context.Unit(
-      path = JPath.of(""),
+    val `package` = Contexts.Unit(imports = Seq.empty)
+    val `package with import = scala.lang.Integer` = Contexts.Unit( imports = Seq(Statement.`import`.`scala.lang.Integer`))
+    val unit = Contexts.Unit( imports = Seq.empty)
+    val `unit with import`: Contexts.Unit = new Contexts.Unit(imports = Seq(Statement.`import`.`scala.lang.Integer`))
+    val `unit with import and alias`: Contexts.Unit = Contexts.Unit(
       imports =
         Seq(
           Statement.`import`.`scala.lang.Integer`,
@@ -84,8 +82,8 @@ object Model {
     object Declaration {
       val `int: scala.lang.Integer` = Value.Declaration(
         name = "int",
-        `type` = Value.Type(
-          id = model.Declaration.Type.Id(
+        `type` = Value.Type.Reference(
+          id = Type.Id(
             value = "scala.lang.Integer"
           )
         )
@@ -95,7 +93,7 @@ object Model {
     object Definition {
       val `val int: scala.lang.Integer = 4` = compiler.model.Value.Definition(
         declaration = Declaration.`int: scala.lang.Integer`,
-        initialization = Literals.Integer(4L)
+        meaning = Literals.Integer(4L)
       )
     }
 

@@ -8,7 +8,7 @@ import org.alax.ast.partial.Names
 
 object Package {
 
-  case class Declaration(name: Names.LowerCase,
+  case class Declaration(name: Name,
                          metadata: Metadata
                         ) extends BaseDeclaration(metadata = metadata)
 
@@ -17,8 +17,9 @@ object Package {
                         metadata: Metadata
                        ) extends BaseDefinition(metadata = metadata)
 
-  case class Body(members: Seq[Member], errors: Seq[ParseError], override val metadata: Metadata)
-    extends base.Partial.Body(metadata = metadata)
+  case class Body(elements: Seq[Element], override val metadata: Metadata)
+    extends base.Partial.Scope(metadata = metadata)
 
-  type Member = Value.Definition
+  type Name = Names.LowerCase
+  type Element = Value.Definition | ParseError
 }

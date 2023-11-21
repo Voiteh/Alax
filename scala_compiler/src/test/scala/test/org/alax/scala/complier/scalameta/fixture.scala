@@ -1,7 +1,8 @@
 package test.org.alax.scala.complier.scalameta
 
-import org.alax.scala.compiler.base.model.{Declaration, Import}
+import org.alax.scala.compiler.base.model.{Declaration, Import,Type}
 import org.alax.scala.compiler.model.{Literals, Value}
+
 
 object fixture {
 
@@ -13,13 +14,13 @@ object fixture {
       val `java.lang.String abc="abc"`: (Value.Definition, ScalaSourceCode) = (Value.Definition(
         declaration = Value.Declaration(
           name = "def",
-          `type` = Value.Type(
-            Declaration.Type.Id(
+          `type` = Value.Type.Reference(
+            Type.Id(
               value = "Integer"
             )
           )
         ),
-        initialization = Literals.String("abc")
+        meaning = Literals.String("abc")
       ),
         "val abc: `java.lang.String` = \"abc\""
       )
@@ -29,13 +30,13 @@ object fixture {
 
       val `Integer def`: (Value.Declaration, ScalaSourceCode) = (Value.Declaration(
         name = "def",
-        `type` = Value.Type(Declaration.Type.Id(
+        `type` = Value.Type.Reference(Type.Id(
           value = "Integer",
         ))
       ), "val `def`: Integer")
 
       val `java.lang.String abc`: (Value.Declaration, ScalaSourceCode) = (Value.Declaration(
-        name = "abc", `type` = Value.Type(Declaration.Type.Id(
+        name = "abc", `type` = Value.Type.Reference(Type.Id(
           value = "java.lang.String"
         ))
       ), "val abc: `java.lang.String`")

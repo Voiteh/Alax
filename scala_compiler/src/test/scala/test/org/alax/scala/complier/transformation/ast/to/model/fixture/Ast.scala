@@ -6,7 +6,6 @@ import org.alax.ast.Value.Definition as ValueDefinition
 import org.alax.scala.compiler
 import org.alax.scala.compiler.base.model.{Import, Trace}
 import org.alax.scala.compiler.transformation
-import org.alax.scala.compiler.transformation.Context.Module
 import os.Path
 
 import java.nio.file.Path as JPath

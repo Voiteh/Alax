@@ -1,10 +1,10 @@
 package org.alax.scala.compiler.model
 
 import org.alax.scala.compiler.base.model
-import org.alax.scala.compiler.base.model.Declaration.Name
+import org.alax.scala.compiler.base.model.{Declaration as BaseDeclaration, Type as BaseType}
 import org.alax.scala.compiler.base.model.{Literal, Reference}
 
-import scala.meta.{Decl, Defn, Pat, Term, Name as MName, Type as MType}
+import scala.meta.{Decl, Defn, Pat, Term, Tree, Name as MName, Type as MType}
 
 object Value {
 
@@ -15,43 +15,52 @@ object Value {
    * @param `type` - type of value declaration
    */
   case class Declaration(
-                          override val name: Name,
-                          override val `type`: Value.Type //|Union.Type|Intersection.Type|Functional.Type...
+                          override val name: BaseDeclaration.Name,
+                          `type`: Value.Type.Reference //|Union.Type|Intersection.Type|Functional.Type...
                         )
-    extends model.Declaration(name = name, `type` = `type`) {
+    extends model.Declaration(name = name) {
 
     override val scala: Decl.Val = Decl.Val(
       mods = collection.immutable.List(),
       pats = collection.immutable.List(
         Term.Name(name)
       ),
-      decltpe = MType.Name.Initial(`type`.id.value)
+      decltpe = `type`.scala
     )
 
 
   }
-  //FIXME this should be Value.Type.Reference
+
+
   /**
    * Value type, this is internal property of declaration/definition! And not type declaration itself
    *
    * @param id
    */
-  case class Type(var id: model.Declaration.Type.Id) extends
-    model.Declaration.Type() {
-    override def equals(obj: Any): Boolean = {
-      return obj match {
-        case value: Type => id == value.id;
-        case _ => false
+
+
+  object Type {
+    case class Reference(var id: BaseType.Id) extends BaseType.Reference() {
+      override def equals(obj: Any): Boolean = {
+        return obj match {
+          case value: Reference => id == value.id;
+          case _ => false
+        }
+      }
+
+      override def scala: MType = {
+        return MType.Name.Initial(id.value)
       }
     }
   }
 
+
   case class Definition(override val declaration: Declaration,
-                        override val initialization: Literal | Reference
-                       ) extends model.Definition(declaration = declaration, initialization = initialization) {
+                        override val meaning: Literal | Reference
+                       ) extends model.Definition(declaration = declaration, meaning = meaning) {
 
     override def scala: Defn.Val = Defn.Val(
-      rhs = initialization.scala,
+      rhs = meaning.scala,
       mods = collection.immutable.List(),
       pats = collection.immutable.List(
         Pat.Var(
@@ -64,4 +73,6 @@ object Value {
 
 
   }
+
+
 }

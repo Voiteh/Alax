@@ -157,13 +157,11 @@ class LanguageVisitor(tokenStream: TokenStream)
 
   override def visitPackageBody(ctx: LanguageParser.PackageBodyContext): ast.Package.Body | ParseError = {
     super.visitPackageBody(ctx)
-    val valueDefinitions: Seq[ast.Value.Definition | ParseError] = ctx.valueDefinition().asScala.map(item => visitValueDefinition(item)).toSeq
+    val valueDefinitions: Seq[ast.Value.Definition | ParseError] = ctx.valueDefinition().asScala
+      .map(item => visitValueDefinition(item)).toSeq
 
     return ast.Package.Body(
-      members = valueDefinitions.filter(item => item.isInstanceOf[Value.Definition])
-        .map(item => item.asInstanceOf[Value.Definition]),
-      errors = valueDefinitions.filter(item => item.isInstanceOf[ParseError])
-        .map(item => item.asInstanceOf[ParseError]),
+      elements = valueDefinitions.filter(item => item.isInstanceOf[Value.Definition]),
       metadata = metadata(ctx.getStart)
     )
   }

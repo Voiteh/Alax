@@ -1,6 +1,7 @@
 package org.alax.scala.compiler.base.model
 
 /**
- * Declaration with initialization
+ * Defined language construct
  */
-abstract class Definition(val declaration: Declaration, val initialization: Expression) extends Statement
+abstract class Definition(val declaration: Declaration, val meaning: Any) extends Statement
+
