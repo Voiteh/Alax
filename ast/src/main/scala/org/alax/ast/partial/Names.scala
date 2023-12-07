@@ -10,6 +10,8 @@ object Names {
 
   object Qualified {
     case class LowerCase(qualifications: Seq[LowerCase], metadata: Metadata = Metadata.unknown) extends Partial.Name(metadata = metadata) {
+
+
       override def text(): String = {
         return qualifications.foldLeft(mutable.StringBuilder())((acu: mutable.StringBuilder, item: LowerCase | UpperCase) =>
           if (acu.isEmpty) then acu.append(item.text()) else acu.append("." + item.text())).toString()
@@ -40,11 +42,14 @@ object Names {
     assert(value.matches("[a-z].*"))
 
     override def text(): String = value;
+
   }
 
   case class UpperCase(value: String, metadata: Metadata = Metadata.unknown) extends Partial.Name(metadata = metadata) {
     assert(value.matches("[A-Z].*"))
 
     override def text(): String = value;
+
+
   }
 }

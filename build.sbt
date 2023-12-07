@@ -1,22 +1,26 @@
 import sbt.Keys.libraryDependencies
 
 lazy val commonSettings = Seq(
-  scalaVersion := "3.1.3"
+  scalaVersion := "3.1.3",
+  libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-library" % "2.13.10"
+  )
 )
 lazy val alax = project.in(file("."))
   .settings(
     commonSettings,
     name := "Alax",
     description := "Alax programming language",
-    scalaVersion := "3.1.3"
   )
   .aggregate(
+    utilities,
     ast,
     parser,
     scala_compiler
   )
 
 lazy val ast = project.in(file("ast"))
+  .dependsOn(utilities)
   .enablePlugins(Antlr4Plugin)
   .settings(
     commonSettings,
@@ -48,4 +52,6 @@ lazy val parser = project.in(file("parser"))
       ("org.scalatest" %% "scalatest" % "3.2.16" % "test"),
     )
   )
+lazy val utilities = project.in(file("utilities"))
+  .settings(commonSettings)
 

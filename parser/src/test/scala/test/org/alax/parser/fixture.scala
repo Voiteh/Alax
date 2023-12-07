@@ -1,6 +1,18 @@
 package test.org.alax.parser
 
 object fixture {
+
+  object `package` {
+    object declaration {
+      val `package abc;`: String = """package abc;"""
+    }
+
+    object definition {
+      val `package abc {}`: String = """package abc {}"""
+      val `package abc {java.lang.Boolean bool=true;}`: String = """package abc {java.lang.Boolean bool=true;}"""
+    }
+  }
+
   object value {
 
     object definition {

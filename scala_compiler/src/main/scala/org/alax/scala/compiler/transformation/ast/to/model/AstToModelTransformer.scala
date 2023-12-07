@@ -2,10 +2,9 @@ package org.alax.scala.compiler.transformation.ast.to.model
 
 import org.alax.ast
 import org.alax.ast.base
-import org.alax.ast.base.Partial
+import org.alax.ast.base.{ParseError, Partial, Expression as AstExpression, Statement as AstStatement}
 import org.alax.ast.partial.Names.{LowerCase, Qualified, UpperCase}
 import org.alax.ast.base.statements.Declaration as AstDeclartion
-import org.alax.ast.base.{Expression as AstExpression, Statement as AstStatement}
 import org.alax.ast.base.expressions.Literal as AstLiteral
 import org.alax.ast.partial.Names
 import org.alax.scala.compiler
@@ -93,7 +92,7 @@ class AstToModelTransformer {
                     ): Value.Definition | CompilerError = {
         val imports = context match
           case unit: Contexts.Unit => unit.imports
-          case _ => Seq[Import]()
+          case null => Seq[Import]()
 
         val typeOrError: Value.Type.Reference | CompilerError = transform.`type`.reference.value(valueDefinition.typeReference, imports)
         val nameOrError: String | CompilerError = transform.value.declaration.name(name = valueDefinition.name)
@@ -146,7 +145,7 @@ class AstToModelTransformer {
                      ): Value.Declaration | CompilerError = {
         val imports = context match
           case unit: Contexts.Unit => unit.imports
-          case _ => Seq[Import]()
+          case null => Seq[Import]()
 
 
         val typeOrError: Value.Type.Reference | CompilerError = transform.value.declaration.`type`.reference(valueDeclaration.typeReference, imports);
@@ -190,7 +189,7 @@ class AstToModelTransformer {
           return compiler.model.Package.Definition.Body(
             elements = body.elements.map {
               case value: ast.Value.Definition => transform.value.definition(valueDefinition = value, context = context)
-
+              case error: ParseError => CompilerBugError(error)
             })
         }
       }
@@ -205,9 +204,9 @@ class AstToModelTransformer {
                 ),
                 body = body
               )
-              case error: CompilationErrors => error
+              case error: CompilerError => error
             }
-          case error: CompilationError => error;
+          case error: CompilerError => error;
         }
       }
 
@@ -215,7 +214,7 @@ class AstToModelTransformer {
 
     def trace(location: ast.base.Node.Location): Trace = compiler.base.model.Trace(
       unit = location.unit,
-      lineNumber = location.lineNumber,
+      lineNumber = location.startLine,
       startIndex = location.startIndex,
       endIndex = location.endIndex
     )

@@ -18,7 +18,8 @@ object Value {
                          typeReference: Value.Type.Reference,
                          initialization: Expression,
                          metadata: Metadata = Metadata.unknown
-                       ) extends BaseDefinition(metadata = metadata);
+                       ) extends BaseDefinition(metadata = metadata){
+  }
 
   case class Type() {
 
