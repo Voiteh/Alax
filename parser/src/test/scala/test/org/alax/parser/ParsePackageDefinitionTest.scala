@@ -25,7 +25,7 @@ class ParsePackageDefinitionTest extends AnyWordSpec {
             packageDefinition.body.elements must contain(
               AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Boolean bool=true;`)
                 .context((parser: LanguageParser) => parser.valueDefinition())
-                .visit((visitor, context) => visitor.visitValueDefinition(context))
+                .visit((visitor:LanguageVisitor, context: LanguageParser.ValueDefinitionContext) => visitor.visitValueDefinition(context))
             )
           }
         }

@@ -6,6 +6,7 @@ import org.alax.ast.base.statements.Declaration as BaseDeclaration
 import org.alax.ast.base.statements.Definition as BaseDefinition
 import org.alax.ast.base.Partial.Type.Reference as BaseReference
 import org.alax.ast.partial.Names
+
 object Value {
 
   case class Declaration(name: Names.LowerCase,
@@ -18,7 +19,8 @@ object Value {
                          typeReference: Value.Type.Reference,
                          initialization: Expression,
                          metadata: Metadata = Metadata.unknown
-                       ) extends BaseDefinition(metadata = metadata){
+                       ) extends BaseDefinition(metadata = metadata) {
+
   }
 
   case class Type() {

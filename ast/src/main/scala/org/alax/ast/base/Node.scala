@@ -4,8 +4,14 @@ import scala.collection.mutable
 import scala.runtime.ScalaRunTime
 import scala.util.hashing.MurmurHash3
 
-abstract class Node(metadata: Node.Metadata) extends Product{
+abstract class Node(metadata: Node.Metadata) extends Product {
   override def toString: String = org.alax.utilities.toString(this)
+
+  override def equals(obj: Any): Boolean = obj match {
+    case node: Node => org.alax.utilities.equals(this, node, (name, _) => !name.equals("metadata"))
+    case _ => false
+  }
+
 }
 
 object Node {
