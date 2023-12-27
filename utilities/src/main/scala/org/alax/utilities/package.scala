@@ -5,7 +5,7 @@ def toString(product: Product): String = product.productElementNames.zip(product
   .map { case (name, value) => s"$name = $value" }
   .mkString("(", ", ", ")")
 
-def equals(left: Product, right: Product, filter: (String, Any) => Boolean): Boolean = {
+def equals(left: Product, right: Product, filter: (String, Any) => Boolean = (_,_) =>true): Boolean = {
   val leftIterator: Iterator[(String, Any)] = left.productElementNames.zip(left.productIterator)
     .filter { case (name, value) => filter(name, value) }
   val rightIterator: Iterator[(String, Any)] = right.productElementNames.zip(right.productIterator)

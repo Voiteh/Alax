@@ -65,12 +65,13 @@ class AstToModelTransformer {
               .map(result => Value.Type.Reference(id =
                 Type.Id(value = result)
               ))
-              .getOrElse(new CompilationError(
-                path = valueTypeReference.metadata.location.unit,
-                startIndex = valueTypeReference.metadata.location.startIndex,
-                endIndex = valueTypeReference.metadata.location.endIndex,
-                message = s"Unknown type: ${valueTypeReference}, did You forget to import?"
-              ))
+              .getOrElse(
+                new CompilationError(
+                  path = valueTypeReference.metadata.location.unit,
+                  startIndex = valueTypeReference.metadata.location.startIndex,
+                  endIndex = valueTypeReference.metadata.location.endIndex,
+                  message = s"Unknown type: ${valueTypeReference.id}, did You forget to import?: "
+                ))
             case ast.partial.Names.Qualified(value: Seq[ast.partial.Names.LowerCase | ast.partial.Names.UpperCase], _) =>
               compiler.model.Value.Type.Reference(
                 id = Type.Id(
@@ -197,7 +198,7 @@ class AstToModelTransformer {
       def definition(definition: ast.Package.Definition, context: Contexts.Unit | Null = null): compiler.model.Package.Definition | CompilerError = {
         return `package`.declaration.name(definition.name) match {
           case name: String =>
-            `package`.definition.body(definition.body) match {
+            `package`.definition.body(definition.body,context) match {
               case body: compiler.model.Package.Definition.Body => compiler.model.Package.Definition(
                 declaration = compiler.model.Package.Declaration(
                   name = name

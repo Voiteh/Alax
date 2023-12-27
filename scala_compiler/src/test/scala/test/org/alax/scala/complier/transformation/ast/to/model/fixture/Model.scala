@@ -3,8 +3,8 @@ package test.org.alax.scala.complier.transformation.ast.to.model.fixture
 import org.alax.ast
 import org.alax.scala.compiler
 import org.alax.scala.compiler.base.model
-import org.alax.scala.compiler.base.model.{Import, Trace,Type}
-import org.alax.scala.compiler.model.{Contexts, Literals, Value}
+import org.alax.scala.compiler.base.model.{Import, Trace, Type}
+import org.alax.scala.compiler.model.{Contexts, Literals, Value as CompilerValue}
 import org.alax.scala.compiler.transformation
 import os.Path
 
@@ -17,11 +17,24 @@ object Model {
   object Context {
 
 
-
     object Trace {
       val `empty trace` = new Trace(unit = "", lineNumber = 0, startIndex = 0, endIndex = 0)
     }
 
+    object Import {
+      val `scala.lang.Integer`: Import = compiler.base.model.Import(
+        ancestor = "scala.lang",
+        member = "Integer"
+      );
+      val `java.lang.Integer as JInteger`: Import = compiler.base.model.Import(
+        ancestor = "java.lang",
+        member = "Integer", alias = "JInteger"
+      );
+      val `scala.lang.Integer as JInteger`: Import = compiler.base.model.Import(
+        ancestor = "scala.lang",
+        member = "Integer", alias = "JInteger"
+      );
+    }
     object Imports {
 
       val `duplicate member imports` = Seq(
@@ -52,37 +65,24 @@ object Model {
     }
 
     val `package` = Contexts.Unit(imports = Seq.empty)
-    val `package with import = scala.lang.Integer` = Contexts.Unit( imports = Seq(Statement.`import`.`scala.lang.Integer`))
-    val unit = Contexts.Unit( imports = Seq.empty)
-    val `unit with import`: Contexts.Unit = new Contexts.Unit(imports = Seq(Statement.`import`.`scala.lang.Integer`))
+    val `package with import = scala.lang.Integer` = Contexts.Unit(imports = Seq(Import.`scala.lang.Integer`))
+    val unit = Contexts.Unit(imports = Seq.empty)
+    val `unit with import`: Contexts.Unit = new Contexts.Unit(imports = Seq(Import.`scala.lang.Integer`))
     val `unit with import and alias`: Contexts.Unit = Contexts.Unit(
       imports =
         Seq(
-          Statement.`import`.`scala.lang.Integer`,
-          Statement.`import`.`java.lang.Integer as JInteger`
+          Import.`scala.lang.Integer`,
+          Import.`java.lang.Integer as JInteger`
         ))
   }
 
-  object Statement {
-    object `import` {
-      val `scala.lang.Integer`: Import = compiler.base.model.Import(
-        ancestor = "scala.lang",
-        member = "Integer"
-      );
-      val `java.lang.Integer as JInteger`: Import = compiler.base.model.Import(
-        ancestor = "java.lang",
-        member = "Integer", alias = "JInteger"
-      );
-      val `scala.lang.Integer as JInteger`: Import = compiler.base.model.Import(
-        ancestor = "scala.lang",
-        member = "Integer", alias = "JInteger"
-      );
-    }
+  object Value {
+
 
     object Declaration {
-      val `int: scala.lang.Integer` = Value.Declaration(
+      val `int: scala.lang.Integer` = compiler.model.Value.Declaration(
         name = "int",
-        `type` = Value.Type.Reference(
+        `type` = compiler.model.Value.Type.Reference(
           id = Type.Id(
             value = "scala.lang.Integer"
           )
@@ -99,7 +99,22 @@ object Model {
 
   }
 
+  object Package {
+    object Declaration {
+      val `package abc` = compiler.model.Package.Declaration(
+        name = "abc"
+      )
+    }
 
+    object Definition {
+      val `package abc { int: scala.lang.Integer; }` = compiler.model.Package.Definition(
+        declaration = Declaration.`package abc`,
+        body = compiler.model.Package.Definition.Body(elements = Seq(
+          Model.Value.Definition.`val int: scala.lang.Integer = 4`
+        ))
+      )
+    }
+  }
 
 
 }

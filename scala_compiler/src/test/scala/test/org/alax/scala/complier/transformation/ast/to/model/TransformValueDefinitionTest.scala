@@ -22,7 +22,7 @@ class TransformValueDefinitionTest extends AnyWordSpec {
         result mustBe a[Value.Definition];
         inside(result) {
           case definition: Value.Definition =>
-            definition mustBe Model.Statement.Definition.`val int: scala.lang.Integer = 4`;
+            definition mustBe Model.Value.Definition.`val int: scala.lang.Integer = 4`;
           case other => fail(s"Invalid definition type for: ${other}");
 
         }
