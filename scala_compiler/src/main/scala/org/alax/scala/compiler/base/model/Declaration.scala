@@ -20,11 +20,6 @@ object Declaration {
    */
   type Name = String;
 
-  /**
-   * Context in which given declaration is present
-   *
-   * @param parent
-   */
-  abstract class Context(val parent: Context | Null = null)
+
 
 }

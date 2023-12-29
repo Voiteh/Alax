@@ -10,7 +10,7 @@ import org.alax.ast.partial.Names
 import org.alax.scala.compiler
 import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.base.model.{CompilationError, CompilationErrors, CompilerBugError, CompilerError, Expression, Import, Literal, Reference, Tracable, Trace, Type}
-import org.alax.scala.compiler.model.{Contexts, Literals, Value}
+import org.alax.scala.compiler.model.{Literals, Value}
 
 import java.nio.file.Path
 import scala.collection.mutable.ArrayBuffer

@@ -11,7 +11,7 @@ object Value {
   /**
    * Value declaration
    *
-   * @param name   - simple name of that declaration available to identifiy that value
+   * @param name   - simple name of that declaration available to identify that value
    * @param `type` - type of value declaration
    */
   case class Declaration(
@@ -23,7 +23,7 @@ object Value {
     override val scala: Decl.Val = Decl.Val(
       mods = collection.immutable.List(),
       pats = collection.immutable.List(
-        Term.Name(name)
+        Term.Name(s"`${name}`")
       ),
       decltpe = `type`.scala
     )

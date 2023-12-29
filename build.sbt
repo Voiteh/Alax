@@ -3,7 +3,7 @@ import sbt.Keys.libraryDependencies
 lazy val commonSettings = Seq(
   scalaVersion := "3.1.3",
   libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-library" % "2.13.10"
+    "org.scala-lang" % "scala-library" % "2.13.10"
   )
 )
 lazy val alax = project.in(file("."))
@@ -34,6 +34,7 @@ lazy val scala_compiler = project.in(file("scala_compiler"))
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
+      "commons-io" % "commons-io" % "2.15.1",
       "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
       ("org.scalameta" %% "scalameta" % "4.8.6").cross(CrossVersion.for3Use2_13),
       ("org.scalatest" %% "scalatest-wordspec" % "3.2.16" % "test"),

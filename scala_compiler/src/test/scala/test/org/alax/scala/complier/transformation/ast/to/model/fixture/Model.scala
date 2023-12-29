@@ -4,8 +4,9 @@ import org.alax.ast
 import org.alax.scala.compiler
 import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.base.model.{Import, Trace, Type}
-import org.alax.scala.compiler.model.{Contexts, Literals, Value as CompilerValue}
+import org.alax.scala.compiler.model.{Literals, Value as CompilerValue}
 import org.alax.scala.compiler.transformation
+import org.alax.scala.compiler.transformation.ast.to.model.Contexts
 import os.Path
 
 import java.nio.file.Path as JPath
