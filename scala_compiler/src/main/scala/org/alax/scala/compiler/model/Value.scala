@@ -23,7 +23,7 @@ object Value {
     override val scala: Decl.Val = Decl.Val(
       mods = collection.immutable.List(),
       pats = collection.immutable.List(
-        Term.Name(s"`${name}`")
+        Term.Name(name)
       ),
       decltpe = `type`.scala
     )
@@ -40,7 +40,7 @@ object Value {
 
 
   object Type {
-    case class Reference(var id: BaseType.Id) extends BaseType.Reference() {
+    case class Reference(id: BaseType.Id) extends BaseType.Reference() {
       override def equals(obj: Any): Boolean = {
         return obj match {
           case value: Reference => id == value.id;
@@ -48,9 +48,7 @@ object Value {
         }
       }
 
-      override def scala: MType = {
-        return MType.Name.Initial(id.value)
-      }
+      override def scala: MType = MType.Name.Initial(id.value)
     }
   }
 
@@ -67,7 +65,7 @@ object Value {
           Term.Name(declaration.name)
         )
       ),
-      decltpe = Option(MType.Name.Initial(declaration.`type`.id.value)),
+      decltpe = Option(MType.Name(declaration.`type`.id.value)),
 
     )
 

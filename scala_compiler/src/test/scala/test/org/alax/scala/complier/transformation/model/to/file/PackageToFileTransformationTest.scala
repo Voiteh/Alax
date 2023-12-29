@@ -32,16 +32,16 @@ class PackageToFileTransformationTest extends AnyWordSpec with BeforeAndAfterEac
     import scala.util.Try
 
 //    Delete the directory and its contents recursively
-//    tempDir match {
-//      case dir: File => Try(Files.walk(dir.toPath))
-//        .foreach { stream =>
-//          try {
-//            stream.sorted(java.util.Comparator.reverseOrder()).forEach(Files.delete)
-//          } finally {
-//            stream.close()
-//          }
-//        }
-//    }
+    tempDir match {
+      case dir: File => Try(Files.walk(dir.toPath))
+        .foreach { stream =>
+          try {
+            stream.sorted(java.util.Comparator.reverseOrder()).forEach(Files.delete)
+          } finally {
+            stream.close()
+          }
+        }
+    }
 
 
   }
