@@ -1,6 +1,6 @@
 package org.alax.scala.compiler.transformation.ast.to.model
 
-import org.alax.scala.compiler.model.{CompilationError, CompilerError, Import, Tracable}
+import org.alax.scala.compiler.base.model.{CompilationError, CompilerError, Import, Tracable}
 
 object ImportsValidator {
 

@@ -1,44 +1,47 @@
 package org.alax.scala.compiler.transformation.ast.to.model
 
 import org.alax.ast
-import org.alax.ast.model.Expression.Literal
-import org.alax.ast.model.Partial
-import org.alax.ast.model.Partial.Name.{LowerCase, Qualified, UpperCase}
-import org.alax.ast.model.Statement.Declaration
+import org.alax.ast.base
+import org.alax.ast.base.{ParseError, Partial, Expression as AstExpression, Statement as AstStatement}
+import org.alax.ast.partial.Names.{LowerCase, Qualified, UpperCase}
+import org.alax.ast.base.statements.Declaration as AstDeclartion
+import org.alax.ast.base.expressions.Literal as AstLiteral
+import org.alax.ast.partial.Names
 import org.alax.scala.compiler
-import org.alax.scala.compiler.model
-import org.alax.scala.compiler.model.{CompilerError, *}
-import org.alax.scala.compiler.transformation.Context
+import org.alax.scala.compiler.base.model
+import org.alax.scala.compiler.base.model.{CompilationError, CompilationErrors, CompilerBugError, CompilerError, Expression, Import, Literal, Reference, Tracable, Trace, Type}
+import org.alax.scala.compiler.model.{Literals, Value}
 
+import java.nio.file.Path
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
 
 class AstToModelTransformer {
 
   object transform {
-    def expression(expression: ast.model.Expression): compiler.model.Expression | CompilerError = {
+    def expression(expression: AstExpression): Expression | CompilerError = {
       expression match {
-        case literal: Literal => transform.expression.literal(literal);
-        case _ => compiler.model.CompilerBugException(cause = Exception("Not implemented!"));
+        case literal: AstLiteral => transform.expression.literal(literal);
+        case _ => CompilerBugError(cause = Exception("Not implemented!"));
       }
     }
 
     object expression {
-      def literal(literal: ast.model.Expression.Literal): compiler.model.Literal | CompilerError = {
+      def literal(literal: AstLiteral): compiler.base.model.Literal | CompilerError = {
         return literal match {
-          case Literal.Character(value, metadata) => compiler.model.Literal.Character(
+          case ast.Literals.Character(value, metadata) => Literals.Character(
             value = value
           )
-          case Literal.Integer(value, metadata) => compiler.model.Literal.Integer(
+          case ast.Literals.Integer(value, metadata) => compiler.model.Literals.Integer(
             value = value.longValue()
           )
-          case Literal.Boolean(value, metadata) => compiler.model.Literal.Boolean(
+          case ast.Literals.Boolean(value, metadata) => compiler.model.Literals.Boolean(
             value = value
           )
-          case Literal.String(value, metadata) => compiler.model.Literal.String(
+          case ast.Literals.String(value, metadata) => compiler.model.Literals.String(
             value = value
           )
-          case Literal.Float(value, metadata) => compiler.model.Literal.Float(
+          case ast.Literals.Float(value, metadata) => compiler.model.Literals.Float(
             value = value
           )
         }
@@ -46,35 +49,36 @@ class AstToModelTransformer {
     }
 
     object `type` {
-      def reference(typeReference: ast.model.Partial.Type.Reference, imports: Seq[compiler.model.Import]): compiler.model.Declaration.Type | CompilerError = {
+      def reference(typeReference: Partial.Type.Reference, imports: Seq[Import]): Type.Reference | CompilerError = {
         return typeReference match {
-          case valueTypeReference: ast.model.Partial.Type.Reference.Value => transform.`type`.reference.value(valueTypeReference, imports);
-          case other => compiler.model.CompilerBugException(cause = Exception(s"Not implemented - $other !"))
+          case valueTypeReference: ast.Value.Type.Reference => transform.`type`.reference.value(valueTypeReference, imports);
+          case other => CompilerBugError(cause = Exception(s"Not implemented - $other !"))
         }
       }
 
       object reference {
-        def value(valueTypeReference: ast.model.Partial.Type.Reference.Value, imports: Seq[compiler.model.Import]): compiler.model.Value.Type | CompilerError = {
+        def value(valueTypeReference: ast.Value.Type.Reference, imports: Seq[Import]): Value.Type.Reference | CompilerError = {
           return valueTypeReference.id match {
-            case ast.model.Partial.Name.UpperCase(value, _) => imports.find(element =>
+            case Names.UpperCase(value, _) => imports.find(element =>
               value.equals(element.alias) || value.equals(element.member)
             ).map(element => s"${element.ancestor}.${element.member}")
-              .map(result => compiler.model.Value.Type(id =
-                model.Declaration.Type.Id(value = result)
+              .map(result => Value.Type.Reference(id =
+                Type.Id(value = result)
               ))
-              .getOrElse(new CompilationError(
-                path = valueTypeReference.metadata.location.unit,
-                startIndex = valueTypeReference.metadata.location.startIndex,
-                endIndex = valueTypeReference.metadata.location.endIndex,
-                message = s"Unknown type: ${valueTypeReference}, did You forget to import?"
-              ))
-            case ast.model.Partial.Name.Qualified(value: Seq[ast.model.Partial.Name.LowerCase | ast.model.Partial.Name.UpperCase], _) =>
-              compiler.model.Value.Type(
-                id = compiler.model.Declaration.Type.Id(
+              .getOrElse(
+                new CompilationError(
+                  path = valueTypeReference.metadata.location.unit,
+                  startIndex = valueTypeReference.metadata.location.startIndex,
+                  endIndex = valueTypeReference.metadata.location.endIndex,
+                  message = s"Unknown type: ${valueTypeReference.id}, did You forget to import?: "
+                ))
+            case ast.partial.Names.Qualified(value: Seq[ast.partial.Names.LowerCase | ast.partial.Names.UpperCase], _) =>
+              compiler.model.Value.Type.Reference(
+                id = Type.Id(
                   value = {
                     val prefix = imports.find(element => element.alias.equals(value.head.text()) || element.member.equals(value.head.text()))
                       .map(element => s"${element.ancestor}").getOrElse("")
-                    value.foldLeft(mutable.StringBuilder(prefix))((acc, element) => acc.append(if (acc.isEmpty) then element.text() else s".${element.text()}")).toString
+                    value.foldLeft(mutable.StringBuilder(prefix))((acc, element) => acc.append(if acc.isEmpty then element.text() else s".${element.text()}")).toString
                   }
                 )
               )
@@ -85,30 +89,30 @@ class AstToModelTransformer {
 
     object value {
 
-      def definition(valueDefinition: ast.model.Statement.Definition.Value, context: Context.Unit | Context.Package | Null
-                    ): compiler.model.Value.Definition | CompilerError = {
+      def definition(valueDefinition: ast.Value.Definition, context: Contexts.Unit | Null
+                    ): Value.Definition | CompilerError = {
         val imports = context match
-          case Context.Unit(_, imports, _) => imports;
-          case Context.Package(_, imports, _) => imports;
+          case unit: Contexts.Unit => unit.imports
+          case null => Seq[Import]()
 
-        val typeOrError: compiler.model.Value.Type | CompilerError = transform.`type`.reference.value(valueDefinition.typeReference, imports);
-        val nameOrError: String | CompilerError = transform.value.declaration.name(name = valueDefinition.name);
-        val expressionOrError: compiler.model.Expression | CompilerError = transform.expression(valueDefinition.initialization);
+        val typeOrError: Value.Type.Reference | CompilerError = transform.`type`.reference.value(valueDefinition.typeReference, imports)
+        val nameOrError: String | CompilerError = transform.value.declaration.name(name = valueDefinition.name)
+        val expressionOrError: Expression | CompilerError = transform.expression(valueDefinition.initialization)
         return typeOrError match {
-          case tpe: compiler.model.Value.Type =>
+          case tpe: Value.Type.Reference =>
             nameOrError match {
               case name: String =>
                 expressionOrError match
-                  case expression: compiler.model.Expression =>
+                  case expression: Expression =>
                     expression match {
-                      case valid@(_: compiler.model.Literal | _: compiler.model.Reference) => compiler.model.Value.Definition(
+                      case valid@(_: model.Literal | _: Reference) => compiler.model.Value.Definition(
                         declaration = Value.Declaration(
                           name = name,
                           `type` = tpe
                         ),
-                        initialization = valid
+                        meaning = valid
                       )
-                      case _ => throw compiler.model.CompilerBugException(cause = Exception("Unhandled !"))
+                      case _ => CompilerBugError(cause = Exception("Unhandled !"))
                     }
                   case error: CompilerError => error;
               case error: CompilerError => error;
@@ -122,33 +126,34 @@ class AstToModelTransformer {
 
 
       object declaration {
-        def name(name: Partial.Name.LowerCase): String | CompilerError = name.text();
+        def name(name: ast.partial.Names.LowerCase): String | CompilerError = name.text();
 
         object `type` {
-          def reference(valueTypeReference: Partial.Type.Reference.Value, imports: Seq[compiler.model.Import]): compiler.model.Value.Type | compiler.model.CompilerError = {
-             val typeReferenceOrError:compiler.model.Declaration.Type | CompilerError=transform.`type`.reference(typeReference = valueTypeReference, imports = imports);
-             return typeReferenceOrError match {
-              case valueTypeReference: compiler.model.Value.Type => valueTypeReference
-              case error: compiler.model.CompilerError => error
-              case other => compiler.model.CompilerBugException(cause = Exception(f"Unhandled type: $other !"))
+          def reference(valueTypeReference: ast.Value.Type.Reference, imports: Seq[Import]): Value.Type.Reference | CompilerError = {
+            val typeReferenceOrError: Type.Reference | CompilerError = transform.`type`.reference(typeReference = valueTypeReference, imports = imports);
+            return typeReferenceOrError match {
+              case valueTypeReference: Value.Type.Reference => valueTypeReference
+              case error: CompilerError => error
+              case other => CompilerBugError(cause = Exception(f"Unhandled type: $other !"))
             }
           }
         }
       }
 
       def declaration(
-                       valueDeclaration: ast.model.Statement.Declaration.Value,
-                       context: Context.Unit | Context.Package
-                     ): compiler.model.Value.Declaration | CompilerError = {
+                       valueDeclaration: ast.Value.Declaration,
+                       context: Contexts.Unit | Null
+                     ): Value.Declaration | CompilerError = {
         val imports = context match
-          case Context.Unit(_, imports, _) => imports;
-          case Context.Package(_, imports, _) => imports;
+          case unit: Contexts.Unit => unit.imports
+          case null => Seq[Import]()
 
-        val typeOrError: compiler.model.Value.Type | CompilerError = transform.value.declaration.`type`.reference(valueDeclaration.typeReference, imports);
+
+        val typeOrError: Value.Type.Reference | CompilerError = transform.value.declaration.`type`.reference(valueDeclaration.typeReference, imports);
         val nameOrError = transform.value.declaration.name(valueDeclaration.name);
 
         return typeOrError match {
-          case tpe: compiler.model.Value.Type =>
+          case tpe: Value.Type.Reference =>
             nameOrError match {
               case name: String => compiler.model.Value.Declaration(
                 name = name,
@@ -163,28 +168,73 @@ class AstToModelTransformer {
       }
     }
 
-    def trace(location: ast.model.Node.Location): compiler.model.Trace = compiler.model.Trace(
+    object `package` {
+
+      object declaration {
+        def name(name: ast.Package.Name): String | CompilationError = {
+          return name.text()
+        }
+      }
+
+      def declaration(declaration: ast.Package.Declaration, context: Contexts.Unit | Null = null): compiler.model.Package.Declaration | CompilerError = {
+        return `package`.declaration.name(declaration.name) match {
+          case string: String => compiler.model.Package.Declaration(
+            name = string
+          )
+          case error: CompilerError => error;
+        }
+      }
+
+      object definition {
+        def body(body: ast.Package.Body, context: Contexts.Unit | Null = null): compiler.model.Package.Definition.Body | CompilerError = {
+          return compiler.model.Package.Definition.Body(
+            elements = body.elements.map {
+              case value: ast.Value.Definition => transform.value.definition(valueDefinition = value, context = context)
+              case error: ParseError => CompilerBugError(error)
+            })
+        }
+      }
+
+      def definition(definition: ast.Package.Definition, context: Contexts.Unit | Null = null): compiler.model.Package.Definition | CompilerError = {
+        return `package`.declaration.name(definition.name) match {
+          case name: String =>
+            `package`.definition.body(definition.body,context) match {
+              case body: compiler.model.Package.Definition.Body => compiler.model.Package.Definition(
+                declaration = compiler.model.Package.Declaration(
+                  name = name
+                ),
+                body = body
+              )
+              case error: CompilerError => error
+            }
+          case error: CompilerError => error;
+        }
+      }
+
+    }
+
+    def trace(location: ast.base.Node.Location): Trace = compiler.base.model.Trace(
       unit = location.unit,
-      lineNumber = location.lineNumber,
+      lineNumber = location.startLine,
       startIndex = location.startIndex,
       endIndex = location.endIndex
     )
 
-    private def foldNames(names: Seq[ast.model.Partial.Name]): String = {
-      return names.foldLeft(mutable.StringBuilder())((acc: mutable.StringBuilder, ancestor: ast.model.Partial.Name) =>
-        if (acc.isEmpty) then acc.append(ancestor.text())
+    private def foldNames(names: Seq[ast.base.Partial.Name]): String = {
+      return names.foldLeft(mutable.StringBuilder())((acc: mutable.StringBuilder, ancestor: base.Partial.Name) =>
+        if acc.isEmpty then acc.append(ancestor.text())
         else acc.append("." + ancestor.text()))
         .toString()
     }
 
 
     //TODO use streams instead of sequences
-    def imports(`import`: ast.model.Statement.Declaration.Import, ancestors: Seq[ast.model.Partial.Name.Qualified] = Seq()): Seq[Tracable[compiler.model.Import]] = {
+    def imports(`import`: ast.Import.Declaration, ancestors: Seq[ast.partial.Names.Qualified] = Seq()): Seq[Tracable[Import]] = {
       return `import` match {
-        case container: Declaration.Import.Nested => container.nestee.flatMap(element => this.imports(element, ancestors :+ container.nest))
-        case simple: Declaration.Import.Simple => Seq(Tracable(
+        case container: ast.Imports.Nested => container.nestee.flatMap(element => this.imports(element, ancestors :+ container.nest))
+        case simple: ast.Imports.Simple => Seq(Tracable(
           trace = trace(simple.metadata.location),
-          transformed = compiler.model.Import(
+          transformed = compiler.base.model.Import(
             ancestor = simple.member match {
               case qualified: Qualified => foldNames(ancestors) + foldNames(qualified.prefix)
               case _ => foldNames(ancestors)
@@ -196,9 +246,9 @@ class AstToModelTransformer {
             },
           )
         ))
-        case alias: Declaration.Import.Alias => Seq(Tracable(
+        case alias: ast.Imports.Alias => Seq(Tracable(
           trace = trace(alias.metadata.location),
-          transformed = compiler.model.Import(
+          transformed = compiler.base.model.Import(
             ancestor = alias.member match {
               case qualified: Qualified => foldNames(ancestors) + foldNames(qualified.prefix)
               case _ => foldNames(ancestors)
@@ -214,103 +264,5 @@ class AstToModelTransformer {
       }
     }
 
-    object source {
-      def `package`(source: ast.Source.Unit.Package, parentContext: Context.Package | Context.Module | Null = null): compiler.model.Source.Package | Seq[CompilerError] = {
-        val imports = source.imports.flatMap(element => transform.imports(element));
-        val errors = ImportsValidator.validate(imports)
-        return errors match {
-          case Nil =>
-            val context = Context.Package(
-              path = source.path,
-              imports = imports.map(tracable => tracable.transformed),
-              parent = parentContext
-            )
-            val membersOrErrors = source.members.map((member: ast.Source.Unit.Package.Member) =>
-              member match {
-                case valueDefinition: ast.model.Statement.Definition.Value => transform.value.definition(
-                  valueDefinition = valueDefinition,
-                  context = context
-                )
-              }
-            )
-            return Source.Package(
-              path = source.path,
-              members = membersOrErrors.filter(item => item.isInstanceOf[Source.Package.Member])
-                .map(item => item.asInstanceOf[Source.Package.Member]),
-              errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
-                .map(item => item.asInstanceOf[CompilerError]),
-              context = context
-            )
-
-        }
-      }
-
-
-      //TODO probably there will be context for nested classes
-      def `class`(source: ast.Source.Unit.Class, parentContext: Context.Package | Null = null): Source.Unit | Seq[CompilerError] = {
-        val imports = source.imports.flatMap(element => transform.imports(element));
-        val errors = ImportsValidator.validate(imports)
-        return errors match {
-          case Nil =>
-            val context = Context.Unit(
-              path = source.path,
-              imports = imports.map(tracable => tracable.transformed),
-              parent = parentContext
-            )
-            val membersOrErrors = source.members.map((member: ast.Source.Unit.Class.Member) =>
-              member match {
-                case valueDefinition: ast.model.Statement.Definition.Value => transform.value.definition(
-                  valueDefinition = valueDefinition,
-                  context = context
-                )
-                case _ => compiler.model.CompilerBugException(cause = Exception("Not implemented!"))
-              }
-            )
-            return Source.Unit(
-              path = source.path,
-              members = membersOrErrors.filter(item => item.isInstanceOf[Source.Unit.Member])
-                .map(item => item.asInstanceOf[Source.Unit.Member]),
-              errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
-                .map(item => item.asInstanceOf[CompilerError]),
-              context = parentContext
-            )
-
-        }
-      }
-
-      //TODO probably there will be context for nested classes
-      def `interface`(source: ast.Source.Unit.Interface, parentContext: Context.Package | Null = null): Source.Unit | Seq[CompilerError] = {
-        val imports = source.imports.flatMap(element => transform.imports(element));
-        val errors = ImportsValidator.validate(imports)
-        return errors match {
-          case Nil =>
-            val context = Context.Unit(
-              path = source.path,
-              imports = imports.map(tracable => tracable.transformed),
-              parent = parentContext
-            )
-            val membersOrErrors = source.members.map((member: ast.Source.Unit.Interface.Member) =>
-              member match {
-                case valueDefinition: ast.model.Statement.Definition.Value => transform.value.definition(
-                  valueDefinition = valueDefinition,
-                  context = context
-                )
-                case _ => compiler.model.CompilerBugException(cause = Exception("Not implemented!"))
-              }
-            )
-            return Source.Unit(
-              path = source.path,
-              members = membersOrErrors.filter(item => item.isInstanceOf[Source.Unit.Member])
-                .map(item => item.asInstanceOf[Source.Unit.Member]),
-              errors = membersOrErrors.filter(item => item.isInstanceOf[CompilerError])
-                .map(item => item.asInstanceOf[CompilerError]),
-              context = parentContext
-            )
-
-        }
-      }
-
-
-    }
   }
 }

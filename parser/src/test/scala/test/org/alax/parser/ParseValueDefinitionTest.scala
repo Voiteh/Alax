@@ -1,11 +1,11 @@
 package test.org.alax.parser
 
 import org.alax.ast.LanguageParser.{AS, ValueDefinitionContext}
-import org.alax.ast.model.Node.Metadata
-import org.alax.ast.model.Partial.Name
-import org.alax.ast.model.Partial
-import org.alax.ast.model.{ParseError, Statement}
-import org.alax.ast.{LanguageLexer, LanguageParser, model}
+import org.alax.ast.base.Node.Metadata
+import org.alax.ast.partial.Names
+import org.alax.ast.base.Partial
+import org.alax.ast
+import org.alax.ast.{LanguageLexer, LanguageParser, Literals}
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.junit.jupiter.api.Test
 import org.alax.parser.LanguageVisitor
@@ -26,20 +26,20 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Boolean bool=true;`)
           .context( (parser:LanguageParser )=>  parser.valueDefinition())
           .visit((visitor,context)=>visitor.visitValueDefinition(context))
-        result mustBe a[Statement.Definition.Value];
-        inside(result.asInstanceOf[Statement.Definition.Value]) {
-          case Statement.Definition.Value(name, typeReference, initialization, _) =>
+        result mustBe a[ast.Value.Definition];
+        inside(result.asInstanceOf[ast.Value.Definition]) {
+          case ast.Value.Definition(name, typeReference, initialization, _) =>
             name.text() mustBe "bool"
-            typeReference mustBe a[Partial.Type.Reference.Value]
+            typeReference mustBe a[ast.Value.Type.Reference]
             inside(typeReference) {
-              case Partial.Type.Reference.Value(id, _) =>
-                id mustBe a[model.Partial.Name.Qualified]
+              case ast.Value.Type.Reference(id, _) =>
+                id mustBe a[ast.partial.Names.Qualified]
                 id.text() mustBe "java.lang.Boolean"
 
             }
-            initialization mustBe a[model.Expression.Literal.Boolean]
+            initialization mustBe a[Literals.Boolean]
             inside(initialization) {
-              case model.Expression.Literal.Boolean(value, _) => value mustBe true
+              case Literals.Boolean(value, _) => value mustBe true
             }
         }
       }
@@ -50,20 +50,20 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Character char ='a';`)
           .context((parser: LanguageParser) => parser.valueDefinition())
           .visit((visitor, context) => visitor.visitValueDefinition(context))
-        result mustBe a[Statement.Definition.Value];
-        inside(result.asInstanceOf[Statement.Definition.Value]) {
-          case Statement.Definition.Value(name, typeReference, initialization, _) =>
+        result mustBe a[ast.Value.Definition];
+        inside(result.asInstanceOf[ast.Value.Definition]) {
+          case ast.Value.Definition(name, typeReference, initialization, _) =>
             name.text() mustBe "char"
-            typeReference mustBe a[Partial.Type.Reference.Value]
-            inside(typeReference.asInstanceOf[Partial.Type.Reference.Value]) {
-              case Partial.Type.Reference.Value(id, _) =>
-                id mustBe a[model.Partial.Name.Qualified]
+            typeReference mustBe a[ast.Value.Type.Reference]
+            inside(typeReference.asInstanceOf[ast.Value.Type.Reference]) {
+              case ast.Value.Type.Reference(id, _) =>
+                id mustBe a[ast.base.Partial.Name]
                 id.text() mustBe "java.lang.Character"
 
             }
-            initialization mustBe a[model.Expression.Literal.Character]
+            initialization mustBe a[Literals.Character]
             inside(initialization) {
-              case model.Expression.Literal.Character(value, _) => value mustBe 'a'
+              case Literals.Character(value, _) => value mustBe 'a'
             }
         }
       }
@@ -73,20 +73,20 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.String string= "asd"  ;`)
           .context((parser: LanguageParser) => parser.valueDefinition())
           .visit((visitor, context) => visitor.visitValueDefinition(context))
-        result mustBe a[Statement.Definition.Value];
-        inside(result.asInstanceOf[Statement.Definition.Value]) {
-          case Statement.Definition.Value(name, typeReference, initialization, _) =>
+        result mustBe a[ast.Value.Definition];
+        inside(result.asInstanceOf[ast.Value.Definition]) {
+          case ast.Value.Definition(name, typeReference, initialization, _) =>
             name.text() mustBe "string"
-            typeReference mustBe a[Partial.Type.Reference.Value]
-            inside(typeReference.asInstanceOf[Partial.Type.Reference.Value]) {
-              case Partial.Type.Reference.Value(id, _) =>
-                id mustBe a[model.Partial.Name.Qualified]
+            typeReference mustBe a[ast.Value.Type.Reference]
+            inside(typeReference.asInstanceOf[ast.Value.Type.Reference]) {
+              case ast.Value.Type.Reference(id, _) =>
+                id mustBe a[ast.partial.Names.Qualified]
                 id.text() mustBe "java.lang.String"
 
             }
-            initialization mustBe a[model.Expression.Literal.String]
+            initialization mustBe a[Literals.String]
             inside(initialization) {
-              case model.Expression.Literal.String(value, _) => value mustBe "asd"
+              case Literals.String(value, _) => value mustBe "asd"
             }
         }
       }
@@ -96,20 +96,20 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`Integer int   = -3;`)
           .context((parser: LanguageParser) => parser.valueDefinition())
           .visit((visitor, context) => visitor.visitValueDefinition(context))
-        result mustBe a[Statement.Definition.Value];
-        inside(result.asInstanceOf[Statement.Definition.Value]) {
-          case Statement.Definition.Value(name, typeReference, initialization, _) =>
+        result mustBe a[ast.Value.Definition];
+        inside(result.asInstanceOf[ast.Value.Definition]) {
+          case ast.Value.Definition(name, typeReference, initialization, _) =>
             name.text() mustBe "int"
-            typeReference mustBe a[Partial.Type.Reference.Value]
-            inside(typeReference.asInstanceOf[Partial.Type.Reference.Value]) {
-              case Partial.Type.Reference.Value(id, _) =>
-                id mustBe a[model.Partial.Name.UpperCase]
+            typeReference mustBe a[ast.Value.Type.Reference]
+            inside(typeReference.asInstanceOf[ast.Value.Type.Reference]) {
+              case ast.Value.Type.Reference(id, _) =>
+                id mustBe a[ast.partial.Names.UpperCase]
                 id.text() mustBe "Integer"
 
             }
-            initialization mustBe a[model.Expression.Literal.Integer]
+            initialization mustBe a[Literals.Integer]
             inside(initialization) {
-              case model.Expression.Literal.Integer(value, _) => value mustBe -3
+              case Literals.Integer(value, _) => value mustBe -3
             }
         }
       }
@@ -119,20 +119,20 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         val result = AntlrSupport.language.tokenize(fixture.value.definition.literal.`Float float= -3.12;`)
           .context((parser: LanguageParser) => parser.valueDefinition())
           .visit((visitor, context) => visitor.visitValueDefinition(context))
-        result mustBe a[Statement.Definition.Value];
-        inside(result.asInstanceOf[Statement.Definition.Value]) {
-          case Statement.Definition.Value(name, typeReference, initialization, _) =>
+        result mustBe a[ast.Value.Definition];
+        inside(result.asInstanceOf[ast.Value.Definition]) {
+          case ast.Value.Definition(name, typeReference, initialization, _) =>
             name.text() mustBe "float"
-            typeReference mustBe a[Partial.Type.Reference.Value]
-            inside(typeReference.asInstanceOf[Partial.Type.Reference.Value]) {
-              case Partial.Type.Reference.Value(id, _) =>
-                id mustBe a[model.Partial.Name.UpperCase]
+            typeReference mustBe a[ast.Value.Type.Reference]
+            inside(typeReference.asInstanceOf[ast.Value.Type.Reference]) {
+              case ast.Value.Type.Reference(id, _) =>
+                id mustBe a[ast.partial.Names.UpperCase]
                 id.text() mustBe "Float"
 
             }
-            initialization mustBe a[model.Expression.Literal.Float]
+            initialization mustBe a[Literals.Float]
             inside(initialization) {
-              case model.Expression.Literal.Float(value, _) => value mustBe -3.12
+              case Literals.Float(value, _) => value mustBe -3.12
             }
         }
       }
