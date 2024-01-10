@@ -4,15 +4,18 @@ options { tokenVocab=LanguageLexer; }
 
 
 
-definition: valueDefinition|functionDefinition|packageDefinition;
-declaration: valueDeclaration|packageDeclaration|functionDeclaration;
+definition: valueDefinition|functionDefinition|packageDefinition|moduleDefinition;
+declaration: valueDeclaration|packageDeclaration|functionDeclaration|moduleDeclaration;
 
-//TODO
-moduleDeclaration: MODULE LOWERCASE_NAME (DOT LOWERCASE_NAME)* OPEN_CURLY  CLOSE_CURLY;
+
+moduleDeclaration: MODULE moduleName SEMI_COLON ;
+moduleDefinition: MODULE moduleName moduleBody;
+moduleBody: OPEN_CURLY (valueDefinition*)  CLOSE_CURLY;
+moduleName: LOWERCASE_NAME (DOT LOWERCASE_NAME)*;
+
 
 packageDefinition: PACKAGE LOWERCASE_NAME packageBody;
 packageDeclaration: PACKAGE LOWERCASE_NAME SEMI_COLON;
-//FIXME this will change when types will come
 packageBody:OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
 
 functionDefinition: valueTypeReference? LOWERCASE_NAME OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;

@@ -12,7 +12,7 @@ object Package {
                          metadata: Metadata
                         ) extends BaseDeclaration(metadata = metadata)
 
-  case class Definition(name: Names.LowerCase,
+  case class Definition(name: Name,
                         body: Body,
                         metadata: Metadata
                        ) extends BaseDefinition(metadata = metadata)
@@ -21,5 +21,5 @@ object Package {
     extends base.Partial.Scope(metadata = metadata)
 
   type Name = Names.LowerCase
-  type Element = Value.Definition | ParseError
+  type Element = Value.Definition |  ParseError
 }

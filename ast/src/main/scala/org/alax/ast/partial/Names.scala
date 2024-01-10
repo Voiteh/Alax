@@ -9,11 +9,15 @@ import org.alax.ast.partial.Names.LowerCase
 object Names {
 
   object Qualified {
-    case class LowerCase(qualifications: Seq[LowerCase], metadata: Metadata = Metadata.unknown) extends Partial.Name(metadata = metadata) {
+    case class LowerCase(qualifications: Seq[Names.LowerCase] = Seq(), metadata: Metadata = Metadata.unknown) extends Partial.Name(metadata = metadata) {
+      qualifications.map(item => item.text()).foreach(value => assert(value.matches("[a-z].*")));
 
+      def concat(name: Names.LowerCase): Names.Qualified.LowerCase = Names.Qualified.LowerCase(
+        qualifications = qualifications.appended(name), metadata = metadata
+      )
 
       override def text(): String = {
-        return qualifications.foldLeft(mutable.StringBuilder())((acu: mutable.StringBuilder, item: LowerCase | UpperCase) =>
+        return qualifications.foldLeft(mutable.StringBuilder())((acu: mutable.StringBuilder, item: Names.LowerCase) =>
           if (acu.isEmpty) then acu.append(item.text()) else acu.append("." + item.text())).toString()
       };
     }
@@ -33,7 +37,8 @@ object Names {
 
     override def text(): String = {
       return qualifications.foldLeft(mutable.StringBuilder())((acu: mutable.StringBuilder, item: LowerCase | UpperCase) =>
-        if (acu.isEmpty) then acu.append(item.text()) else acu.append("." + item.text())).toString()
+        if (acu.isEmpty) then acu.append(item.text()) else acu.append("." + item.text()))
+        .toString()
     };
 
   }

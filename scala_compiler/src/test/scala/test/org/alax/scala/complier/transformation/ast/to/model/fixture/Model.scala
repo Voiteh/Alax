@@ -118,4 +118,22 @@ object Model {
   }
 
 
+  object Module {
+    object Declaration {
+      val `module abc.def` = compiler.model.Module.Declaration(
+        name = "abc.def"
+      )
+    }
+
+    object Definition {
+      val `module abc.def { int: scala.lang.Integer; }` = compiler.model.Module.Definition(
+        declaration = Declaration.`module abc.def`,
+        body = compiler.model.Module.Definition.Body(elements = Seq(
+          Model.Value.Definition.`val int: scala.lang.Integer = 4`
+        ))
+      )
+    }
+  }
+
+
 }

@@ -6,15 +6,18 @@ import org.alax.scala.compiler.model.Module.Declaration as ModuleDeclaration
 
 object Contexts {
 
+  case class Project() extends Context(null)
+
   case class Module(
                      declaration: ModuleDeclaration,
-                   ) extends Context(null) {
+                     override val parent: Project | Null = null,
+                   ) extends Context(parent) {
 
   }
 
   case class Package(
                       declaration: PackageDeclaration,
-                      override val parent: Package | Module ,
+                      override val parent: Package | Module,
                     ) extends Context(parent) {
 
   }
