@@ -33,6 +33,8 @@ class ModelToFileTransformer(basePath: Path) {
         if (!file.exists()) then assert(file.createNewFile())
         assert(file.canWrite)
         val writer = new PrintWriter(file);
+        //FIXME this will produce unusable package because its declaration is not fully qualified but contain name
+        // Of given package only
         writer.write(definition.scala.syntax);
         writer.close();
         file
@@ -41,7 +43,7 @@ class ModelToFileTransformer(basePath: Path) {
     def module(definition: Module.Definition, context: Contexts.Project | Null = null): Virtual[File] = Virtual(
       () => {
         val moduleContext: Contexts.Module = Contexts.Module(declaration = definition.declaration, parent = context)
-        val path = resolve.path(moduleContext).resolve("build.scala")
+        val path = resolve.path(moduleContext).resolve("module.scala")
         val file: File = path.toFile;
         FileUtils.createParentDirectories(path.toFile);
         if (!file.exists()) then assert(file.createNewFile())

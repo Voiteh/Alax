@@ -54,7 +54,13 @@ class ModuleToFileTransformationTest extends AnyWordSpec with BeforeAndAfterEach
           definition = fixture.Model.Module.Definition.`module abc.def { int: scala.lang.Integer; }`
         )
         val file = result.realize;
-        file.toPath.endsWith("build.scala") mustBe true
+        inside(tempDir){
+          case folder:File => {
+            assert(file.toPath.startsWith(folder.toPath()))
+            file.toPath.endsWith("abc/def/module.scala") mustBe true
+          }
+        }
+
       }
     }
   }

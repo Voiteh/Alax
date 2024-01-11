@@ -49,13 +49,19 @@ class PackageToFileTransformationTest extends AnyWordSpec with BeforeAndAfterEac
   "model package definition" when {
 
     "package with value definition" must {
-      "transform to file" in {
+      "transform to file in package context" in {
         val result: Virtual[File] = transformer.transform.`package`(
           definition = fixture.Model.Package.Definition.`package hij { int: scala.lang.Integer; }`,
           context = fixture.Model.Context.`package`
         )
         val file = result.realize;
-        file.toPath.endsWith("package.scala") mustBe true
+        inside(tempDir) {
+          case folder: File => {
+            assert(file.toPath.startsWith(folder.toPath()))
+            file.toPath.endsWith("abc/def/efg/hij/package.scala") mustBe true
+          }
+        }
+
       }
     }
   }

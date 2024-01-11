@@ -5,28 +5,33 @@ import org.alax.scala.compiler.base
 import org.alax.scala.compiler.base.model.{CompilerError, ScalaMetaNode, Scope}
 
 import scala.meta.Type
-import scala.meta.{Defn, Pkg, Self, Stat, Template, Tree}
-import scala.meta.Term.Name
+import scala.meta.{Defn, Pkg, Self, Stat, Template, Tree, Ctor, Mod, Name}
+import scala.meta.Type.ParamClause
+import scala.meta.contrib.DocToken.Constructor
 
 object Module {
   case class Declaration(override val name: String) extends base.model.Declaration(name = name) {
-    override def scala: Name = {
-      return Name(name)
+    override def scala: Type.Name = {
+      return Type.Name(name)
     }
   }
 
   case class Definition(override val declaration: Declaration, body: Definition.Body) extends base.model.Definition(declaration = declaration, meaning = body) {
-    override def scala: Defn.Object = Defn.Object(
+    override def scala: Defn.Class = Defn.Class(
       mods = List(),
       name = declaration.scala,
+      tparamClause = ParamClause(List()),
+      ctor = Ctor.Primary(
+        mods = List(),
+        name = Name.Anonymous(),
+        paramClauses = Seq()
+      ),
       templ = Template(
-        self = Self(name = declaration.scala, decltpe = Option.empty),
+        self = Self(name = Name.Anonymous(), decltpe = Option.empty),
         early = List(),
         inits = List(),
         stats = body.scala,
-        derives = List(
-          Type.With(lhs = Type.Name(value = "mill.RootModule"), rhs = Type.Name(value = "mill.ScalaModule "))
-        )
+        derives = List()
       )
     )
 

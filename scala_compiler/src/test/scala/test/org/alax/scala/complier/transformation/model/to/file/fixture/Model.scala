@@ -83,7 +83,7 @@ object Model {
         name = "efg"
       )
       val `package hij` = compiler.model.Package.Declaration(
-        name = "hik"
+        name = "hij"
       )
     }
 
