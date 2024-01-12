@@ -2,19 +2,19 @@ package test.org.alax.scala.complier.transformation.model.to.file
 
 import org.alax.scala.compiler.base.model.Virtual
 import org.alax.scala.compiler.model.Package
-import org.scalatest.Inside.inside
-import org.scalatest.wordspec.AnyWordSpec
-import test.org.alax.scala.complier.transformation.model.to.file.fixture
 import org.alax.scala.compiler.transformation.model.to.file.{Contexts, ModelToFileTransformer}
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.Inside.inside
 import org.scalatest.matchers.must.Matchers.mustBe
+import org.scalatest.wordspec.AnyWordSpec
+import test.org.alax.scala.complier.transformation.model.to.file
+import test.org.alax.scala.complier.transformation.model.to.file.fixture
 
 import java.io.{File, PrintWriter}
 import java.nio.file.attribute.FileAttribute
 import java.nio.file.{Files, Path, Paths}
-import test.org.alax.scala.complier.transformation.model.to.file
 
-class PackageToFileTransformationTest extends AnyWordSpec with BeforeAndAfterEach {
+class ModuleToFileTransformationTest extends AnyWordSpec with BeforeAndAfterEach {
   var transformer: ModelToFileTransformer | Null = null;
   var tempDir: File | Null = null;
 
@@ -46,19 +46,18 @@ class PackageToFileTransformationTest extends AnyWordSpec with BeforeAndAfterEac
 
   }
 
-  "model package definition" when {
+  "model module definition" when {
 
-    "package with value definition" must {
-      "transform to file in package context" in {
-        val result: Virtual[File] = transformer.transform.`package`(
-          definition = fixture.Model.Package.Definition.`package hij { int: scala.lang.Integer; }`,
-          context = fixture.Model.Context.`package`
+    "module with value definition" must {
+      "transform to file" in {
+        val result: Virtual[File] = transformer.transform.module(
+          definition = fixture.Model.Module.Definition.`module abc.def { int: scala.lang.Integer; }`
         )
         val file = result.realize;
-        inside(tempDir) {
-          case folder: File => {
+        inside(tempDir){
+          case folder:File => {
             assert(file.toPath.startsWith(folder.toPath()))
-            file.toPath.endsWith("abc/def/efg/hij/package.scala") mustBe true
+            file.toPath.endsWith("abc/def/module.scala") mustBe true
           }
         }
 

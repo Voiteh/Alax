@@ -2,6 +2,16 @@ package test.org.alax.parser
 
 object fixture {
 
+  object module {
+    object declaration {
+      val `module com.ble.ble;`: String = """module com.ble.ble;"""
+    }
+    object definition{
+      val `module com.ble.ble {}`: String = """module com.ble.ble {}"""
+      val `module com.ble.ble {java.lang.Boolean bool=true;}`: String = """module com.ble.ble {java.lang.Boolean bool=true;}"""
+    }
+  }
+
   object `package` {
     object declaration {
       val `package abc;`: String = """package abc;"""

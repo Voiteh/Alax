@@ -9,10 +9,9 @@ import org.antlr.v4.runtime.{ParserRuleContext, Token, TokenStream}
 import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
 
 import javax.management.ValueExp
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
-class LanguageVisitor(tokenStream: TokenStream)
-  extends LanguageParserBaseVisitor[Node | ParseError] {
+class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
 
 
   private def tokenMetadata(token: Token): Node.Metadata = {
@@ -119,9 +118,9 @@ class LanguageVisitor(tokenStream: TokenStream)
               metadata = contextMetadata(ctx)
             )
           case error: ParseError => new ParseError(cause = error, message = "Invalid value name ", metadata = contextMetadata(ctx))
-          case _ => new ParserBugException( metadata = contextMetadata(ctx));
+          case _ => new ParserBugError(metadata = contextMetadata(ctx));
         }
-      case error: ParseError =>new ParseError(cause = error, message = "Invalid value type", metadata = contextMetadata(ctx))
+      case error: ParseError => new ParseError(cause = error, message = "Invalid value type", metadata = contextMetadata(ctx))
       case other => ParseError(
         message = f"Not Implemented, parsing type: ${other}!",
         metadata = contextMetadata(ctx)
@@ -129,6 +128,76 @@ class LanguageVisitor(tokenStream: TokenStream)
     }
   }
 
+
+  override def visitModuleDeclaration(ctx: LanguageParser.ModuleDeclarationContext): ast.Module.Declaration | ParseError = {
+    super.visitModuleDeclaration(ctx)
+    val moduleName: Names.Qualified.LowerCase | ParseError = visitModuleName(ctx.moduleName())
+    return moduleName match {
+      case name: Names.Qualified.LowerCase => ast.Module.Declaration(
+        name = name,
+        metadata = contextMetadata(ctx)
+      )
+      case error: ParseError => ParseError(
+        message = "Invalid module declaration",
+        metadata = contextMetadata(ctx),
+        cause = error
+      )
+
+    }
+  }
+
+  override def visitModuleBody(ctx: LanguageParser.ModuleBodyContext): ast.Module.Body | ParseError = {
+    super.visitModuleBody(ctx)
+    val valueDefinitions: Seq[ast.Value.Definition | ParseError] = ctx.valueDefinition().asScala
+      .map(item => visitValueDefinition(item)).toSeq
+
+    return ast.Module.Body(
+      elements = valueDefinitions,
+      metadata = contextMetadata(ctx)
+    )
+  }
+
+  override def visitModuleDefinition(ctx: LanguageParser.ModuleDefinitionContext): ast.Module.Definition | ParseError = {
+    super.visitModuleDefinition(ctx)
+    val moduleName: Names.Qualified.LowerCase | ParseError = visitModuleName(ctx.moduleName())
+    val moduleBody: ast.Module.Body | ParseError = visitModuleBody(ctx.moduleBody())
+    return moduleName match {
+      case name: Names.Qualified.LowerCase => moduleBody match {
+        case body: ast.Module.Body => ast.Module.Definition(
+          name = name,
+          body = body,
+          metadata = contextMetadata(ctx)
+        )
+        case error: ParseError => error
+      }
+      case error: ParseError => ParseError(
+        message = "Invalid module declaration",
+        metadata = contextMetadata(ctx),
+        cause = error
+      )
+
+    }
+  }
+
+  override def visitModuleName(ctx: LanguageParser.ModuleNameContext): Names.Qualified.LowerCase | ParseError = {
+    super.visitModuleName(ctx)
+    return ctx.LOWERCASE_NAME().asScala.map(item => parseName(item))
+      .foldLeft[Names.Qualified.LowerCase | ParseError](Names.Qualified.LowerCase(metadata = contextMetadata(ctx)))((accumulator: Names.Qualified.LowerCase | ParseError, item: base.Partial.Name | ParseError) =>
+        accumulator match {
+          case parseError: ParseError => parseError;
+          case shadowAccumulator: Names.Qualified.LowerCase => item match {
+            case apendee: base.Partial.Name => apendee match {
+              case name: Names.LowerCase => shadowAccumulator.concat(name);
+              case _ => ParserBugError(metadata = contextMetadata(ctx));
+            };
+            case error: ParseError => ParseError(
+              message = s"Invalid module name",
+              metadata = shadowAccumulator.metadata,
+              cause = error
+            );
+          }
+        })
+  }
 
   override def visitPackageDeclaration(ctx: LanguageParser.PackageDeclarationContext): ast.Package.Declaration | ParseError = {
     super.visitPackageDeclaration(ctx)
@@ -140,7 +209,7 @@ class LanguageVisitor(tokenStream: TokenStream)
           metadata = contextMetadata(ctx)
         )
       case error: ParseError => new ParseError(cause = error, message = "Invalid package name ", metadata = contextMetadata(ctx))
-      case _ => new ParserBugException(metadata = contextMetadata(ctx))
+      case _ => new ParserBugError(metadata = contextMetadata(ctx))
     }
 
   }
@@ -161,9 +230,10 @@ class LanguageVisitor(tokenStream: TokenStream)
         }
 
       case error: ParseError => ParseError(cause = error, message = "Invalid package name ", metadata = contextMetadata(ctx))
-      case _ => new ParserBugException(metadata = contextMetadata(ctx))
+      case _ => new ParserBugError(metadata = contextMetadata(ctx))
     }
   }
+
 
   override def visitPackageBody(ctx: LanguageParser.PackageBodyContext): ast.Package.Body | ParseError = {
     super.visitPackageBody(ctx)
@@ -171,7 +241,7 @@ class LanguageVisitor(tokenStream: TokenStream)
       .map(item => visitValueDefinition(item)).toSeq
 
     return ast.Package.Body(
-      elements = valueDefinitions.filter(item => item.isInstanceOf[Value.Definition]),
+      elements = valueDefinitions,
       metadata = contextMetadata(ctx)
     )
   }
@@ -204,7 +274,7 @@ class LanguageVisitor(tokenStream: TokenStream)
             cause = error,
             message = "Invalid value name ",
             metadata = contextMetadata(ctx))
-          case _ => ParserBugException(metadata=contextMetadata(ctx));
+          case _ => ParserBugError(metadata = contextMetadata(ctx));
         }
       case error: ParseError => new ParseError(
         cause = error,
@@ -237,12 +307,12 @@ class LanguageVisitor(tokenStream: TokenStream)
     super.visitLiteralExpression(ctx);
     val result = ctx.children.stream()
       .filter((parseTree: ParseTree) => parseTree.isInstanceOf[TerminalNode])
-      .map[TerminalNode|ParseError](node => node.asInstanceOf[TerminalNode])
+      .map[TerminalNode | ParseError](node => node.asInstanceOf[TerminalNode])
       .findFirst()
-      .orElseGet(() => new ParserBugException(
+      .orElseGet(() => new ParserBugError(
         metadata = contextMetadata(ctx)
       ));
-    return result match{
+    return result match {
       case terminalNode: TerminalNode => {
         val text = terminalNode.getText;
         terminalNode.getSymbol.getType match {
@@ -257,12 +327,13 @@ class LanguageVisitor(tokenStream: TokenStream)
           );
         }
       }
-      case error :ParseError => error
+      case error: ParseError => error
     }
   }
 
 
-  object LanguageVisitor {
+};
 
-  }
+object LanguageVisitor {
+
 }

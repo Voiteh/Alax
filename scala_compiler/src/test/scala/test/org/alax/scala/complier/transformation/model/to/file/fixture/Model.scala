@@ -8,6 +8,7 @@ import org.alax.scala.compiler.model.{Literals, Value as CompilerValue}
 import org.alax.scala.compiler.transformation
 import org.alax.scala.compiler.transformation.model.to.file.Contexts
 import os.Path
+import test.org.alax.scala.complier.transformation.model.to.file.fixture.Model.Package.Declaration
 
 import java.nio.file.Path as JPath
 import scala.annotation.targetName
@@ -15,8 +16,9 @@ import scala.annotation.targetName
 object Model {
 
   object Context {
-    val module = Contexts.Module(Module.Declaration.`module dull`)
-    val `package` = Contexts.Package(Package.Declaration.`package abc`, module);
+    val module = Contexts.Module(Module.Declaration.`module abc.def`)
+    val `package` = Contexts.Package(Package.Declaration.`package efg`, module);
+    val `sub package` = Contexts.Package(Package.Declaration.`package hij`, `package`)
   }
 
   object Import {
@@ -58,19 +60,36 @@ object Model {
 
   }
 
-  object Package {
+  object Module {
     object Declaration {
-      val `package abc` = compiler.model.Package.Declaration(
-        name = "abc"
-      )
-      val `package def` = compiler.model.Package.Declaration(
-        name = "def"
+      val `module abc.def` = compiler.model.Module.Declaration(
+        name = "abc.def"
       )
     }
 
     object Definition {
-      val `package def { int: scala.lang.Integer; }` = compiler.model.Package.Definition(
-        declaration = Declaration.`package def`,
+      val `module abc.def { int: scala.lang.Integer; }` = compiler.model.Module.Definition(
+        declaration = Declaration.`module abc.def`,
+        body = compiler.model.Module.Definition.Body(elements = Seq(
+          Model.Value.Definition.`val int: scala.lang.Integer = 4`
+        ))
+      )
+    }
+  }
+
+  object Package {
+    object Declaration {
+      val `package efg` = compiler.model.Package.Declaration(
+        name = "efg"
+      )
+      val `package hij` = compiler.model.Package.Declaration(
+        name = "hij"
+      )
+    }
+
+    object Definition {
+      val `package hij { int: scala.lang.Integer; }` = compiler.model.Package.Definition(
+        declaration = Declaration.`package hij`,
         body = compiler.model.Package.Definition.Body(elements = Seq(
           Model.Value.Definition.`val int: scala.lang.Integer = 4`
         ))
@@ -80,11 +99,4 @@ object Model {
 
   }
 
-  object Module {
-    object Declaration {
-      val `module dull` = compiler.model.Module.Declaration(
-        name = "dull"
-      )
-    }
-  }
 }

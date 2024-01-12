@@ -212,7 +212,48 @@ class AstToModelTransformer {
       }
 
     }
+    object module {
+      object declaration {
+        def name(name: ast.Module.Name): String | CompilationError = {
+          return name.text()
+        }
+      }
 
+      def declaration(declaration: ast.Module.Declaration, context: Contexts.Unit | Null = null): compiler.model.Module.Declaration | CompilerError = {
+        return module.declaration.name(declaration.name) match {
+          case string: String => compiler.model.Module.Declaration(
+            name = string
+          )
+          case error: CompilerError => error;
+        }
+      }
+
+      object definition {
+        def body(body: ast.Module.Body, context: Contexts.Unit | Null = null): compiler.model.Module.Definition.Body | CompilerError = {
+          return compiler.model.Module.Definition.Body(
+            elements = body.elements.map {
+              case value: ast.Value.Definition => transform.value.definition(valueDefinition = value, context = context)
+              case error: ParseError => CompilerBugError(error)
+            })
+        }
+      }
+
+      def definition(definition: ast.Module.Definition, context: Contexts.Unit | Null = null): compiler.model.Module.Definition | CompilerError = {
+        return module.declaration.name(definition.name) match {
+          case name: String =>
+            module.definition.body(definition.body, context) match {
+              case body: compiler.model.Module.Definition.Body => compiler.model.Module.Definition(
+                declaration = compiler.model.Module.Declaration(
+                  name = name
+                ),
+                body = body
+              )
+              case error: CompilerError => error
+            }
+          case error: CompilerError => error;
+        }
+      }
+    }
     def trace(location: ast.base.Node.Location): Trace = compiler.base.model.Trace(
       unit = location.unit,
       lineNumber = location.startLine,
