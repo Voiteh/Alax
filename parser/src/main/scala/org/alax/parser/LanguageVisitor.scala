@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
 import javax.management.ValueExp
 import scala.jdk.CollectionConverters._
 
-class LanguageVisitor(tokenStream: TokenStream) extends LanguageParserBaseVisitor[Node | ParseError] {
+class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
 
 
   private def tokenMetadata(token: Token): Node.Metadata = {
@@ -118,7 +118,7 @@ class LanguageVisitor(tokenStream: TokenStream) extends LanguageParserBaseVisito
               metadata = contextMetadata(ctx)
             )
           case error: ParseError => new ParseError(cause = error, message = "Invalid value name ", metadata = contextMetadata(ctx))
-          case _ => new ParserBugException(metadata = contextMetadata(ctx));
+          case _ => new ParserBugError(metadata = contextMetadata(ctx));
         }
       case error: ParseError => new ParseError(cause = error, message = "Invalid value type", metadata = contextMetadata(ctx))
       case other => ParseError(
@@ -188,7 +188,7 @@ class LanguageVisitor(tokenStream: TokenStream) extends LanguageParserBaseVisito
           case shadowAccumulator: Names.Qualified.LowerCase => item match {
             case apendee: base.Partial.Name => apendee match {
               case name: Names.LowerCase => shadowAccumulator.concat(name);
-              case _ => ParserBugException(metadata = contextMetadata(ctx));
+              case _ => ParserBugError(metadata = contextMetadata(ctx));
             };
             case error: ParseError => ParseError(
               message = s"Invalid module name",
@@ -209,7 +209,7 @@ class LanguageVisitor(tokenStream: TokenStream) extends LanguageParserBaseVisito
           metadata = contextMetadata(ctx)
         )
       case error: ParseError => new ParseError(cause = error, message = "Invalid package name ", metadata = contextMetadata(ctx))
-      case _ => new ParserBugException(metadata = contextMetadata(ctx))
+      case _ => new ParserBugError(metadata = contextMetadata(ctx))
     }
 
   }
@@ -230,7 +230,7 @@ class LanguageVisitor(tokenStream: TokenStream) extends LanguageParserBaseVisito
         }
 
       case error: ParseError => ParseError(cause = error, message = "Invalid package name ", metadata = contextMetadata(ctx))
-      case _ => new ParserBugException(metadata = contextMetadata(ctx))
+      case _ => new ParserBugError(metadata = contextMetadata(ctx))
     }
   }
 
@@ -274,7 +274,7 @@ class LanguageVisitor(tokenStream: TokenStream) extends LanguageParserBaseVisito
             cause = error,
             message = "Invalid value name ",
             metadata = contextMetadata(ctx))
-          case _ => ParserBugException(metadata = contextMetadata(ctx));
+          case _ => ParserBugError(metadata = contextMetadata(ctx));
         }
       case error: ParseError => new ParseError(
         cause = error,
@@ -309,7 +309,7 @@ class LanguageVisitor(tokenStream: TokenStream) extends LanguageParserBaseVisito
       .filter((parseTree: ParseTree) => parseTree.isInstanceOf[TerminalNode])
       .map[TerminalNode | ParseError](node => node.asInstanceOf[TerminalNode])
       .findFirst()
-      .orElseGet(() => new ParserBugException(
+      .orElseGet(() => new ParserBugError(
         metadata = contextMetadata(ctx)
       ));
     return result match {

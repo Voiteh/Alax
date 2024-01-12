@@ -11,7 +11,7 @@ object AntlrSupport {
 
   class Contextual[Context](context: Context, tokens: CommonTokenStream) {
     def visit[Model](visitation: (LanguageVisitor, Context) => Model): Model = {
-      return visitation(new LanguageVisitor(tokens), context);
+      return visitation(new LanguageVisitor(), context);
     }
   }
 
