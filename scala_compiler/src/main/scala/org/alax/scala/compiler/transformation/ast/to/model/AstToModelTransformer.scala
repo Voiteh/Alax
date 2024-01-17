@@ -3,10 +3,10 @@ package org.alax.scala.compiler.transformation.ast.to.model
 import org.alax.ast
 import org.alax.ast.base
 import org.alax.ast.base.{ParseError, Partial, Expression as AstExpression, Statement as AstStatement}
-import org.alax.ast.partial.Names.{LowerCase, Qualified, UpperCase}
+import org.alax.ast.partial.Identifier.{LowerCase, Qualified, UpperCase}
 import org.alax.ast.base.statements.Declaration as AstDeclartion
 import org.alax.ast.base.expressions.Literal as AstLiteral
-import org.alax.ast.partial.Names
+import org.alax.ast.partial.Identifier
 import org.alax.scala.compiler
 import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.base.model.{CompilationError, CompilationErrors, CompilerBugError, CompilerError, Expression, Import, Literal, Reference, Tracable, Trace, Type}
@@ -59,7 +59,7 @@ class AstToModelTransformer {
       object reference {
         def value(valueTypeReference: ast.Value.Type.Reference, imports: Seq[Import]): Value.Type.Reference | CompilerError = {
           return valueTypeReference.id match {
-            case Names.UpperCase(value, _) => imports.find(element =>
+            case Identifier.UpperCase(value, _) => imports.find(element =>
               value.equals(element.alias) || value.equals(element.member)
             ).map(element => s"${element.ancestor}.${element.member}")
               .map(result => Value.Type.Reference(id =
@@ -72,7 +72,7 @@ class AstToModelTransformer {
                   endIndex = valueTypeReference.metadata.location.endIndex,
                   message = s"Unknown type: ${valueTypeReference.id}, did You forget to import?: "
                 ))
-            case ast.partial.Names.Qualified(value: Seq[ast.partial.Names.LowerCase | ast.partial.Names.UpperCase], _) =>
+            case ast.partial.Identifier.Qualified(value: Seq[ast.partial.Identifier.LowerCase | ast.partial.Identifier.UpperCase], _) =>
               compiler.model.Value.Type.Reference(
                 id = Type.Id(
                   value = {
@@ -126,7 +126,7 @@ class AstToModelTransformer {
 
 
       object declaration {
-        def name(name: ast.partial.Names.LowerCase): String | CompilerError = name.text();
+        def name(name: ast.Value.Name): String | CompilerError = name.text();
 
         object `type` {
           def reference(valueTypeReference: ast.Value.Type.Reference, imports: Seq[Import]): Value.Type.Reference | CompilerError = {
@@ -261,8 +261,8 @@ class AstToModelTransformer {
       endIndex = location.endIndex
     )
 
-    private def foldNames(names: Seq[ast.base.Partial.Name]): String = {
-      return names.foldLeft(mutable.StringBuilder())((acc: mutable.StringBuilder, ancestor: base.Partial.Name) =>
+    private def foldNames(names: Seq[ast.base.Partial.Identifier]): String = {
+      return names.foldLeft(mutable.StringBuilder())((acc: mutable.StringBuilder, ancestor: base.Partial.Identifier) =>
         if acc.isEmpty then acc.append(ancestor.text())
         else acc.append("." + ancestor.text()))
         .toString()
@@ -270,7 +270,7 @@ class AstToModelTransformer {
 
 
     //TODO use streams instead of sequences
-    def imports(`import`: ast.Import.Declaration, ancestors: Seq[ast.partial.Names.Qualified] = Seq()): Seq[Tracable[Import]] = {
+    def imports(`import`: ast.Import.Declaration, ancestors: Seq[ast.partial.Identifier.Qualified] = Seq()): Seq[Tracable[Import]] = {
       return `import` match {
         case container: ast.Imports.Nested => container.nestee.flatMap(element => this.imports(element, ancestors :+ container.nest))
         case simple: ast.Imports.Simple => Seq(Tracable(

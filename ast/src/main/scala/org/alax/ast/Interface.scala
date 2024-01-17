@@ -3,7 +3,7 @@ package org.alax.ast
 import org.alax.ast.base.Node.Metadata
 import org.alax.ast.base.statements.Definition as BaseDefinition
 import org.alax.ast.base.statements.Declaration as BaseDeclaration
-import org.alax.ast.partial.Names.UpperCase;
+import org.alax.ast.partial.Identifier.UpperCase;
 
 object Interface {
 
