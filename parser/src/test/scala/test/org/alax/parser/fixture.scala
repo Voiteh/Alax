@@ -38,6 +38,7 @@ object fixture {
     object declaration {
       val `java.lang.String value;`: String = """java.lang.String value;""";
       val `Integer value;`: String = """Integer value;""";
+      val `Long Integer some long value;` ="""Long Integer some long value;"""
     }
 
   }

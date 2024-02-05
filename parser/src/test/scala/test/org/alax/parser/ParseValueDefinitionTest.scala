@@ -2,7 +2,7 @@ package test.org.alax.parser
 
 import org.alax.ast.LanguageParser.{AS, ValueDefinitionContext}
 import org.alax.ast.base.Node.Metadata
-import org.alax.ast.partial.Names
+import org.alax.ast.partial.Identifier
 import org.alax.ast.base.Partial
 import org.alax.ast
 import org.alax.ast.{LanguageLexer, LanguageParser, Literals}
@@ -33,7 +33,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
             typeReference mustBe a[ast.Value.Type.Reference]
             inside(typeReference) {
               case ast.Value.Type.Reference(id, _) =>
-                id mustBe a[ast.partial.Names.Qualified]
+                id mustBe a[ast.partial.Identifier.Qualified]
                 id.text() mustBe "java.lang.Boolean"
 
             }
@@ -57,7 +57,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
             typeReference mustBe a[ast.Value.Type.Reference]
             inside(typeReference.asInstanceOf[ast.Value.Type.Reference]) {
               case ast.Value.Type.Reference(id, _) =>
-                id mustBe a[ast.base.Partial.Name]
+                id mustBe a[ast.base.Partial.Identifier]
                 id.text() mustBe "java.lang.Character"
 
             }
@@ -80,7 +80,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
             typeReference mustBe a[ast.Value.Type.Reference]
             inside(typeReference.asInstanceOf[ast.Value.Type.Reference]) {
               case ast.Value.Type.Reference(id, _) =>
-                id mustBe a[ast.partial.Names.Qualified]
+                id mustBe a[ast.partial.Identifier.Qualified]
                 id.text() mustBe "java.lang.String"
 
             }
@@ -103,7 +103,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
             typeReference mustBe a[ast.Value.Type.Reference]
             inside(typeReference.asInstanceOf[ast.Value.Type.Reference]) {
               case ast.Value.Type.Reference(id, _) =>
-                id mustBe a[ast.partial.Names.UpperCase]
+                id mustBe a[ast.partial.Identifier.UpperCase]
                 id.text() mustBe "Integer"
 
             }
@@ -126,7 +126,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
             typeReference mustBe a[ast.Value.Type.Reference]
             inside(typeReference.asInstanceOf[ast.Value.Type.Reference]) {
               case ast.Value.Type.Reference(id, _) =>
-                id mustBe a[ast.partial.Names.UpperCase]
+                id mustBe a[ast.partial.Identifier.UpperCase]
                 id.text() mustBe "Float"
 
             }

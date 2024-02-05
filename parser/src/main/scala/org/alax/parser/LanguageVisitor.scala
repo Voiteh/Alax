@@ -1,8 +1,8 @@
 package org.alax.parser
 
-import org.alax.ast.base.{ParseError, *}
+import org.alax.ast.base.*
 import org.alax.ast.base.Node.Metadata
-import org.alax.ast.partial.Names
+import org.alax.ast.partial.Identifier
 import org.alax.ast.{LanguageLexer, LanguageParser, LanguageParserBaseVisitor, Literals, Value, base}
 import org.alax.ast
 import org.antlr.v4.runtime.{ParserRuleContext, Token, TokenStream}
@@ -40,12 +40,12 @@ class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
   }
 
 
-  private def parseName(terminalNode: TerminalNode): base.Partial.Name | ParseError = {
+  private def parseIdentifier(terminalNode: TerminalNode): base.Partial.Identifier | ParseError = {
     return terminalNode.getSymbol.getType match {
-      case LanguageParser.LOWERCASE_NAME => Names.LowerCase(
+      case LanguageParser.LOWERCASE_IDENTIFIER => Identifier.LowerCase(
         terminalNode.getText, tokenMetadata(terminalNode.getSymbol)
       );
-      case LanguageParser.UPPERCASE_NAME => Names.UpperCase(
+      case LanguageParser.UPPERCASE_IDENTIFIER => Identifier.UpperCase(
         terminalNode.getText, tokenMetadata(terminalNode.getSymbol)
       );
       case _ => ParseError(
@@ -70,32 +70,32 @@ class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
 
   override def visitImportedName(ctx: LanguageParser.ImportedNameContext): ast.Imports.ImportedName | ParseError = {
     super.visitImportedName(ctx);
-    val qualifications: Seq[Names.LowerCase | Names.UpperCase] = ctx.children.asScala
+    val qualifications: Seq[Identifier.LowerCase | Identifier.UpperCase] = ctx.children.asScala
       .filter(item => item.isInstanceOf[TerminalNode])
       .map(item => item.asInstanceOf[TerminalNode])
-      .filter(item => item.getSymbol.getType == LanguageParser.UPPERCASE_NAME || item.getSymbol.getType == LanguageParser.LOWERCASE_NAME)
+      .filter(item => item.getSymbol.getType == LanguageParser.UPPERCASE_IDENTIFIER || item.getSymbol.getType == LanguageParser.LOWERCASE_IDENTIFIER)
       .map(item => item.getSymbol.getType match {
-        case LanguageParser.UPPERCASE_NAME => Names.UpperCase(item.getText, contextMetadata(ctx));
-        case LanguageParser.LOWERCASE_NAME => Names.LowerCase(item.getText, contextMetadata(ctx));
+        case LanguageParser.UPPERCASE_IDENTIFIER => Identifier.UpperCase(item.getText, contextMetadata(ctx));
+        case LanguageParser.LOWERCASE_IDENTIFIER => Identifier.LowerCase(item.getText, contextMetadata(ctx));
         case _ => return ParseError(tokenMetadata(item.getSymbol), f"Unknown token for imported name: ${item.getText}")
       }).toSeq;
-    return if qualifications.size == 1 then qualifications.last else Names.Qualified(qualifications, contextMetadata(ctx));
+    return if qualifications.size == 1 then qualifications.last else Identifier.Qualified(qualifications, contextMetadata(ctx));
   }
 
   override def visitValueTypeReference(ctx: LanguageParser.ValueTypeReferenceContext): ast.Value.Type.Reference | ParseError = {
     super.visitValueTypeReference(ctx)
-    val typeName = Names.UpperCase(value = ctx.typeName.getText, metadata = contextMetadata(ctx))
-    val fullName: Names.Qualified | Names.UpperCase | ParseError = Option(ctx.importedName())
+    val typeName = Identifier.UpperCase(value = ctx.UPPERCASE_IDENTIFIER().getText, metadata = contextMetadata(ctx))
+    val fullName: Identifier.Qualified | Identifier.UpperCase | ParseError = Option(ctx.importedName())
       .map(context => visitImportedName(context))
-      .map[ParseError | Names.Qualified | Names.UpperCase] {
+      .map[ParseError | Identifier.Qualified | Identifier.UpperCase] {
         case error: ParseError => error;
-        case imported: Names.UpperCase => Names.Qualified(qualifications = Seq(imported, typeName), contextMetadata(ctx))
-        case imported: Names.LowerCase => Names.Qualified(qualifications = Seq(imported, typeName), contextMetadata(ctx))
-        case imported: Names.Qualified => Names.Qualified(qualifications = imported.qualifications :+ typeName, contextMetadata(ctx))
+        case imported: Identifier.UpperCase => Identifier.Qualified(qualifications = Seq(imported, typeName), contextMetadata(ctx))
+        case imported: Identifier.LowerCase => Identifier.Qualified(qualifications = Seq(imported, typeName), contextMetadata(ctx))
+        case imported: Identifier.Qualified => Identifier.Qualified(qualifications = imported.qualifications :+ typeName, contextMetadata(ctx))
       }
-      .getOrElse[ParseError | Names.Qualified | Names.UpperCase](typeName);
+      .getOrElse[ParseError | Identifier.Qualified | Identifier.UpperCase](typeName);
     return fullName match {
-      case id@(_: Names.UpperCase | _: Names.Qualified) => ast.Value.Type.Reference(
+      case id@(_: Identifier.UpperCase | _: Identifier.Qualified) => ast.Value.Type.Reference(
         id = id, metadata = contextMetadata(ctx)
       )
       case default: ParseError => default
@@ -103,24 +103,32 @@ class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
 
   }
 
-
+  override def visitValueName(ctx: LanguageParser.ValueNameContext): ast.Value.Name|ParseError = {
+    super.visitValueName(ctx)
+    val identifier = ctx.LOWERCASE_IDENTIFIER().getText
+    if (identifier.matches("^[a-z][a-zA-Z0-9\\s]*[a-zA-Z0-9]$"))
+    then ast.Value.Name(value = identifier, metadata = contextMetadata(ctx))
+    else ParseError(
+      metadata = contextMetadata(ctx),
+      message = "Invalid package name, expecting lowercase letters"
+    );
+  }
   override def visitValueDeclaration(ctx: LanguageParser.ValueDeclarationContext): ast.Value.Declaration | ParseError = {
     super.visitValueDeclaration(ctx);
     val typeReference: Partial.Type.Reference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
-    val name: base.Partial.Name | ParseError = parseName(ctx.LOWERCASE_NAME());
+    val name: ast.Value.Name | ParseError = visitValueName(ctx.valueName());
     return typeReference match {
       case valueType: ast.Value.Type.Reference =>
         name match {
-          case shadowName: Names.LowerCase =>
+          case shadowName: ast.Value.Name =>
             ast.Value.Declaration(
               name = shadowName,
               typeReference = valueType,
               metadata = contextMetadata(ctx)
             )
-          case error: ParseError => new ParseError(cause = error, message = "Invalid value name ", metadata = contextMetadata(ctx))
-          case _ => new ParserBugError(metadata = contextMetadata(ctx));
+          case error: ParseError => new ParseError(cause = error, message = "Invalid value declaration ", metadata = contextMetadata(ctx))
         }
-      case error: ParseError => new ParseError(cause = error, message = "Invalid value type", metadata = contextMetadata(ctx))
+      case error: ParseError => new ParseError(cause = error, message = "Invalid value declaration", metadata = contextMetadata(ctx))
       case other => ParseError(
         message = f"Not Implemented, parsing type: ${other}!",
         metadata = contextMetadata(ctx)
@@ -131,9 +139,9 @@ class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
 
   override def visitModuleDeclaration(ctx: LanguageParser.ModuleDeclarationContext): ast.Module.Declaration | ParseError = {
     super.visitModuleDeclaration(ctx)
-    val moduleName: Names.Qualified.LowerCase | ParseError = visitModuleName(ctx.moduleName())
+    val moduleName: Identifier.Qualified.LowerCase | ParseError = visitModuleName(ctx.moduleName())
     return moduleName match {
-      case name: Names.Qualified.LowerCase => ast.Module.Declaration(
+      case name: Identifier.Qualified.LowerCase => ast.Module.Declaration(
         name = name,
         metadata = contextMetadata(ctx)
       )
@@ -159,10 +167,10 @@ class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
 
   override def visitModuleDefinition(ctx: LanguageParser.ModuleDefinitionContext): ast.Module.Definition | ParseError = {
     super.visitModuleDefinition(ctx)
-    val moduleName: Names.Qualified.LowerCase | ParseError = visitModuleName(ctx.moduleName())
+    val moduleName: Identifier.Qualified.LowerCase | ParseError = visitModuleName(ctx.moduleName())
     val moduleBody: ast.Module.Body | ParseError = visitModuleBody(ctx.moduleBody())
     return moduleName match {
-      case name: Names.Qualified.LowerCase => moduleBody match {
+      case name: Identifier.Qualified.LowerCase => moduleBody match {
         case body: ast.Module.Body => ast.Module.Definition(
           name = name,
           body = body,
@@ -179,15 +187,15 @@ class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
     }
   }
 
-  override def visitModuleName(ctx: LanguageParser.ModuleNameContext): Names.Qualified.LowerCase | ParseError = {
+  override def visitModuleName(ctx: LanguageParser.ModuleNameContext): Identifier.Qualified.LowerCase | ParseError = {
     super.visitModuleName(ctx)
-    return ctx.LOWERCASE_NAME().asScala.map(item => parseName(item))
-      .foldLeft[Names.Qualified.LowerCase | ParseError](Names.Qualified.LowerCase(metadata = contextMetadata(ctx)))((accumulator: Names.Qualified.LowerCase | ParseError, item: base.Partial.Name | ParseError) =>
+    return ctx.LOWERCASE_IDENTIFIER().asScala.map(item => parseIdentifier(item))
+      .foldLeft[Identifier.Qualified.LowerCase | ParseError](Identifier.Qualified.LowerCase(metadata = contextMetadata(ctx)))((accumulator: Identifier.Qualified.LowerCase | ParseError, item: base.Partial.Identifier | ParseError) =>
         accumulator match {
           case parseError: ParseError => parseError;
-          case shadowAccumulator: Names.Qualified.LowerCase => item match {
-            case apendee: base.Partial.Name => apendee match {
-              case name: Names.LowerCase => shadowAccumulator.concat(name);
+          case shadowAccumulator: Identifier.Qualified.LowerCase => item match {
+            case apendee: base.Partial.Identifier => apendee match {
+              case name: Identifier.LowerCase => shadowAccumulator.concat(name);
               case _ => ParserBugError(metadata = contextMetadata(ctx));
             };
             case error: ParseError => ParseError(
@@ -199,27 +207,36 @@ class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
         })
   }
 
+  override def visitPackageName(ctx: LanguageParser.PackageNameContext): ast.Package.Name | ParseError = {
+    super.visitPackageName(ctx);
+    val identifier = ctx.LOWERCASE_IDENTIFIER().getText
+    if (identifier.matches("[a-z]*")) then ast.Package.Name(source = identifier, metadata = contextMetadata(ctx))
+    else ParseError(
+      metadata = contextMetadata(ctx),
+      message = "Invalid package name, expecting lowercase letters"
+    );
+  }
+
+
   override def visitPackageDeclaration(ctx: LanguageParser.PackageDeclarationContext): ast.Package.Declaration | ParseError = {
     super.visitPackageDeclaration(ctx)
-    val name: base.Partial.Name | ParseError = parseName(ctx.LOWERCASE_NAME())
-    return name match {
-      case shadowName: Names.LowerCase =>
-        ast.Package.Declaration(
-          name = shadowName,
-          metadata = contextMetadata(ctx)
-        )
-      case error: ParseError => new ParseError(cause = error, message = "Invalid package name ", metadata = contextMetadata(ctx))
-      case _ => new ParserBugError(metadata = contextMetadata(ctx))
+    val name: ast.Package.Name | ParseError = visitPackageName(ctx.packageName())
+    name match {
+      case shadowName: ast.Package.Name => ast.Package.Declaration(
+        name = shadowName,
+        metadata = contextMetadata(ctx)
+      )
+      case error: ParseError => new ParseError(cause = error, message = "Invalid package declaration ", metadata = contextMetadata(ctx))
     }
 
   }
 
   override def visitPackageDefinition(ctx: LanguageParser.PackageDefinitionContext): ast.Package.Definition | ParseError = {
     super.visitPackageDefinition(ctx)
-    val name: base.Partial.Name | ParseError = parseName(ctx.LOWERCASE_NAME())
+    val name: ast.Package.Name | ParseError = visitPackageName(ctx.packageName())
     val body: ast.Package.Body | ParseError = visitPackageBody(ctx.packageBody());
     return name match {
-      case shadowName: Names.LowerCase =>
+      case shadowName: ast.Package.Name =>
         body match {
           case shadowBody: ast.Package.Body => ast.Package.Definition(
             name = shadowName,
@@ -229,8 +246,7 @@ class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
           case parseError: ParseError => new ParseError(cause = parseError, message = "Invalid body definition", metadata = contextMetadata(ctx))
         }
 
-      case error: ParseError => ParseError(cause = error, message = "Invalid package name ", metadata = contextMetadata(ctx))
-      case _ => new ParserBugError(metadata = contextMetadata(ctx))
+      case error: ParseError => ParseError(cause = error, message = "Invalid package definition ", metadata = contextMetadata(ctx))
     }
   }
 
@@ -250,12 +266,12 @@ class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
     super.visitValueDefinition(ctx);
 
     val typeReference: Partial.Type.Reference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
-    val name: base.Partial.Name | ParseError = parseName(ctx.LOWERCASE_NAME());
+    val name: ast.Value.Name | ParseError = visitValueName(ctx.valueName());
     val initialization: Expression | ParseError = visitExpression(ctx.expression());
     return typeReference match {
       case valueType: ast.Value.Type.Reference =>
         name match {
-          case shadowName: Names.LowerCase =>
+          case shadowName: ast.Value.Name =>
             initialization match {
               case expression: Expression => ast.Value.Definition(
                 name = shadowName,
@@ -274,7 +290,6 @@ class LanguageVisitor() extends LanguageParserBaseVisitor[Node | ParseError] {
             cause = error,
             message = "Invalid value name ",
             metadata = contextMetadata(ctx))
-          case _ => ParserBugError(metadata = contextMetadata(ctx));
         }
       case error: ParseError => new ParseError(
         cause = error,

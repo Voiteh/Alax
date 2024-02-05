@@ -20,7 +20,7 @@ class ParseValueDeclarationTest extends AnyWordSpec {
           .visit((visitor, context) => visitor.visitValueDeclaration(context))
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
-          case ast.Value.Declaration(name: ast.partial.Names.LowerCase, tpe: ast.Value.Type.Reference, _) =>
+          case ast.Value.Declaration(name: ast.Value.Name, tpe: ast.Value.Type.Reference, _) =>
               name.text() mustBe "value"
               tpe mustBe a[ast.Value.Type.Reference]
               inside(tpe){
@@ -38,12 +38,29 @@ class ParseValueDeclarationTest extends AnyWordSpec {
           .visit((visitor, context) => visitor.visitValueDeclaration(context))
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
-          case ast.Value.Declaration(name: ast.partial.Names.LowerCase, tpe: ast.Value.Type.Reference, _) =>
+          case ast.Value.Declaration(name: ast.Value.Name, tpe: ast.Value.Type.Reference, _) =>
             name.text() mustBe "value"
             tpe mustBe a[ast.Value.Type.Reference]
             inside(tpe) {
               case ast.Value.Type.Reference(id, _) =>
                 id.text() mustBe "Integer"
+            }
+        }
+      }
+    }
+    "Long Integer some long value;" should {
+      "parse to value declaration" in {
+        val result = AntlrSupport.language.tokenize(fixture.value.declaration.`Long Integer some long value;`)
+          .context((parser: LanguageParser) => parser.valueDeclaration())
+          .visit((visitor, context) => visitor.visitValueDeclaration(context))
+        result mustBe a[ast.Value.Declaration];
+        inside(result.asInstanceOf[ast.Value.Declaration]) {
+          case ast.Value.Declaration(name: ast.Value.Name, tpe: ast.Value.Type.Reference, _) =>
+            name.text() mustBe "some long value"
+            tpe mustBe a[ast.Value.Type.Reference]
+            inside(tpe) {
+              case ast.Value.Type.Reference(id, _) =>
+                id.text() mustBe "Long Integer"
             }
         }
       }

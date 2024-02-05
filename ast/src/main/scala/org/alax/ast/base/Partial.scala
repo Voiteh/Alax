@@ -16,9 +16,9 @@ object Partial {
 
 
   /**
-   * Identifiers of the statements and expressions
+   * Identifiers of the statements and expressions, type references and other language constructs
    */
-  abstract class Name(metadata: Metadata) extends Partial(metadata = metadata) {
+  abstract class Identifier(metadata: Metadata) extends Partial(metadata = metadata) {
     def text(): String;
   }
 
