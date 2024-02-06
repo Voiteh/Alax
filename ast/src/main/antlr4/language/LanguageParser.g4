@@ -11,13 +11,13 @@ declaration: valueDeclaration|packageDeclaration|functionDeclaration|moduleDecla
 moduleDeclaration: MODULE moduleName SEMI_COLON ;
 moduleDefinition: MODULE moduleName moduleBody;
 moduleBody: OPEN_CURLY (valueDefinition*)  CLOSE_CURLY;
-moduleName: LOWERCASE_IDENTIFIER (DOT LOWERCASE_IDENTIFIER)*;
+moduleName: LOWERCASE_NAME|QUALIFIED_LOWERCASE_NAME;
 
 
 packageDefinition: PACKAGE packageName packageBody;
 packageDeclaration: PACKAGE packageName SEMI_COLON;
 packageBody:OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
-packageName: LOWERCASE_IDENTIFIER;
+packageName: LOWERCASE_NAME;
 
 functionDefinition: valueTypeReference? LOWERCASE_IDENTIFIER OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
 functionDeclaration: valueTypeReference? LOWERCASE_IDENTIFIER OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
@@ -29,8 +29,8 @@ functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|assig
 functionParameters: functionParameter (COMMA functionParameter)*;
 functionParameter: valueTypeReference LOWERCASE_IDENTIFIER (EQUALS literalExpression|referenceExpression)?;
 
-valueDefinition: accessModifier? valueTypeReference valueName EQUALS expression SEMI_COLON ;
-valueDeclaration: accessModifier? valueTypeReference valueName SEMI_COLON;
+valueDefinition: accessModifier? VALUE valueTypeReference WS valueName EQUALS expression SEMI_COLON ;
+valueDeclaration: accessModifier? VALUE valueTypeReference WS valueName SEMI_COLON;
 valueName: LOWERCASE_IDENTIFIER;
 
 
