@@ -39,7 +39,7 @@ class TerminalNodeParser(tokenParser: TokenRuleParser) {
       object qualified {
 
         def lowercase(terminalNode: TerminalNode): Identifier.Qualified.LowerCase | ParseError = {
-          if (terminalNode.getSymbol.getType == LanguageParser.QUALIFIED_LOWERCASE_NAME) then {
+          if (terminalNode.getSymbol.getType == ???.asInstanceOf[Int] ) then {//LanguageParser.QUALIFIED_LOWERCASE_NAME) then {
             val lowercaseIdentifiers: Array[Identifier.LowerCase | ParseError] = terminalNode.getText.split("\\.")
               .map(item => TerminalNodeImpl(
                 CommonToken(

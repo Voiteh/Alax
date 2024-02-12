@@ -2,11 +2,20 @@ package test.org.alax.parser
 
 object fixture {
 
+
+  object identifier {
+    val `asd`: String = "asd"
+    val `a_sd 123`: String = "a_sd def"
+    val `_ad`: String = "_ad"
+    val `123`: String = "123"
+  }
+
   object module {
     object declaration {
       val `module com.ble.ble;`: String = """module com.ble.ble;"""
     }
-    object definition{
+
+    object definition {
       val `module com.ble.ble {}`: String = """module com.ble.ble {}"""
       val `module com.ble.ble {java.lang.Boolean bool=true;}`: String = """module com.ble.ble {java.lang.Boolean bool=true;}"""
     }
@@ -38,7 +47,7 @@ object fixture {
     object declaration {
       val `java.lang.String value;`: String = """java.lang.String value;""";
       val `Integer value;`: String = """Integer value;""";
-      val `Long Integer some long value;` ="""Long Integer some long value;"""
+      val `Long Integer some long value;` = """Long Integer some long value;"""
     }
 
   }
