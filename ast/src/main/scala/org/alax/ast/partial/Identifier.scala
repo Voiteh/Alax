@@ -5,12 +5,13 @@ import org.alax.ast.base.Node.Metadata
 import scala.collection.mutable
 import org.alax.ast.base.Partial
 import org.alax.ast.partial.Identifier.LowerCase
+import org.alax.ast.partial.Identifier.LowerCase.matches
 
 object Identifier {
 
   object Qualified {
     case class LowerCase(qualifications: Seq[Identifier.LowerCase] = Seq(), metadata: Metadata = Metadata.unknown) extends Partial.Identifier(metadata = metadata) {
-      qualifications.map(item => item.text()).foreach(value => assert(value.matches("[a-z].*")));
+      assert(Identifier.Qualified.LowerCase.matches(qualifications))
 
       def concat(name: Identifier.LowerCase): Identifier.Qualified.LowerCase = Identifier.Qualified.LowerCase(
         qualifications = qualifications.appended(name), metadata = metadata
@@ -20,6 +21,11 @@ object Identifier {
         return qualifications.foldLeft(mutable.StringBuilder())((acu: mutable.StringBuilder, item: Identifier.LowerCase) =>
           if (acu.isEmpty) then acu.append(item.text()) else acu.append("." + item.text())).toString()
       };
+    }
+
+    object LowerCase {
+      def matches(qualifications: Seq[Identifier.LowerCase]): Boolean = qualifications.map(item => item.text())
+        .foldLeft(true)((acc: Boolean, item: String) => if acc then Identifier.LowerCase.matches(item) else acc)
     }
   }
 
@@ -43,18 +49,27 @@ object Identifier {
 
   }
 
+
   case class LowerCase(value: String, metadata: Metadata = Metadata.unknown) extends Partial.Identifier(metadata = metadata) {
-    assert(value.matches("[a-z].*"))
+    assert(matches(value))
 
     override def text(): String = value;
 
   }
 
+  object LowerCase {
+    def matches(value: String): Boolean = value.matches("[a-z].*")
+  }
+
   case class UpperCase(value: String, metadata: Metadata = Metadata.unknown) extends Partial.Identifier(metadata = metadata) {
-    assert(value.matches("[A-Z].*"))
+    assert(matches(value))
 
     override def text(): String = value;
 
 
+  }
+
+  object UpperCase {
+    def matches(value: String): Boolean = value.matches("[A-Z].*")
   }
 }

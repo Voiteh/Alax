@@ -20,9 +20,6 @@ object Package {
   case class Body(elements: Seq[Element], override val metadata: Metadata)
     extends base.Partial.Scope(metadata = metadata)
 
-  case class Name(source:String,metadata: Metadata) extends Partial.Identifier(metadata=metadata){
-    assert(text().matches("[a-z]*"))
-    override def text(): String = source
-  }
+  type Name = Identifier.LowerCase;
   type Element = Value.Definition |  ParseError
 }

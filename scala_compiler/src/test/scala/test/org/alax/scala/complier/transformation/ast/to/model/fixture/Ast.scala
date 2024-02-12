@@ -50,13 +50,13 @@ object Ast {
   object Package {
     object Declaration {
       val `package abc`: PackageDeclaration = PackageDeclaration(
-        name = PackageName(source = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown
+        name = Identifier.LowerCase(value = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown
       )
     }
 
     object Definition {
       val `package abc { Integer int = 4;}`: PackageDefinition = PackageDefinition(
-        name = PackageName(source = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown,
+        name = Identifier.LowerCase(value = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown,
         body = PackageBody(
           elements = Seq(Ast.Value.Definition.`Integer int = 4;`),
           metadata = Metadata.unknown,
