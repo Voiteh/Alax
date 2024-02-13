@@ -63,8 +63,8 @@ class AstToModelTransformer {
             case null => imports.find(element =>
               valueTypeReference.typeIdentifier.text().equals(element.alias) || valueTypeReference.typeIdentifier.text().equals(element.member)
             ).map(element => s"${element.ancestor}.${element.member}")
-              .map[Type.Id|CompilationError](result => Type.Id(value = result))
-              .getOrElse[Type.Id|CompilationError](
+              .map[Type.Id | CompilationError](result => Type.Id(value = result))
+              .getOrElse[Type.Id | CompilationError](
                 new CompilationError(
                   path = valueTypeReference.metadata.location.unit,
                   startIndex = valueTypeReference.metadata.location.startIndex,
@@ -266,35 +266,28 @@ class AstToModelTransformer {
 
 
     //TODO use streams instead of sequences
-    def imports(`import`: ast.Import.Declaration, ancestors: Seq[ast.partial.Identifier.Qualified] = Seq()): Seq[Tracable[Import]] = {
+    def imports(`import`: ast.Import.Declaration, ancestors: Seq[ast.Import.Identifier] = Seq()): Seq[Tracable[Import]] = {
       return `import` match {
         case container: ast.Imports.Nested => container.nestee.flatMap(element => this.imports(element, ancestors :+ container.nest))
         case simple: ast.Imports.Simple => Seq(Tracable(
           trace = trace(simple.metadata.location),
-          transformed = compiler.base.model.Import(
-            ancestor = simple.member match {
-              case qualified: Qualified => foldNames(ancestors) + foldNames(qualified.prefix)
-              case _ => foldNames(ancestors)
-            },
-            member = simple.member match {
-              case qualified: Qualified => qualified.suffix.text();
-              case uppercase: UpperCase => uppercase.text();
-              case lowercase: LowerCase => lowercase.text();
-            },
-          )
+          transformed = if simple.member.parts.size > 1 then compiler.base.model.Import(
+              ancestor = foldNames(ancestors) + foldNames(simple.member.prefix),
+              member = simple.member.suffix.text()) else
+            compiler.base.model.Import(
+              ancestor = foldNames(ancestors),
+              member = simple.member.suffix.text()
+            )
         ))
         case alias: ast.Imports.Alias => Seq(Tracable(
           trace = trace(alias.metadata.location),
-          transformed = compiler.base.model.Import(
-            ancestor = alias.member match {
-              case qualified: Qualified => foldNames(ancestors) + foldNames(qualified.prefix)
-              case _ => foldNames(ancestors)
-            },
-            member = alias.member match {
-              case qualified: Qualified => qualified.suffix.text();
-              case uppercase: UpperCase => uppercase.text();
-              case lowercase: LowerCase => lowercase.text();
-            },
+          transformed = if alias.member.parts.size > 1 then compiler.base.model.Import(
+            ancestor = foldNames(ancestors) + foldNames(alias.member.prefix) ,
+            member = alias.member.suffix.text(),
+            alias = alias.alias.text()
+          ) else compiler.base.model.Import(
+            ancestor = foldNames(ancestors),
+            member = alias.member.suffix.text(),
             alias = alias.alias.text()
           )
         ))

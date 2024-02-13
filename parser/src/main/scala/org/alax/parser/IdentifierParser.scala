@@ -8,16 +8,16 @@ import org.antlr.v4.runtime.CommonToken
 
 import scala.reflect.{TypeTest, Typeable}
 
-class TerminalNodeParser(tokenParser: TokenRuleParser) {
+class IdentifierParser(metadataParser: MetadataParser) {
   object parse {
     object identifier {
       def lowercase(terminalNode: TerminalNode): Identifier.LowerCase | ParseError = {
         return if (Identifier.LowerCase.matches(terminalNode.getText)) then
           Identifier.LowerCase(
-            terminalNode.getText, tokenParser.parse.metadata(terminalNode.getSymbol)
+            terminalNode.getText, metadataParser.parse.metadata(terminalNode.getSymbol)
           )
         else new ParseError(
-          metadata = tokenParser.parse.metadata(terminalNode.getSymbol),
+          metadata = metadataParser.parse.metadata(terminalNode.getSymbol),
           message = "Invalid lowercase identifier: " + terminalNode.getText
         )
       }
@@ -25,10 +25,10 @@ class TerminalNodeParser(tokenParser: TokenRuleParser) {
       def uppercase(terminalNode: TerminalNode): Identifier.UpperCase | ParseError = {
         return if (Identifier.UpperCase.matches(terminalNode.getText)) then
           Identifier.UpperCase(
-            terminalNode.getText, tokenParser.parse.metadata(terminalNode.getSymbol)
+            terminalNode.getText, metadataParser.parse.metadata(terminalNode.getSymbol)
           )
         else new ParseError(
-          metadata = tokenParser.parse.metadata(terminalNode.getSymbol),
+          metadata = metadataParser.parse.metadata(terminalNode.getSymbol),
           message = "Invalid uppercase identifier: " + terminalNode.getText
         )
       }
@@ -56,13 +56,13 @@ class TerminalNodeParser(tokenParser: TokenRuleParser) {
             })
             return result match {
               case sequence: Seq[Identifier.LowerCase] => Identifier.Qualified.LowerCase(
-                qualifications = sequence, metadata = tokenParser.parse.metadata(terminalNode.getSymbol)
+                qualifications = sequence, metadata = metadataParser.parse.metadata(terminalNode.getSymbol)
               )
               case error: ParseError => error
             }
           }
           else ParseError(
-            metadata = tokenParser.parse.metadata(terminalNode.getSymbol),
+            metadata = metadataParser.parse.metadata(terminalNode.getSymbol),
             message = "Invalid lowercase qualified identifier: " + terminalNode.getText
           );
         }

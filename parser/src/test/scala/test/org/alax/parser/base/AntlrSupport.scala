@@ -2,7 +2,7 @@ package test.org.alax.parser.base
 
 import org.alax.ast.LanguageParser
 import org.alax.ast.base.Node
-import org.alax.parser.{LanguageVisitor, TerminalNodeParser, TokenRuleParser}
+import org.alax.parser.{LanguageVisitor, IdentifierParser, MetadataParser}
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream, ParserRuleContext}
 import org.alax.ast.{LanguageLexer, LanguageParser}
 
@@ -12,9 +12,9 @@ object AntlrSupport {
 
   class Contextual[Context](context: Context, tokens: CommonTokenStream) {
     def visit[Model](visitation: (LanguageVisitor, Context) => Model): Model = {
-      return visitation(new LanguageVisitor(tokenParser = new TokenRuleParser(),
-        terminalNodeParser = new TerminalNodeParser(
-          tokenParser = new TokenRuleParser()
+      return visitation(new LanguageVisitor(metadataParser = new MetadataParser(),
+        identifierParser = new IdentifierParser(
+          metadataParser = new MetadataParser()
         )), context);
     }
   }

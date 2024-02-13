@@ -5,24 +5,23 @@ import org.alax.ast.Import
 import org.alax.ast.partial.Identifier.*
 
 object Imports {
-  type ImportedName = Qualified | LowerCase | UpperCase;
 
   case class Alias(
-                    member: ImportedName,
-                    alias: ImportedName,
+                    member: Import.Identifier,
+                    alias: Import.Identifier,
                     override val metadata: Metadata = Metadata.unknown
                   )
     extends Import.Declaration(metadata = metadata)
 
   case class Simple(
-                     member: ImportedName,
+                     member: Import.Identifier,
                      override val metadata: Metadata = Metadata.unknown
                    )
     extends Import.Declaration(metadata = metadata)
 
 
   case class Nested(
-                     nest: Qualified,
+                     nest: Import.Identifier,
                      nestee: Seq[Import.Declaration],
                      override val metadata: Metadata = Metadata.unknown
                    )

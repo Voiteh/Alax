@@ -9,43 +9,6 @@ import org.alax.ast.partial.Identifier.LowerCase.matches
 
 object Identifier {
 
-  object SpaceFull {
-
-    object LowerCase {
-      private def fold(qualifcations: Seq[Identifier.LowerCase]): String = qualifcations
-        .foldLeft(new mutable.StringBuilder())((acc: mutable.StringBuilder, item: Identifier.LowerCase) =>
-          if acc.isEmpty then acc.append(item.text()) else acc.append(" ").append(item.text()
-          )).toString()
-
-      def matches(qualifications: Seq[Identifier.LowerCase]): Boolean = fold(qualifications).matches("[a-z][a-z0-9_\\s]*")
-    }
-
-    case class LowerCase(items: Seq[Identifier.LowerCase], metadata: Metadata = Metadata.unknown) extends Partial.Identifier(metadata = metadata) {
-
-
-      override def text(): String = LowerCase.fold(items)
-    }
-
-    object UpperCase {
-      private def fold(qualifcations: Seq[Identifier.UpperCase]): String = qualifcations
-        .foldLeft(new mutable.StringBuilder())((acc: mutable.StringBuilder, item: Identifier.UpperCase) =>
-          if acc.isEmpty then acc.append(item.text()) else acc.append(" ").append(item.text()
-          )).toString()
-    }
-
-    case class UpperCase(items: Seq[Identifier.UpperCase], metadata: Metadata = Metadata.unknown) extends Partial.Identifier(metadata = metadata) {
-
-
-      def matches(qualifications: Seq[Identifier.UpperCase]): Boolean = UpperCase.fold(qualifications).matches("[A-Z][a-zA-Z0-9_\\s]*")
-
-      override def text(): String = UpperCase.fold(items)
-    }
-
-  }
-
-  type SpaceFull = SpaceFull.LowerCase | SpaceFull.UpperCase;
-
-
   object Qualified {
     case class LowerCase(qualifications: Seq[Identifier.LowerCase] = Seq(), metadata: Metadata = Metadata.unknown) extends Partial.Identifier(metadata = metadata) {
       assert(Identifier.Qualified.LowerCase.matches(qualifications))
