@@ -20,12 +20,12 @@ class ParseValueDeclarationTest extends AnyWordSpec {
           .visit((visitor, context) => visitor.visitValueDeclaration(context))
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
-          case ast.Value.Declaration(name: ast.Value.Name, tpe: ast.Value.Type.Reference, _) =>
+          case ast.Value.Declaration(name: ast.Value.Identifier, tpe: ast.Value.Type.Reference, _) =>
               name.text() mustBe "value"
               tpe mustBe a[ast.Value.Type.Reference]
               inside(tpe){
-                case ast.Value.Type.Reference(id,_) =>
-                  id.text() mustBe "java.lang.String"
+                case reference: ast.Value.Type.Reference=>
+                  reference.text() mustBe "java.lang.String"
               }
         }
       }
@@ -38,12 +38,12 @@ class ParseValueDeclarationTest extends AnyWordSpec {
           .visit((visitor, context) => visitor.visitValueDeclaration(context))
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
-          case ast.Value.Declaration(name: ast.Value.Name, tpe: ast.Value.Type.Reference, _) =>
+          case ast.Value.Declaration(name: ast.Value.Identifier, tpe: ast.Value.Type.Reference, _) =>
             name.text() mustBe "value"
             tpe mustBe a[ast.Value.Type.Reference]
             inside(tpe) {
-              case ast.Value.Type.Reference(id, _) =>
-                id.text() mustBe "Integer"
+              case typeReference:ast.Value.Type.Reference =>
+                typeReference.text() mustBe "Integer"
             }
         }
       }
@@ -55,12 +55,12 @@ class ParseValueDeclarationTest extends AnyWordSpec {
           .visit((visitor, context) => visitor.visitValueDeclaration(context))
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
-          case ast.Value.Declaration(name: ast.Value.Name, tpe: ast.Value.Type.Reference, _) =>
+          case ast.Value.Declaration(name: ast.Value.Identifier, tpe: ast.Value.Type.Reference, _) =>
             name.text() mustBe "some long value"
             tpe mustBe a[ast.Value.Type.Reference]
             inside(tpe) {
-              case ast.Value.Type.Reference(id, _) =>
-                id.text() mustBe "Long Integer"
+              case typeIdentifier:ast.Value.Type.Reference =>
+                typeIdentifier.text() mustBe "Long Integer"
             }
         }
       }

@@ -7,7 +7,7 @@ import org.alax.ast.Value.Definition as ValueDefinition
 import org.alax.ast.Package.Declaration as PackageDeclaration
 import org.alax.ast.Package.Definition as PackageDefinition
 import org.alax.ast.Package.Body as PackageBody
-import org.alax.ast.Package.Name as PackageName
+import org.alax.ast.Package.Identifier as PackageName
 import org.alax.ast.Module.Declaration as ModuleDeclaration
 import org.alax.ast.Module.Definition as ModuleDefinition
 import org.alax.ast.Module.Body as ModuleBody
@@ -26,7 +26,7 @@ object Ast {
   object Module {
     object Declaration {
       val `module abc.def`: ModuleDeclaration = ModuleDeclaration(
-        name = Identifier.Qualified.LowerCase(qualifications = Seq(
+        identifier = ast.Module.Identifier(parts = Seq(
           Identifier.LowerCase("abc"),
           Identifier.LowerCase("def")
         ), metadata = Metadata.unknown), metadata = Metadata.unknown
@@ -35,7 +35,7 @@ object Ast {
 
     object Definition {
       val `module abc.def { Integer int = 4;}`: ModuleDefinition = ModuleDefinition(
-        name = Identifier.Qualified.LowerCase(qualifications = Seq(
+        identifier = ast.Module.Identifier(parts = Seq(
           Identifier.LowerCase("abc"),
           Identifier.LowerCase("def")
         ), metadata = Metadata.unknown), metadata = Metadata.unknown,
@@ -50,13 +50,13 @@ object Ast {
   object Package {
     object Declaration {
       val `package abc`: PackageDeclaration = PackageDeclaration(
-        name = Identifier.LowerCase(value = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown
+        identifier = ast.Package.Identifier(value = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown
       )
     }
 
     object Definition {
       val `package abc { Integer int = 4;}`: PackageDefinition = PackageDefinition(
-        name = Identifier.LowerCase(value = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown,
+        identifier = ast.Package.Identifier(value = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown,
         body = PackageBody(
           elements = Seq(Ast.Value.Definition.`Integer int = 4;`),
           metadata = Metadata.unknown,
@@ -69,16 +69,16 @@ object Ast {
 
     object Definition {
       val `Integer int = 4;`: ValueDefinition = ValueDefinition(
-        name = ast.Value.Name(value="int",metadata = Metadata.unknown),
+        name = ast.Value.Identifier(value="int",metadata = Metadata.unknown),
         typeReference = ast.Value.Type.Reference(
-          id = ast.partial.Identifier.UpperCase("Integer"),
+          typeIdentifier = ast.partial.Identifier.UpperCase("Integer"),
         ),
         initialization = Literals.Integer(4),
       )
       val `String text = "text";`: ValueDefinition = ValueDefinition(
-        name = ast.Value.Name(value="text",metadata = Metadata.unknown),
+        name = ast.Value.Identifier(value="text",metadata = Metadata.unknown),
         typeReference = ast.Value.Type.Reference(
-          id = ast.partial.Identifier.UpperCase("String"),
+          typeIdentifier = ast.partial.Identifier.UpperCase("String"),
         ),
         initialization = Literals.String("text"),
       )
@@ -86,15 +86,15 @@ object Ast {
 
     object Declaration {
       val `Integer int`: ValueDeclaration = ValueDeclaration(
-        name = ast.Value.Name(value="int",metadata = Metadata.unknown),
+        identifier = ast.Value.Identifier(value="int",metadata = Metadata.unknown),
         typeReference = ast.Value.Type.Reference(
-          id = ast.partial.Identifier.UpperCase("Integer"),
+          typeIdentifier = ast.partial.Identifier.UpperCase("Integer"),
         ),
       )
       val `String str`: ValueDeclaration = ValueDeclaration(
-        name = ast.Value.Name(value="int",metadata = Metadata.unknown),
+        identifier = ast.Value.Identifier(value="int",metadata = Metadata.unknown),
         typeReference = ast.Value.Type.Reference(
-          id = ast.partial.Identifier.UpperCase("Integer"),
+          typeIdentifier = ast.partial.Identifier.UpperCase("Integer"),
         ),
       )
 

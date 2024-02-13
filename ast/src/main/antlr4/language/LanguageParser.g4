@@ -8,30 +8,30 @@ definition: valueDefinition|functionDefinition|packageDefinition|moduleDefinitio
 declaration: valueDeclaration|packageDeclaration|functionDeclaration|moduleDeclaration;
 
 
-moduleDeclaration: MODULE moduleName SEMI_COLON ;
-moduleDefinition: MODULE moduleName moduleBody;
+moduleDeclaration: MODULE moduleIdentifier SEMI_COLON ;
+moduleDefinition: MODULE moduleIdentifier moduleBody;
 moduleBody: OPEN_CURLY (valueDefinition*)  CLOSE_CURLY;
-moduleName: LOWERCASE_IDENTIFIER (DOT LOWERCASE_IDENTIFIER)*;
+moduleIdentifier: LOWERCASE_IDENTIFIER (DOT LOWERCASE_IDENTIFIER)*;
 
 
-packageDefinition: PACKAGE packageName packageBody;
-packageDeclaration: PACKAGE packageName SEMI_COLON;
+packageDefinition: PACKAGE packageIdentifier packageBody;
+packageDeclaration: PACKAGE packageIdentifier SEMI_COLON;
 packageBody:OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
-packageName: LOWERCASE_IDENTIFIER;
+packageIdentifier: LOWERCASE_IDENTIFIER;
 
-functionDefinition: valueTypeReference? functionName OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
-functionDeclaration: valueTypeReference? functionName OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
+functionDefinition: valueTypeReference? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
+functionDeclaration: valueTypeReference? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
 functionalBody: (expression SEMI_COLON)| OPEN_CURLY functionalBodyStatement* CLOSE_CURLY;
 functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|assignmentStatement;
-functionName: LOWERCASE_IDENTIFIER+?;
+functionIdentifier: LOWERCASE_IDENTIFIER;
 
 
 functionParameters: functionParameter (COMMA functionParameter)*;
 functionParameter: valueTypeReference LOWERCASE_IDENTIFIER (EQUALS literalExpression|referenceExpression)?;
 
-valueDefinition: accessModifier? VALUE valueTypeReference valueName EQUALS expression SEMI_COLON ;
-valueDeclaration: accessModifier? VALUE valueTypeReference valueName SEMI_COLON;
-valueName: LOWERCASE_IDENTIFIER;
+valueDefinition: accessModifier? VALUE valueTypeReference valueIdentifier EQUALS expression SEMI_COLON ;
+valueDeclaration: accessModifier? VALUE valueTypeReference valueIdentifier SEMI_COLON;
+valueIdentifier: LOWERCASE_IDENTIFIER;
 
 
 
@@ -46,8 +46,8 @@ returnStatement: RETURN expression SEMI_COLON;
 
 //Refernces
 //TODO we need to find out how to handle all references: packages or modules may have same token as function or value references how to distinguish those 3 ?
-valueTypeReference: (importedIdentifier DOT)? spacefullUpperaseIdentifier ;
-functionOrValueReference: (accessor DOT)* (importedIdentifier DOT)* memberName=LOWERCASE_IDENTIFIER;
+valueTypeReference: (importIdentifier DOT)? UPPERCASE_IDENTIFIER ;
+functionOrValueReference: (accessor DOT)* (importIdentifier DOT)* memberName=LOWERCASE_IDENTIFIER;
 
 referenceExpression: valueTypeReference|functionOrValueReference;
 
@@ -57,22 +57,18 @@ accessor:THIS|SUPER|OUTER;
 //Imports
 nestedImportDeclaration: IMPORT imports SEMI_COLON;
 
-simpleImportDeclaration: IMPORT importedIdentifier SEMI_COLON;
+simpleImportDeclaration: IMPORT importIdentifier SEMI_COLON;
 
 aliasImportDeclaration: IMPORT importAlias  SEMI_COLON;
 
 
-imports: importedIdentifier nestedImports? ;
+imports: importIdentifier nestedImports? ;
 nestedImports: DOT OPEN_SQUARE (nestableImport (COMMA nestableImport)*)? CLOSE_SQUARE;
-nestableImport: importedIdentifier|imports|importAlias;
-importAlias: aliased=importedIdentifier ALIAS alias=importedIdentifier;
-importedIdentifier: spacefullIdentifier (DOT spacefullIdentifier)*;
+nestableImport: importIdentifier|imports|importAlias;
+importAlias: aliased=importIdentifier ALIAS alias=importIdentifier;
+importIdentifier: (LOWERCASE_IDENTIFIER|UPPERCASE_IDENTIFIER) (DOT LOWERCASE_IDENTIFIER|UPPERCASE_IDENTIFIER)*;
 
 
 literalExpression: BOOLEAN_LITERAL|CHARACTER_LITERAL|INTEGER_LITERAL|FLOAT_LITERAL|STRING_LITERAL;
 
 expression: literalExpression|functionCallExpression|referenceExpression;
-
-spacefullUpperaseIdentifier: UPPERCASE_IDENTIFIER+ ;
-spacefullLowercaseIdentifier: LOWERCASE_IDENTIFIER+;
-spacefullIdentifier:spacefullUpperaseIdentifier|spacefullLowercaseIdentifier;

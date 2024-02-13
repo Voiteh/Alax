@@ -20,7 +20,7 @@ class ParseModuleDefinitionTest extends AnyWordSpec {
         result mustBe a[ast.Module.Definition]
         inside(result.asInstanceOf[ast.Module.Definition]) {
           case moduleDefinition: ast.Module.Definition => {
-            moduleDefinition.name.text() mustBe "com.ble.ble"
+            moduleDefinition.identifier.text() mustBe "com.ble.ble"
             moduleDefinition.body.elements must have length 1
             moduleDefinition.body.elements must contain(
               AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Boolean bool=true;`)

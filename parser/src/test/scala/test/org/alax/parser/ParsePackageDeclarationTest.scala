@@ -18,7 +18,7 @@ class ParsePackageDeclarationTest extends AnyWordSpec {
         result mustBe a[ast.Package.Declaration]
         inside(result.asInstanceOf[ast.Package.Declaration]) {
           case packageDeclaration: ast.Package.Declaration => {
-            packageDeclaration.name.text() mustBe "abc"
+            packageDeclaration.identifier.text() mustBe "abc"
           }
         }
 

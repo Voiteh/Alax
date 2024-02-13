@@ -36,7 +36,7 @@ object Identifier {
     case class UpperCase(items: Seq[Identifier.UpperCase], metadata: Metadata = Metadata.unknown) extends Partial.Identifier(metadata = metadata) {
 
 
-      def matches(qualifications: Seq[Identifier.UpperCase]): Boolean = UpperCase.fold(qualifications).matches("[A-Z][A-Z0-9_\\s]*")
+      def matches(qualifications: Seq[Identifier.UpperCase]): Boolean = UpperCase.fold(qualifications).matches("[A-Z][a-zA-Z0-9_\\s]*")
 
       override def text(): String = UpperCase.fold(items)
     }
