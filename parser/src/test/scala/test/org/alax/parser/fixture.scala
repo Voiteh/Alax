@@ -3,6 +3,31 @@ package test.org.alax.parser
 object fixture {
 
 
+  object `import` {
+    object statement {
+      object simple {
+
+        val `import java.lang.String;`: String = "import java.lang.String;"
+        val `import java.lang;`: String = "import java.lang;"
+        val `import java.lang long.String;`: String = "import java.lang long.String;"
+        val `import 1ava.lang.String;`: String = "import 1ava.lang.String;"
+      }
+
+      object alias {
+        val `import java.lang.String alias Text;`: String = "import java.lang.String alias Text;"
+        val `import java.lang long.String alias Some Text;`: String = "import java.lang long.String alias Some Text;"
+        val `import java.lang alias java lang;`: String = "import java.lang alias java lang;"
+      }
+
+      object nested {
+        val `import java.lang.[String];`: String = "import java.lang.[String];"
+        val `import java.[lang.[String]];`: String = "import java.[lang.[String]];";
+        val `import java.[lang[String],lang.Integer,javax.[Validator];` = "import java.[lang[String],lang.Integer,javax.[Validator];"
+        val `import java.[lang[String.[Builder]],lang.Integer,javax.[Validator];` = "import java.[lang[String.[Builder]],lang.Integer,javax.[Validator];"
+      }
+    }
+  }
+
   object identifier {
     val `asd`: String = "asd"
     val `a_sd 123`: String = "a_sd def"

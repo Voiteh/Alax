@@ -51,18 +51,18 @@ object Identifier {
 
 
   case class LowerCase(value: String, metadata: Metadata = Metadata.unknown) extends Partial.Identifier(metadata = metadata) {
-    assert(matches(value))
+    assert(LowerCase.matches(value))
 
     override def text(): String = value;
 
   }
 
   object LowerCase {
-    def matches(value: String): Boolean = value.matches("[a-z].*")
+    def matches(value: String): Boolean = value.matches("[a-z][A-Za-z0-9_]*")
   }
 
   case class UpperCase(value: String, metadata: Metadata = Metadata.unknown) extends Partial.Identifier(metadata = metadata) {
-    assert(matches(value))
+    assert(UpperCase.matches(value))
 
     override def text(): String = value;
 
@@ -70,6 +70,6 @@ object Identifier {
   }
 
   object UpperCase {
-    def matches(value: String): Boolean = value.matches("[A-Z].*")
+    def matches(value: String): Boolean = value.matches("[A-Z][A-Za-z0-9_]*")
   }
 }

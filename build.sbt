@@ -28,6 +28,7 @@ lazy val ast = project.in(file("ast"))
     Antlr4 / antlr4GenVisitor := true,
     Antlr4 / antlr4GenListener := false,
     Antlr4 / antlr4PackageName := Option("org.alax.ast"),
+    Antlr4 / antlr4Version    := "4.13.1"
   )
 lazy val scala_compiler = project.in(file("scala_compiler"))
   .dependsOn(ast)
