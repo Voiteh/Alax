@@ -9,22 +9,16 @@ import org.alax.ast.partial.Identifier.{LowerCase, UpperCase}
 object Import {
 
 
-  case class Identifier(parts: Seq[ast.partial.Identifier.LowerCase | ast.partial.Identifier.UpperCase], metadata: Metadata = Metadata.unknown) extends ast.base.Partial.Identifier(metadata = metadata) {
+  case class Identifier(parts: Seq[ast.Identifier], metadata: Metadata = Metadata.unknown) extends ast.base.Identifier(metadata = metadata) {
 
-    assert(Identifier.matches(parts))
+    def text: String = ast.base.Identifier.fold(parts, ".")
 
-    def text(): String = ast.base.Partial.Identifier.fold(parts, ".")
+    def prefix: Seq[ast.Identifier] = parts.dropRight(1);
 
-    def prefix: Seq[ast.partial.Identifier.LowerCase | ast.partial.Identifier.UpperCase] = parts.dropRight(1);
-
-    def suffix: ast.partial.Identifier.LowerCase | ast.partial.Identifier.UpperCase = parts.last;
+    def suffix: ast.Identifier = parts.last;
   }
 
   object Identifier {
-    def matches(qualifications: Seq[ast.partial.Identifier.LowerCase | ast.partial.Identifier.UpperCase]): Boolean = {
-      return qualifications.map(item => item.text().matches("^[a-zA-Z][a-zA-Z0-9\\s]*[a-zA-Z0-9]$"))
-        .foldLeft(true)((acc: Boolean, item: Boolean) => if !acc then acc else item)
-    }
   }
 
   abstract class Declaration(

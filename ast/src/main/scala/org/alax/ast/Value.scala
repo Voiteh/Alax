@@ -11,13 +11,13 @@ import org.alax.ast.partial.Identifier
 object Value {
 
   case class Declaration(identifier: Identifier,
-                         typeReference: Value.Type.Reference,
+                         typeReference: Value.Type.Identifier,
                          metadata: Metadata = Metadata.unknown
                         ) extends BaseDeclaration(metadata = metadata);
 
   case class Definition(
                          name: Identifier,
-                         typeReference: Value.Type.Reference,
+                         typeReference: Value.Type.Identifier,
                          initialization: Expression,
                          metadata: Metadata = Metadata.unknown
                        ) extends BaseDefinition(metadata = metadata) {
@@ -27,7 +27,7 @@ object Value {
   case class Identifier(value: String, metadata: Metadata) extends Partial.Identifier(metadata = metadata) {
     assert(value.matches("^[a-z][a-zA-Z0-9\\s]*[a-zA-Z0-9]$"))
 
-    override def text(): String = value
+    override def text: String = value
   }
 
   object Identifier {
@@ -40,17 +40,14 @@ object Value {
 
   object Type {
 
-    case class Reference( typeIdentifier: ast.partial.Identifier.UpperCase,importIdentifier: Import.Identifier | Null=null, override val metadata: Metadata=Metadata.unknown) extends Partial.Type.Reference(metadata = metadata) {
+    case class Identifier(prefix: Seq[ast.Identifier] =Seq(), suffix: ast.Identifier.UpperCase, metadata: Metadata = Metadata.unknown) extends ast.base.Identifier(metadata = metadata) {
 
-      def text():String = importIdentifier match {
-        case importIdentifier: Import.Identifier => s"${importIdentifier.text()}.${typeIdentifier.text()}."
-        case null => typeIdentifier.text()
-      }
-
+      def text: String = if prefix.isEmpty
+      then suffix.text
+      else s"${ast.base.Identifier.fold(prefix)}.${suffix.text}"
 
     }
   }
-
 
 
 }

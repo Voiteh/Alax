@@ -70,15 +70,15 @@ object Ast {
     object Definition {
       val `Integer int = 4;`: ValueDefinition = ValueDefinition(
         name = ast.Value.Identifier(value = "int", metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Reference(
-          typeIdentifier = ast.partial.Identifier.UpperCase("Integer"),
+        typeReference = ast.Value.Type.Identifier(
+          suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
         initialization = Literals.Integer(4),
       )
       val `String text = "text";`: ValueDefinition = ValueDefinition(
         name = ast.Value.Identifier(value = "text", metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Reference(
-          typeIdentifier = ast.partial.Identifier.UpperCase("String"),
+        typeReference = ast.Value.Type.Identifier(
+          suffix = ast.Identifier.UpperCase("String"), metadata = Metadata.unknown
         ),
         initialization = Literals.String("text"),
       )
@@ -87,14 +87,14 @@ object Ast {
     object Declaration {
       val `Integer int`: ValueDeclaration = ValueDeclaration(
         identifier = ast.Value.Identifier(value = "int", metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Reference(
-          typeIdentifier = ast.partial.Identifier.UpperCase("Integer"),
+        typeReference = ast.Value.Type.Identifier(
+          suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
       )
       val `String str`: ValueDeclaration = ValueDeclaration(
         identifier = ast.Value.Identifier(value = "int", metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Reference(
-          typeIdentifier = ast.partial.Identifier.UpperCase("Integer"),
+        typeReference = ast.Value.Type.Identifier(
+          suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
       )
 
@@ -106,13 +106,13 @@ object Ast {
     val `scala.lang.String`: ast.Imports.Simple = ast.Imports.Simple(
       member = ast.Import.Identifier(
         parts = Seq(
-          ast.partial.Identifier.LowerCase(
+          ast.Identifier(
             value = "scala",
           ),
-          ast.partial.Identifier.LowerCase(
+          ast.Identifier(
             value = "lang",
           ),
-          ast.partial.Identifier.UpperCase(value = "String")
+          ast.Identifier(value = "String")
         ),
       )
     )
@@ -121,58 +121,57 @@ object Ast {
     val `scala.lang.Integer as Bleh`: ast.Imports.Alias = ast.Imports.Alias(
       member = ast.Import.Identifier(
         parts = Seq(
-          ast.partial.Identifier.LowerCase(
+          ast.Identifier(
             value = "scala",
           ),
-          ast.partial.Identifier.LowerCase(
+          ast.Identifier(
             value = "lang",
           ),
-          ast.partial.Identifier.UpperCase("Integer")
-
-        )
+          ast.Identifier(value = "Integer")
+        ),
       ),
-      alias = ast.Import.Identifier(Seq(ast.partial.Identifier.UpperCase("Bleh"))),
+      alias = ast.Import.Identifier(Seq(ast.Identifier("Bleh"))),
     )
 
 
     val `scala.lang [ String, Integer as Bleh ]`: ast.Imports.Nested = ast.Imports.Nested(
       nest = ast.Import.Identifier(
         parts = Seq(
-          ast.partial.Identifier.LowerCase("scala"),
-          ast.partial.Identifier.LowerCase("lang")
+          ast.Identifier("scala"),
+          ast.Identifier("lang")
         ),
       ),
       nestee = Seq(
         ast.Imports.Simple(
-          member = ast.Import.Identifier(Seq(ast.partial.Identifier.UpperCase("String")))
+          member = ast.Import.Identifier(Seq(ast.Identifier("String")))
         ),
         ast.Imports.Alias(
-          member = ast.Import.Identifier(Seq(ast.partial.Identifier.UpperCase("Integer"))),
-          alias = ast.Import.Identifier(Seq(ast.partial.Identifier.UpperCase("Bleh"))),
+          member = ast.Import.Identifier(Seq(ast.Identifier("Integer"))),
+          alias = ast.Import.Identifier(Seq(ast.Identifier("Bleh"))),
         ),
       )
     )
     val `scala. [ lang.String, lang.[Integer as Bleh] ]`: ast.Imports.Nested = ast.Imports.Nested(
       nest = ast.Import.Identifier(
         parts = Seq(
-          ast.partial.Identifier.LowerCase("scala")
+          ast.Identifier("scala")
         ),
       ),
       nestee = Seq(
         ast.Imports.Nested(
           nest = ast.Import.Identifier(
             parts = Seq(
-              ast.partial.Identifier.LowerCase("lang")
+              ast.Identifier("lang")
             ),
           ),
           nestee = Seq(
             ast.Imports.Alias(
               member = ast.Import.Identifier(
                 parts = Seq(
-                  ast.partial.Identifier.UpperCase("Integer")
+                  ast.Identifier("Integer")
                 ),
               ),
-              alias = ast.Import.Identifier(parts = Seq(ast.partial.Identifier.UpperCase("Bleh")))
+              alias = ast.Import.Identifier(parts = Seq(ast.Identifier("Bleh")))
             )
           )
         )

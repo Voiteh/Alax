@@ -22,7 +22,7 @@ class ParseImportStatementTest extends AnyWordSpec {
 
         inside(result){
           case simple: ast.Imports.Simple => {
-            simple.member.text() mustBe "java.lang"
+            simple.member.text mustBe "java.lang"
           }
           case error: ParseError => fail(s"Invalid result:${error}");
         }
@@ -37,7 +37,7 @@ class ParseImportStatementTest extends AnyWordSpec {
 
         inside(result) {
           case simple: ast.Imports.Simple => {
-            simple.member.text() mustBe "java.lang.String"
+            simple.member.text mustBe "java.lang.String"
           }
           case error: ParseError => fail(s"Invalid result:${error}");
         }
@@ -52,7 +52,7 @@ class ParseImportStatementTest extends AnyWordSpec {
 
         inside(result) {
           case simple: ast.Imports.Simple => {
-            simple.member.text() mustBe "java.lang long.String"
+            simple.member.text mustBe "java.lang long.String"
           }
           case error: ParseError => fail(s"Invalid result:${error}");
         }

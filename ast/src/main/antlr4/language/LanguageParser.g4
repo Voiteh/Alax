@@ -19,18 +19,18 @@ packageDeclaration: PACKAGE packageIdentifier SEMI_COLON;
 packageBody:OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
 packageIdentifier: lowercaseIdentifier;
 
-functionDefinition: valueTypeReference? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
-functionDeclaration: valueTypeReference? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
+functionDefinition: valueTypeIdentifier? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
+functionDeclaration: valueTypeIdentifier? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
 functionalBody: (expression SEMI_COLON)| OPEN_CURLY functionalBodyStatement* CLOSE_CURLY;
 functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|assignmentStatement;
 functionIdentifier: lowercaseIdentifier;
 
 
 functionParameters: functionParameter (COMMA functionParameter)*;
-functionParameter: valueTypeReference lowercaseIdentifier (EQUALS literalExpression|referenceExpression)?;
+functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS literalExpression|referenceExpression)?;
 
-valueDefinition: accessModifier? VALUE valueTypeReference valueIdentifier EQUALS expression SEMI_COLON ;
-valueDeclaration: accessModifier? VALUE valueTypeReference valueIdentifier SEMI_COLON;
+valueDefinition: accessModifier? VALUE valueTypeIdentifier valueIdentifier EQUALS expression SEMI_COLON ;
+valueDeclaration: accessModifier? VALUE valueTypeIdentifier valueIdentifier SEMI_COLON;
 valueIdentifier: lowercaseIdentifier;
 
 
@@ -45,11 +45,11 @@ assignmentStatement: accessor? functionOrValueReference EQUALS expression SEMI_C
 returnStatement: RETURN expression SEMI_COLON;
 
 //Refernces
-//TODO we need to find out how to handle all references: packages or modules may have same token as function or value references how to distinguish those 3 ?
-valueTypeReference: (importIdentifier DOT)? uppercaseIdentifier ;
+valueTypeIdentifier: (identifier (DOT identifier)* DOT)* uppercaseIdentifier  ;
+
 functionOrValueReference: (accessor DOT)* (importIdentifier DOT)* memberName=lowercaseIdentifier;
 
-referenceExpression: valueTypeReference|functionOrValueReference;
+referenceExpression: valueTypeIdentifier|functionOrValueReference;
 
 accessModifier: SHARED|PROTECTED;
 accessor:THIS|SUPER|OUTER;

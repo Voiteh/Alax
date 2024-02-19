@@ -14,7 +14,7 @@ object Module {
 
     assert(Identifier.matches(parts))
 
-    def text(): String = ast.base.Partial.Identifier.fold(parts, ".")
+    def text: String = ast.base.Partial.Identifier.fold(parts, ".")
   }
   object Identifier{
 

@@ -11,7 +11,7 @@ object Package {
   case class Identifier(value: String, metadata: Metadata) extends Partial.Identifier(metadata = metadata) {
     assert(value.matches(value))
 
-    override def text(): String = value
+    override def text: String = value
   }
 
   object Identifier {
