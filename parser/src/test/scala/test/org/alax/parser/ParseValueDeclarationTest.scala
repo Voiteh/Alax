@@ -21,7 +21,7 @@ class ParseValueDeclarationTest extends AnyWordSpec {
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
           case ast.Value.Declaration(name: ast.Value.Identifier, tpe: ast.Value.Type.Identifier, _) =>
-              name.text() mustBe "value"
+              name.text mustBe "value"
               tpe mustBe a[ast.Value.Type.Identifier]
               inside(tpe){
                 case reference: ast.Value.Type.Identifier=>
@@ -39,7 +39,7 @@ class ParseValueDeclarationTest extends AnyWordSpec {
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
           case ast.Value.Declaration(name: ast.Value.Identifier, tpe: ast.Value.Type.Identifier, _) =>
-            name.text() mustBe "value"
+            name.text mustBe "value"
             tpe mustBe a[ast.Value.Type.Identifier]
             inside(tpe) {
               case typeReference:ast.Value.Type.Identifier =>
@@ -56,7 +56,7 @@ class ParseValueDeclarationTest extends AnyWordSpec {
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
           case ast.Value.Declaration(name: ast.Value.Identifier, tpe: ast.Value.Type.Identifier, _) =>
-            name.text() mustBe "some long value"
+            name.text mustBe "some long value"
             tpe mustBe a[ast.Value.Type.Identifier]
             inside(tpe) {
               case typeIdentifier:ast.Value.Type.Identifier =>

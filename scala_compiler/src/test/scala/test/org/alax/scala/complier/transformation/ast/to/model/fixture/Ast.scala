@@ -27,8 +27,8 @@ object Ast {
     object Declaration {
       val `module abc.def`: ModuleDeclaration = ModuleDeclaration(
         identifier = ast.Module.Identifier(parts = Seq(
-          Identifier.LowerCase("abc"),
-          Identifier.LowerCase("def")
+          ast.Identifier.LowerCase("abc"),
+          ast.Identifier.LowerCase("def")
         ), metadata = Metadata.unknown), metadata = Metadata.unknown
       )
     }
@@ -36,8 +36,8 @@ object Ast {
     object Definition {
       val `module abc.def { Integer int = 4;}`: ModuleDefinition = ModuleDefinition(
         identifier = ast.Module.Identifier(parts = Seq(
-          Identifier.LowerCase("abc"),
-          Identifier.LowerCase("def")
+          ast.Identifier.LowerCase("abc"),
+          ast.Identifier.LowerCase("def")
         ), metadata = Metadata.unknown), metadata = Metadata.unknown,
         body = ModuleBody(
           elements = Seq(Ast.Value.Definition.`Integer int = 4;`),

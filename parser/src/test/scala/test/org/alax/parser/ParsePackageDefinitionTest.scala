@@ -20,7 +20,7 @@ class ParsePackageDefinitionTest extends AnyWordSpec {
         result mustBe a[ast.Package.Definition]
         inside(result.asInstanceOf[ast.Package.Definition]) {
           case packageDefinition: ast.Package.Definition => {
-            packageDefinition.identifier.text() mustBe "abc"
+            packageDefinition.identifier.text mustBe "abc"
             packageDefinition.body.elements must have length 1
             packageDefinition.body.elements must contain(
               AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Boolean bool=true;`)

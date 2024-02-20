@@ -6,5 +6,5 @@ import org.alax.ast.base.Node.Metadata
 class ParseError(
                   val metadata: Node.Metadata,
                   val message: String,
-                  val cause: ParseError | Null = null
+                  val cause: Seq[ParseError] = Seq()
                 )

@@ -50,10 +50,7 @@ class AstToModelTransformer {
 
     object `type` {
       def reference(identifier: ast.Value.Type.Identifier, imports: Seq[Import]): Type.Reference | CompilerError = {
-        return identifier match {
-          case valueTypeReference: ast.Value.Type.Identifier => transform.`type`.id.value(valueTypeReference, imports);
-          case other => CompilerBugError(cause = Exception(s"Not implemented - $other !"))
-        }
+        return transform.`type`.id.value(identifier, imports)
       }
 
       object id {
