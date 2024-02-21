@@ -12,9 +12,9 @@ import org.scalatest.Inside.inside
 
 class ParsePackageDefinitionTest extends AnyWordSpec {
   "text" when {
-    s"${fixture.`package`.definition.`package abc {java.lang.Boolean bool=true;}`}" must {
+    s"${fixture.`package`.definition.`package abc {value java.lang.Boolean bool=true;}`}" must {
       "parse to package definition" in {
-        val result = AntlrSupport.language.tokenize(fixture.`package`.definition.`package abc {java.lang.Boolean bool=true;}`)
+        val result = AntlrSupport.language.tokenize(fixture.`package`.definition.`package abc {value java.lang.Boolean bool=true;}`)
           .context((parser: LanguageParser) => parser.packageDefinition())
           .visit((visitor, context) => visitor.visitPackageDefinition(context))
         result mustBe a[ast.Package.Definition]
@@ -23,7 +23,7 @@ class ParsePackageDefinitionTest extends AnyWordSpec {
             packageDefinition.identifier.text mustBe "abc"
             packageDefinition.body.elements must have length 1
             packageDefinition.body.elements must contain(
-              AntlrSupport.language.tokenize(fixture.value.definition.literal.`java.lang.Boolean bool=true;`)
+              AntlrSupport.language.tokenize(fixture.value.definition.literal.`value java.lang.Boolean bool=true;`)
                 .context((parser: LanguageParser) => parser.valueDefinition())
                 .visit((visitor:LanguageVisitor, context: LanguageParser.ValueDefinitionContext) => visitor.visitValueDefinition(context))
             )

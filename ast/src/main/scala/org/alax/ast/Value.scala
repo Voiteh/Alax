@@ -44,7 +44,7 @@ object Value {
 
       def text: String = if prefix.isEmpty
       then suffix.text
-      else s"${ast.base.Identifier.fold(prefix)}.${suffix.text}"
+      else s"${ast.base.Identifier.fold(prefix,".")}.${suffix.text}"
 
     }
   }

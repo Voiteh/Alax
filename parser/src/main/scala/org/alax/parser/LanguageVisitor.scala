@@ -13,8 +13,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 
 class LanguageVisitor(
-                       metadataParser: MetadataParser,
-                       identifierParser: IdentifierParser,
+                       metadataParser: MetadataParser
                      ) extends LanguageParserBaseVisitor[Node | ParseError] {
 
 
@@ -35,7 +34,7 @@ class LanguageVisitor(
     super.visitLowercaseIdentifier(ctx)
     val text = ctx.children.asScala.filter(item => item.isInstanceOf[TerminalNode])
       .map(item => item.asInstanceOf[TerminalNode])
-      .filter(item => item.getSymbol.getType == LanguageParser.UPPERCASE_WORD || item.getSymbol.getType == LanguageParser.LOWERCASE_WORD)
+      .filter(item =>  item.getSymbol.getType == LanguageParser.LOWERCASE_WORD)
       .map(item => item.getText).foldLeft(new mutable.StringBuilder(""))((acc: mutable.StringBuilder, item: String) =>
       if acc.isEmpty then acc.append(item) else acc.append(" ").append(item))
       .toString()
@@ -48,7 +47,7 @@ class LanguageVisitor(
     super.visitUppercaseIdentifier(ctx)
     val text = ctx.children.asScala.filter(item => item.isInstanceOf[TerminalNode])
       .map(item => item.asInstanceOf[TerminalNode])
-      .filter(item => item.getSymbol.getType == LanguageParser.UPPERCASE_WORD || item.getSymbol.getType == LanguageParser.LOWERCASE_WORD)
+      .filter(item => item.getSymbol.getType == LanguageParser.UPPERCASE_WORD)
       .map(item => item.getText).foldLeft(new mutable.StringBuilder(""))((acc: mutable.StringBuilder, item: String) =>
       if acc.isEmpty then acc.append(item) else acc.append(" ").append(item))
       .toString()
@@ -76,11 +75,11 @@ class LanguageVisitor(
     val errors = mutable.Buffer[ParseError]();
     ctx.identifier().asScala
       .map(item => visitIdentifier(item))
-      .foreach{
-        case id:  ast.Identifier=> identifiers.addOne(id)
+      .foreach {
+        case id: ast.Identifier => identifiers.addOne(id)
         case error: ParseError => errors.addOne(error)
       }
-    return if errors.isEmpty then new ParseError(
+    return if errors.nonEmpty then new ParseError(
       metadata = metadataParser.parse.metadata(ctx),
       message = "Invalid import identifier",
       cause = errors.toSeq
@@ -100,7 +99,7 @@ class LanguageVisitor(
         case id: ast.Identifier => identifiers.addOne(id)
         case error: ParseError => errors.addOne(error)
       }
-    return if errors.isEmpty then new ParseError(
+    return if errors.nonEmpty then new ParseError(
       metadata = metadataParser.parse.metadata(ctx),
       message = "Invalid value type identifier",
       cause = errors.toSeq
@@ -225,8 +224,8 @@ class LanguageVisitor(
 
   override def visitPackageIdentifier(ctx: LanguageParser.PackageIdentifierContext): ast.Package.Identifier | ParseError = {
     super.visitPackageIdentifier(ctx);
-    val identifierOrError:ast.Identifier.LowerCase | ParseError=visitLowercaseIdentifier(ctx.lowercaseIdentifier());
-    return identifierOrError match{
+    val identifierOrError: ast.Identifier.LowerCase | ParseError = visitLowercaseIdentifier(ctx.lowercaseIdentifier());
+    return identifierOrError match {
       case id: ast.Identifier.LowerCase => ast.Package.Identifier(
         value = id.text,
         metadata = metadataParser.parse.metadata(ctx),
@@ -234,7 +233,7 @@ class LanguageVisitor(
       case error: ParseError => ParseError(
         metadata = metadataParser.parse.metadata(ctx),
         message = s"Invalid package identifier",
-        cause =Seq(error)
+        cause = Seq(error)
       )
     }
   }

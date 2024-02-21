@@ -12,10 +12,12 @@ object AntlrSupport {
 
   class Contextual[Context](context: Context, tokens: CommonTokenStream) {
     def visit[Model](visitation: (LanguageVisitor, Context) => Model): Model = {
-      return visitation(new LanguageVisitor(metadataParser = new MetadataParser(),
-        identifierParser = new IdentifierParser(
+      return visitation(
+        new LanguageVisitor(
           metadataParser = new MetadataParser()
-        )), context);
+        ),
+        context
+      );
     }
   }
 
@@ -29,7 +31,8 @@ object AntlrSupport {
 
     def tokenize(text: String): Tokenization = {
       val lexer = LanguageLexer(CharStreams.fromString(text))
-      return new Tokenization(new CommonTokenStream(lexer));
+      val tokens=new CommonTokenStream(lexer);
+      return new Tokenization(tokens);
     }
 
 

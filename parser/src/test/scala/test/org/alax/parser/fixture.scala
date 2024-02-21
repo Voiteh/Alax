@@ -42,7 +42,7 @@ object fixture {
 
     object definition {
       val `module com.ble.ble {}`: String = """module com.ble.ble {}"""
-      val `module com.ble.ble {java.lang.Boolean bool=true;}`: String = """module com.ble.ble {java.lang.Boolean bool=true;}"""
+      val `module com.ble.ble {value java.lang.Boolean bool=true;}`: String = """module com.ble.ble {value java.lang.Boolean bool=true;}"""
     }
   }
 
@@ -53,7 +53,7 @@ object fixture {
 
     object definition {
       val `package abc {}`: String = """package abc {}"""
-      val `package abc {java.lang.Boolean bool=true;}`: String = """package abc {java.lang.Boolean bool=true;}"""
+      val `package abc {value java.lang.Boolean bool=true;}`: String = """package abc {value java.lang.Boolean bool=true;}"""
     }
   }
 
@@ -61,18 +61,18 @@ object fixture {
 
     object definition {
       object literal {
-        val `java.lang.Boolean bool=true;`: String = """java.lang.Boolean bool=true ;"""
-        val `java.lang.Character char ='a';`: String = """java.lang.Character char ='a';"""
-        val `java.lang.String string= "asd"  ;`: String = """java.lang.String string= "asd"  ;"""
-        val `Integer int   = -3;`: String = """Integer int   = -3;"""
-        val `Float float= -3.12;`: String = """Float float= -3.12;"""
+        val `value java.lang.Boolean bool=true;`: String = """value java.lang.Boolean bool=true ;"""
+        val `value java.lang.Character char ='a';`: String = """value java.lang.Character char ='a';"""
+        val `value java.lang.String string= "asd"  ;`: String = """value java.lang.String string= "asd"  ;"""
+        val `value Integer int   = -3;`: String = """value Integer int   = -3;"""
+        val `value Float float= -3.12;`: String = """value Float float= -3.12;"""
       }
     }
 
     object declaration {
-      val `java.lang.String value;`: String = """java.lang.String value;""";
-      val `Integer value;`: String = """Integer value;""";
-      val `Long Integer some long value;` = """Long Integer some long value;"""
+      val `value java.lang.String item;`: String = """value java.lang.String item;""";
+      val `value Integer item;`: String = """value Integer item;""";
+      val `value Long Integer some long item;` = """value Long Integer some long item;"""
     }
 
   }

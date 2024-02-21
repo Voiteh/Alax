@@ -68,8 +68,8 @@ nestableImport: importIdentifier|imports|importAlias;
 importAlias: aliased=importIdentifier ALIAS alias=importIdentifier;
 importIdentifier:  identifier (DOT identifier)*;
 
-lowercaseIdentifier: LOWERCASE_WORD (LOWERCASE_WORD|UPPERCASE_WORD)*;
-uppercaseIdentifier: UPPERCASE_WORD (LOWERCASE_WORD|UPPERCASE_WORD)*;
+lowercaseIdentifier: LOWERCASE_WORD (LOWERCASE_WORD)*;
+uppercaseIdentifier: UPPERCASE_WORD (UPPERCASE_WORD)*;
 identifier: (LOWERCASE_WORD|UPPERCASE_WORD)+;
 
 literalExpression: BOOLEAN_LITERAL|CHARACTER_LITERAL|INTEGER_LITERAL|FLOAT_LITERAL|STRING_LITERAL;

@@ -18,7 +18,7 @@ object Module {
   }
   object Identifier{
 
-    def matches(qualifications: Seq[ast.Identifier.LowerCase]): Boolean = ast.base.Identifier.fold(qualifications,".").matches("^[a-z][a-z0-9\\s]*[a-z0-9]$")
+    def matches(qualifications: Seq[ast.Identifier.LowerCase]): Boolean = ast.base.Identifier.fold(qualifications,".").matches("[a-z][a-z0-9]*[\\.a-z0-9]*")
   }
   case class Declaration(
                           identifier: Identifier,
