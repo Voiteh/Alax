@@ -33,6 +33,18 @@ object fixture {
     val `a_sd 123`: String = "a_sd def"
     val `_ad`: String = "_ad"
     val `123`: String = "123"
+    object lowercase {
+      val `asd`: String = "asd"
+      val `a_sd 123`: String = "a_sd def"
+      val `_ad`: String = "_ad"
+      val `123`: String = "123"
+    }
+    object uppercase {
+      val `Asd`: String = "Asd"
+      val `A_sd Def`: String = "A_sd Def"
+      val `_Ad`: String = "_Ad"
+      val `123`: String = "123"
+    }
   }
 
   object module {

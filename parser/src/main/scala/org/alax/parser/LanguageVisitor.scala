@@ -19,9 +19,7 @@ class LanguageVisitor(
 
   override def visitIdentifier(ctx: LanguageParser.IdentifierContext): ast.Identifier | ParseError = {
     super.visitIdentifier(ctx)
-    val text = ctx.children.asScala.filter(item => item.isInstanceOf[TerminalNode])
-      .map(item => item.asInstanceOf[TerminalNode])
-      .filter(item => item.getSymbol.getType == LanguageParser.UPPERCASE_WORD || item.getSymbol.getType == LanguageParser.LOWERCASE_WORD)
+    val text = ctx.children.asScala
       .map(item => item.getText).foldLeft(new mutable.StringBuilder(""))((acc: mutable.StringBuilder, item: String) =>
       if acc.isEmpty then acc.append(item) else acc.append(" ").append(item))
       .toString()
@@ -32,9 +30,7 @@ class LanguageVisitor(
 
   override def visitLowercaseIdentifier(ctx: LanguageParser.LowercaseIdentifierContext): ast.Identifier.LowerCase | ParseError = {
     super.visitLowercaseIdentifier(ctx)
-    val text = ctx.children.asScala.filter(item => item.isInstanceOf[TerminalNode])
-      .map(item => item.asInstanceOf[TerminalNode])
-      .filter(item =>  item.getSymbol.getType == LanguageParser.LOWERCASE_WORD)
+    val text = ctx.children.asScala
       .map(item => item.getText).foldLeft(new mutable.StringBuilder(""))((acc: mutable.StringBuilder, item: String) =>
       if acc.isEmpty then acc.append(item) else acc.append(" ").append(item))
       .toString()
@@ -45,9 +41,7 @@ class LanguageVisitor(
 
   override def visitUppercaseIdentifier(ctx: LanguageParser.UppercaseIdentifierContext): ast.Identifier.UpperCase | ParseError = {
     super.visitUppercaseIdentifier(ctx)
-    val text = ctx.children.asScala.filter(item => item.isInstanceOf[TerminalNode])
-      .map(item => item.asInstanceOf[TerminalNode])
-      .filter(item => item.getSymbol.getType == LanguageParser.UPPERCASE_WORD)
+    val text = ctx.children.asScala
       .map(item => item.getText).foldLeft(new mutable.StringBuilder(""))((acc: mutable.StringBuilder, item: String) =>
       if acc.isEmpty then acc.append(item) else acc.append(" ").append(item))
       .toString()
