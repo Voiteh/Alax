@@ -3,10 +3,9 @@ package org.alax.scala.compiler.transformation.ast.to.model
 import org.alax.ast
 import org.alax.ast.base
 import org.alax.ast.base.{ParseError, Partial, Expression as AstExpression, Statement as AstStatement}
-import org.alax.ast.partial.Identifier.{LowerCase, Qualified, UpperCase}
+import org.alax.ast.Identifier.{LowerCase, UpperCase}
 import org.alax.ast.base.statements.Declaration as AstDeclartion
 import org.alax.ast.base.expressions.Literal as AstLiteral
-import org.alax.ast.partial.Identifier
 import org.alax.scala.compiler
 import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.base.model.{CompilationError, CompilationErrors, CompilerBugError, CompilerError, Expression, Import, Literal, Reference, Tracable, Trace, Type}
@@ -158,6 +157,9 @@ class AstToModelTransformer {
       }
     }
 
+    object function {
+
+    }
     object `package` {
 
       object declaration {

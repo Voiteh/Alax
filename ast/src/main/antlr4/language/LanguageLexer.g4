@@ -12,7 +12,7 @@ OUTER:'outer';
 RETURN: 'return' ;
 PACKAGE: 'package' ;
 MODULE: 'module' ;
-
+FUNCTION: 'function';
 fragment TRUE: 'true';
 fragment FALSE: 'false';
 

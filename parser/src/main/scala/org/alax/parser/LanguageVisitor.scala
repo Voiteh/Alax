@@ -3,7 +3,7 @@ package org.alax.parser
 import org.alax.ast.base.{ParseError, *}
 import org.alax.ast.base.Node.Metadata
 import org.alax.ast.partial.Identifier
-import org.alax.ast.{LanguageLexer, LanguageParser, LanguageParserBaseVisitor, Literals, Value, base}
+import org.alax.ast.{Chain, LanguageLexer, LanguageParser, LanguageParserBaseVisitor, Literals, Return, Value, base}
 import org.alax.ast
 import org.antlr.v4.runtime.{ParserRuleContext, Token, TokenStream}
 import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
@@ -143,6 +143,31 @@ class LanguageVisitor(
         }
       case error: ParseError => new ParseError(cause = Seq(error), message = "Invalid value declaration", metadata = metadataParser.parse.metadata(ctx))
     }
+  }
+
+//  override def visitFunctionalParameter(ctx: LanguageParser.FunctionParameterContext): Any = {
+//    super.visitFunctionParameter(ctx)
+//  }
+
+
+
+  override def visitReturnStatement(ctx: LanguageParser.ReturnStatementContext): Return.Statement | ParseError = {
+    super.visitReturnStatement(ctx)
+    val expressionOrError: Chain.Expression | ParseError = visitExpressionChain(ctx.expressionChain())
+    return expressionOrError match {
+      case chain: Chain.Expression => Return.Statement(
+        expression = chain, metadata = metadataParser.parse.metadata(ctx)
+      )
+      case parseError: ParseError => parseError
+    }
+  }
+
+  override def visitExpressionChain(ctx: LanguageParser.ExpressionChainContext): Chain.Expression | ParseError = {
+    super.visitExpressionChain(ctx)
+    return Chain.Expression(
+      expressions = ctx.expression().asScala.map(item => visitExpression(item)).toSeq,
+      metadata = metadataParser.parse.metadata(ctx)
+    )
   }
 
 

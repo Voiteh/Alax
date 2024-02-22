@@ -10,24 +10,32 @@ declaration: valueDeclaration|packageDeclaration|functionDeclaration|moduleDecla
 
 moduleDeclaration: MODULE moduleIdentifier SEMI_COLON ;
 moduleDefinition: MODULE moduleIdentifier moduleBody;
-moduleBody: OPEN_CURLY (valueDefinition*)  CLOSE_CURLY;
+moduleBody: OPEN_CURLY (valueDefinition)*  CLOSE_CURLY;
 moduleIdentifier: lowercaseIdentifier (DOT lowercaseIdentifier)*;
 
 
 packageDefinition: PACKAGE packageIdentifier packageBody;
 packageDeclaration: PACKAGE packageIdentifier SEMI_COLON;
-packageBody:OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
+packageBody: OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
 packageIdentifier: lowercaseIdentifier;
 
-functionDefinition: valueTypeIdentifier? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
-functionDeclaration: valueTypeIdentifier? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
-functionalBody: (expression SEMI_COLON)| OPEN_CURLY functionalBodyStatement* CLOSE_CURLY;
-functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|assignmentStatement;
+functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|valueAssignmentStatement;
+
+functionDefinition: sideEffectFunctionDefinition|pureFunctionDefinition;
+sideEffectFunctionDefinition: FUNCTION functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET NOT_FAT_ARROW functionBody ;
+pureFunctionDefinition: FUNCTION functionReturnType functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW functionBody;
+functionDeclaration: FUNCTION functionReturnType? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
+functionReturnType: valueTypeIdentifier;
+
+functionLambdaBody: valueAssignmentStatement|functionCallStatement SEMI_COLON;
+functionBlockBody: OPEN_CURLY (valueDeclaration|valueDefinition|valueAssignmentStatement|functionCallStatement)* CLOSE_CURLY;
+functionBody: functionBlockBody|functionLambdaBody;
 functionIdentifier: lowercaseIdentifier;
 
 
+
 functionParameters: functionParameter (COMMA functionParameter)*;
-functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS literalExpression|referenceExpression)?;
+functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS expressionChain)?;
 
 valueDefinition: accessModifier? VALUE valueTypeIdentifier valueIdentifier EQUALS expression SEMI_COLON ;
 valueDeclaration: accessModifier? VALUE valueTypeIdentifier valueIdentifier SEMI_COLON;
@@ -35,21 +43,23 @@ valueIdentifier: lowercaseIdentifier;
 
 
 
-
-functionCallExpression: accessor? OPEN_BRACKET functionCallArguments?  CLOSE_BRACKET;
+functionCallStatement: functionCallExpression SEMI_COLON;
+functionCallExpression: functionIdentifier OPEN_BRACKET functionCallArguments?  CLOSE_BRACKET;
 functionCallArguments:  positionalArguments| namedArguments ;
-positionalArguments: expression (COMMA expression)*;
-namedArguments: lowercaseIdentifier EQUALS expression (COMMA lowercaseIdentifier EQUALS expression)*;
+positionalArguments: expressionChain (COMMA expressionChain)*;
+namedArguments: lowercaseIdentifier EQUALS expressionChain (COMMA lowercaseIdentifier EQUALS expression)*;
 
-assignmentStatement: accessor? functionOrValueReference EQUALS expression SEMI_COLON;
-returnStatement: RETURN expression SEMI_COLON;
+
+valueAssignmentStatement: valueReference EQUALS expressionChain SEMI_COLON;
+returnStatement: RETURN expressionChain SEMI_COLON;
 
 //Refernces
 valueTypeIdentifier: (identifier (DOT identifier)* DOT)* uppercaseIdentifier  ;
 
-functionOrValueReference: (accessor DOT)* (importIdentifier DOT)* memberName=lowercaseIdentifier;
+functionReference: ((valueTypeIdentifier DOT)|(accessor DOT))? lowercaseIdentifier;
+valueReference: ((valueTypeIdentifier DOT)|(accessor DOT))? lowercaseIdentifier;
 
-referenceExpression: valueTypeIdentifier|functionOrValueReference;
+referenceExpression: valueTypeIdentifier|valueReference|functionReference;
 
 accessModifier: SHARED|PROTECTED;
 accessor:THIS|SUPER|OUTER;
@@ -73,5 +83,7 @@ uppercaseIdentifier: UPPERCASE_WORD (UPPERCASE_WORD)*;
 identifier: (LOWERCASE_WORD|UPPERCASE_WORD)+;
 
 literalExpression: BOOLEAN_LITERAL|CHARACTER_LITERAL|INTEGER_LITERAL|FLOAT_LITERAL|STRING_LITERAL;
+
+expressionChain: expression (DOT expression)*;
 
 expression: literalExpression|functionCallExpression|referenceExpression;

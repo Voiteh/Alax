@@ -3,6 +3,7 @@ package org.alax.ast
 import org.alax.ast
 import org.alax.ast.base.{Expression, Partial}
 import org.alax.ast.base.Node.Metadata
+import org.alax.ast.base.Statement as BaseStatement
 import org.alax.ast.base.statements.Declaration as BaseDeclaration
 import org.alax.ast.base.statements.Definition as BaseDefinition
 import org.alax.ast.base.Partial.Type.Reference as BaseReference
@@ -49,5 +50,7 @@ object Value {
     }
   }
 
+
+  case class Assignment(left: Value.Identifier, right: Chain.Expression, metadata: Metadata) extends BaseStatement(metadata = metadata)
 
 }
