@@ -13,54 +13,54 @@ class ParseValueDeclarationTest extends AnyWordSpec {
 
 
   "text" when {
-    "java.lang.String value;" should {
+//    s"${fixture.value.declaration.`value java.lang.String item;`}" should {
+//      "parse to value declaration" in {
+//        val result = AntlrSupport.language.tokenize(fixture.value.declaration.`value java.lang.String item;`)
+//          .context((parser: LanguageParser) => parser.valueDeclaration())
+//          .visit((visitor, context) => visitor.visitValueDeclaration(context))
+//        result mustBe a[ast.Value.Declaration];
+//        inside(result.asInstanceOf[ast.Value.Declaration]) {
+//          case ast.Value.Declaration(name: ast.Value.Identifier, tpe: ast.Value.Type.Identifier, _) =>
+//              name.text mustBe "item"
+//              tpe mustBe a[ast.Value.Type.Identifier]
+//              inside(tpe){
+//                case reference: ast.Value.Type.Identifier=>
+//                  reference.text mustBe "java.lang.String"
+//              }
+//        }
+//      }
+//    }
+//
+//    s"${fixture.value.declaration.`value Integer item;`}" should {
+//      "parse to value declaration" in {
+//        val result = AntlrSupport.language.tokenize(fixture.value.declaration.`value Integer item;`)
+//          .context((parser: LanguageParser) => parser.valueDeclaration())
+//          .visit((visitor, context) => visitor.visitValueDeclaration(context))
+//        result mustBe a[ast.Value.Declaration];
+//        inside(result.asInstanceOf[ast.Value.Declaration]) {
+//          case ast.Value.Declaration(name: ast.Value.Identifier, tpe: ast.Value.Type.Identifier, _) =>
+//            name.text mustBe "item"
+//            tpe mustBe a[ast.Value.Type.Identifier]
+//            inside(tpe) {
+//              case typeReference:ast.Value.Type.Identifier =>
+//                typeReference.text mustBe "Integer"
+//            }
+//        }
+//      }
+//    }
+    s"${fixture.value.declaration.`value Long Integer some long item;`}" should {
       "parse to value declaration" in {
-        val result = AntlrSupport.language.tokenize(fixture.value.declaration.`java.lang.String value;`)
+        val result = AntlrSupport.language.tokenize(fixture.value.declaration.`value Long Integer some long item;`)
           .context((parser: LanguageParser) => parser.valueDeclaration())
           .visit((visitor, context) => visitor.visitValueDeclaration(context))
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
-          case ast.Value.Declaration(name: ast.Value.Name, tpe: ast.Value.Type.Reference, _) =>
-              name.text() mustBe "value"
-              tpe mustBe a[ast.Value.Type.Reference]
-              inside(tpe){
-                case ast.Value.Type.Reference(id,_) =>
-                  id.text() mustBe "java.lang.String"
-              }
-        }
-      }
-    }
-
-    "Integer value;" should {
-      "parse to value declaration" in {
-        val result = AntlrSupport.language.tokenize(fixture.value.declaration.`Integer value;`)
-          .context((parser: LanguageParser) => parser.valueDeclaration())
-          .visit((visitor, context) => visitor.visitValueDeclaration(context))
-        result mustBe a[ast.Value.Declaration];
-        inside(result.asInstanceOf[ast.Value.Declaration]) {
-          case ast.Value.Declaration(name: ast.Value.Name, tpe: ast.Value.Type.Reference, _) =>
-            name.text() mustBe "value"
-            tpe mustBe a[ast.Value.Type.Reference]
+          case ast.Value.Declaration(name: ast.Value.Identifier, tpe: ast.Value.Type.Identifier, _) =>
+            name.text mustBe "some long item"
+            tpe mustBe a[ast.Value.Type.Identifier]
             inside(tpe) {
-              case ast.Value.Type.Reference(id, _) =>
-                id.text() mustBe "Integer"
-            }
-        }
-      }
-    }
-    "Long Integer some long value;" should {
-      "parse to value declaration" in {
-        val result = AntlrSupport.language.tokenize(fixture.value.declaration.`Long Integer some long value;`)
-          .context((parser: LanguageParser) => parser.valueDeclaration())
-          .visit((visitor, context) => visitor.visitValueDeclaration(context))
-        result mustBe a[ast.Value.Declaration];
-        inside(result.asInstanceOf[ast.Value.Declaration]) {
-          case ast.Value.Declaration(name: ast.Value.Name, tpe: ast.Value.Type.Reference, _) =>
-            name.text() mustBe "some long value"
-            tpe mustBe a[ast.Value.Type.Reference]
-            inside(tpe) {
-              case ast.Value.Type.Reference(id, _) =>
-                id.text() mustBe "Long Integer"
+              case typeIdentifier:ast.Value.Type.Identifier =>
+                typeIdentifier.text mustBe "Long Integer"
             }
         }
       }

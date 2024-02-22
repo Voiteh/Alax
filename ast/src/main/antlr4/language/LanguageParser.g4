@@ -8,30 +8,30 @@ definition: valueDefinition|functionDefinition|packageDefinition|moduleDefinitio
 declaration: valueDeclaration|packageDeclaration|functionDeclaration|moduleDeclaration;
 
 
-moduleDeclaration: MODULE moduleName SEMI_COLON ;
-moduleDefinition: MODULE moduleName moduleBody;
+moduleDeclaration: MODULE moduleIdentifier SEMI_COLON ;
+moduleDefinition: MODULE moduleIdentifier moduleBody;
 moduleBody: OPEN_CURLY (valueDefinition*)  CLOSE_CURLY;
-moduleName: LOWERCASE_IDENTIFIER (DOT LOWERCASE_IDENTIFIER)*;
+moduleIdentifier: lowercaseIdentifier (DOT lowercaseIdentifier)*;
 
 
-packageDefinition: PACKAGE packageName packageBody;
-packageDeclaration: PACKAGE packageName SEMI_COLON;
+packageDefinition: PACKAGE packageIdentifier packageBody;
+packageDeclaration: PACKAGE packageIdentifier SEMI_COLON;
 packageBody:OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
-packageName: LOWERCASE_IDENTIFIER;
+packageIdentifier: lowercaseIdentifier;
 
-functionDefinition: valueTypeReference? LOWERCASE_IDENTIFIER OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
-functionDeclaration: valueTypeReference? LOWERCASE_IDENTIFIER OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
+functionDefinition: valueTypeIdentifier? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
+functionDeclaration: valueTypeIdentifier? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
 functionalBody: (expression SEMI_COLON)| OPEN_CURLY functionalBodyStatement* CLOSE_CURLY;
 functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|assignmentStatement;
-
+functionIdentifier: lowercaseIdentifier;
 
 
 functionParameters: functionParameter (COMMA functionParameter)*;
-functionParameter: valueTypeReference LOWERCASE_IDENTIFIER (EQUALS literalExpression|referenceExpression)?;
+functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS literalExpression|referenceExpression)?;
 
-valueDefinition: accessModifier? valueTypeReference valueName EQUALS expression SEMI_COLON ;
-valueDeclaration: accessModifier? valueTypeReference valueName SEMI_COLON;
-valueName: LOWERCASE_IDENTIFIER;
+valueDefinition: accessModifier? VALUE valueTypeIdentifier valueIdentifier EQUALS expression SEMI_COLON ;
+valueDeclaration: accessModifier? VALUE valueTypeIdentifier valueIdentifier SEMI_COLON;
+valueIdentifier: lowercaseIdentifier;
 
 
 
@@ -39,37 +39,39 @@ valueName: LOWERCASE_IDENTIFIER;
 functionCallExpression: accessor? OPEN_BRACKET functionCallArguments?  CLOSE_BRACKET;
 functionCallArguments:  positionalArguments| namedArguments ;
 positionalArguments: expression (COMMA expression)*;
-namedArguments: LOWERCASE_IDENTIFIER EQUALS expression (COMMA LOWERCASE_IDENTIFIER EQUALS expression)*;
+namedArguments: lowercaseIdentifier EQUALS expression (COMMA lowercaseIdentifier EQUALS expression)*;
 
 assignmentStatement: accessor? functionOrValueReference EQUALS expression SEMI_COLON;
 returnStatement: RETURN expression SEMI_COLON;
 
 //Refernces
-//TODO we need to find out how to handle all references: packages or modules may have same token as function or value references how to distinguish those 3 ?
-valueTypeReference: (importedName DOT)? UPPERCASE_IDENTIFIER ;
-functionOrValueReference: (accessor DOT)* (importedName DOT)* memberName=LOWERCASE_IDENTIFIER;
+valueTypeIdentifier: (identifier (DOT identifier)* DOT)* uppercaseIdentifier  ;
 
-referenceExpression: valueTypeReference|functionOrValueReference;
+functionOrValueReference: (accessor DOT)* (importIdentifier DOT)* memberName=lowercaseIdentifier;
+
+referenceExpression: valueTypeIdentifier|functionOrValueReference;
 
 accessModifier: SHARED|PROTECTED;
 accessor:THIS|SUPER|OUTER;
 
 //Imports
-nestedImportDeclaration: IMPORT nestableImport SEMI_COLON;
+nestedImportDeclaration: IMPORT imports SEMI_COLON;
 
-simpleImportDeclaration: IMPORT importedName SEMI_COLON;
+simpleImportDeclaration: IMPORT importIdentifier SEMI_COLON;
 
 aliasImportDeclaration: IMPORT importAlias  SEMI_COLON;
 
 
-nestableImport: importedName DOT OPEN_SQUARE importedName|importAlias|nestableImport (COMMA (importedName|importAlias|nestableImport))* CLOSE_SQUARE;
+imports: importIdentifier nestedImports? ;
+nestedImports: DOT OPEN_SQUARE (nestableImport (COMMA nestableImport)*)? CLOSE_SQUARE;
+nestableImport: importIdentifier|imports|importAlias;
+importAlias: aliased=importIdentifier ALIAS alias=importIdentifier;
+importIdentifier:  identifier (DOT identifier)*;
 
-importAlias: aliased=importedName ALIAS alias=importedName;
-
-importedName: LOWERCASE_IDENTIFIER (DOT LOWERCASE_IDENTIFIER)*;
+lowercaseIdentifier: LOWERCASE_WORD (LOWERCASE_WORD)*;
+uppercaseIdentifier: UPPERCASE_WORD (UPPERCASE_WORD)*;
+identifier: (LOWERCASE_WORD|UPPERCASE_WORD)+;
 
 literalExpression: BOOLEAN_LITERAL|CHARACTER_LITERAL|INTEGER_LITERAL|FLOAT_LITERAL|STRING_LITERAL;
 
 expression: literalExpression|functionCallExpression|referenceExpression;
-
-

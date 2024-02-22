@@ -7,7 +7,7 @@ import org.alax.ast.Value.Definition as ValueDefinition
 import org.alax.ast.Package.Declaration as PackageDeclaration
 import org.alax.ast.Package.Definition as PackageDefinition
 import org.alax.ast.Package.Body as PackageBody
-import org.alax.ast.Package.Name as PackageName
+import org.alax.ast.Package.Identifier as PackageName
 import org.alax.ast.Module.Declaration as ModuleDeclaration
 import org.alax.ast.Module.Definition as ModuleDefinition
 import org.alax.ast.Module.Body as ModuleBody
@@ -26,18 +26,18 @@ object Ast {
   object Module {
     object Declaration {
       val `module abc.def`: ModuleDeclaration = ModuleDeclaration(
-        name = Identifier.Qualified.LowerCase(qualifications = Seq(
-          Identifier.LowerCase("abc"),
-          Identifier.LowerCase("def")
+        identifier = ast.Module.Identifier(parts = Seq(
+          ast.Identifier.LowerCase("abc"),
+          ast.Identifier.LowerCase("def")
         ), metadata = Metadata.unknown), metadata = Metadata.unknown
       )
     }
 
     object Definition {
       val `module abc.def { Integer int = 4;}`: ModuleDefinition = ModuleDefinition(
-        name = Identifier.Qualified.LowerCase(qualifications = Seq(
-          Identifier.LowerCase("abc"),
-          Identifier.LowerCase("def")
+        identifier = ast.Module.Identifier(parts = Seq(
+          ast.Identifier.LowerCase("abc"),
+          ast.Identifier.LowerCase("def")
         ), metadata = Metadata.unknown), metadata = Metadata.unknown,
         body = ModuleBody(
           elements = Seq(Ast.Value.Definition.`Integer int = 4;`),
@@ -50,13 +50,13 @@ object Ast {
   object Package {
     object Declaration {
       val `package abc`: PackageDeclaration = PackageDeclaration(
-        name = PackageName(source = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown
+        identifier = ast.Package.Identifier(value = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown
       )
     }
 
     object Definition {
       val `package abc { Integer int = 4;}`: PackageDefinition = PackageDefinition(
-        name = PackageName(source = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown,
+        identifier = ast.Package.Identifier(value = "abc", metadata = Metadata.unknown), metadata = Metadata.unknown,
         body = PackageBody(
           elements = Seq(Ast.Value.Definition.`Integer int = 4;`),
           metadata = Metadata.unknown,
@@ -69,16 +69,16 @@ object Ast {
 
     object Definition {
       val `Integer int = 4;`: ValueDefinition = ValueDefinition(
-        name = ast.Value.Name(value="int",metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Reference(
-          id = ast.partial.Identifier.UpperCase("Integer"),
+        name = ast.Value.Identifier(value = "int", metadata = Metadata.unknown),
+        typeReference = ast.Value.Type.Identifier(
+          suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
         initialization = Literals.Integer(4),
       )
       val `String text = "text";`: ValueDefinition = ValueDefinition(
-        name = ast.Value.Name(value="text",metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Reference(
-          id = ast.partial.Identifier.UpperCase("String"),
+        name = ast.Value.Identifier(value = "text", metadata = Metadata.unknown),
+        typeReference = ast.Value.Type.Identifier(
+          suffix = ast.Identifier.UpperCase("String"), metadata = Metadata.unknown
         ),
         initialization = Literals.String("text"),
       )
@@ -86,15 +86,15 @@ object Ast {
 
     object Declaration {
       val `Integer int`: ValueDeclaration = ValueDeclaration(
-        name = ast.Value.Name(value="int",metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Reference(
-          id = ast.partial.Identifier.UpperCase("Integer"),
+        identifier = ast.Value.Identifier(value = "int", metadata = Metadata.unknown),
+        typeReference = ast.Value.Type.Identifier(
+          suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
       )
       val `String str`: ValueDeclaration = ValueDeclaration(
-        name = ast.Value.Name(value="int",metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Reference(
-          id = ast.partial.Identifier.UpperCase("Integer"),
+        identifier = ast.Value.Identifier(value = "int", metadata = Metadata.unknown),
+        typeReference = ast.Value.Type.Identifier(
+          suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
       )
 
@@ -104,75 +104,74 @@ object Ast {
 
   object Import {
     val `scala.lang.String`: ast.Imports.Simple = ast.Imports.Simple(
-      member = ast.partial.Identifier.Qualified(
-        qualifications = Seq(
-          ast.partial.Identifier.LowerCase(
+      member = ast.Import.Identifier(
+        parts = Seq(
+          ast.Identifier(
             value = "scala",
           ),
-          ast.partial.Identifier.LowerCase(
+          ast.Identifier(
             value = "lang",
           ),
-          ast.partial.Identifier.UpperCase(value = "String")
+          ast.Identifier(value = "String")
         ),
       )
     )
 
 
     val `scala.lang.Integer as Bleh`: ast.Imports.Alias = ast.Imports.Alias(
-      member = ast.partial.Identifier.Qualified(
-        qualifications = Seq(
-          ast.partial.Identifier.LowerCase(
+      member = ast.Import.Identifier(
+        parts = Seq(
+          ast.Identifier(
             value = "scala",
           ),
-          ast.partial.Identifier.LowerCase(
+          ast.Identifier(
             value = "lang",
           ),
-          ast.partial.Identifier.UpperCase("Integer")
-
-        )
+          ast.Identifier(value = "Integer")
+        ),
       ),
-      alias = ast.partial.Identifier.UpperCase("Bleh"),
+      alias = ast.Import.Identifier(Seq(ast.Identifier("Bleh"))),
     )
 
 
     val `scala.lang [ String, Integer as Bleh ]`: ast.Imports.Nested = ast.Imports.Nested(
-      nest = ast.partial.Identifier.Qualified(
-        qualifications = Seq(
-          ast.partial.Identifier.LowerCase("scala"),
-          ast.partial.Identifier.LowerCase("lang")
+      nest = ast.Import.Identifier(
+        parts = Seq(
+          ast.Identifier("scala"),
+          ast.Identifier("lang")
         ),
       ),
       nestee = Seq(
         ast.Imports.Simple(
-          member = ast.partial.Identifier.UpperCase("String")
+          member = ast.Import.Identifier(Seq(ast.Identifier("String")))
         ),
         ast.Imports.Alias(
-          member = ast.partial.Identifier.UpperCase("Integer"),
-          alias = ast.partial.Identifier.UpperCase("Bleh"),
+          member = ast.Import.Identifier(Seq(ast.Identifier("Integer"))),
+          alias = ast.Import.Identifier(Seq(ast.Identifier("Bleh"))),
         ),
       )
     )
     val `scala. [ lang.String, lang.[Integer as Bleh] ]`: ast.Imports.Nested = ast.Imports.Nested(
-      nest = ast.partial.Identifier.Qualified(
-        qualifications = Seq(
-          ast.partial.Identifier.LowerCase("scala")
+      nest = ast.Import.Identifier(
+        parts = Seq(
+          ast.Identifier("scala")
         ),
       ),
       nestee = Seq(
         ast.Imports.Nested(
-          nest = ast.partial.Identifier.Qualified(
-            qualifications = Seq(
-              ast.partial.Identifier.LowerCase("lang")
+          nest = ast.Import.Identifier(
+            parts = Seq(
+              ast.Identifier("lang")
             ),
           ),
           nestee = Seq(
             ast.Imports.Alias(
-              member = ast.partial.Identifier.Qualified(
-                qualifications = Seq(
-                  ast.partial.Identifier.UpperCase("Integer")
+              member = ast.Import.Identifier(
+                parts = Seq(
+                  ast.Identifier("Integer")
                 ),
               ),
-              alias = ast.partial.Identifier.UpperCase("Bleh")
+              alias = ast.Import.Identifier(parts = Seq(ast.Identifier("Bleh")))
             )
           )
         )

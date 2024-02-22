@@ -15,8 +15,8 @@ class TransformModuleDeclarationTest extends AnyWordSpec {
   "ast module declaration" when {
     "module abc.def" must {
       "transform to model" in {
-        val result = astTransformer.transform.module.declaration(declaration =
-          Ast.Module.Declaration.`module abc.def`
+        val result = astTransformer.transform.module.declaration(
+          declaration = Ast.Module.Declaration.`module abc.def`
         )
 
         inside(result) {

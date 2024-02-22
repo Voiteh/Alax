@@ -8,11 +8,21 @@ import org.alax.ast.base.Partial
 import org.alax.ast.partial.Identifier
 object Package {
 
-  case class Declaration(name: Name,
+  case class Identifier(value: String, metadata: Metadata) extends Partial.Identifier(metadata = metadata) {
+    assert(value.matches(value))
+
+    override def text: String = value
+  }
+
+  object Identifier {
+    def matches(value: String): Boolean = value.matches("[a-z]*")
+  }
+
+  case class Declaration(identifier: Identifier,
                          metadata: Metadata
                         ) extends BaseDeclaration(metadata = metadata)
 
-  case class Definition(name: Name,
+  case class Definition(identifier: Identifier,
                         body: Body,
                         metadata: Metadata
                        ) extends BaseDefinition(metadata = metadata)
@@ -20,9 +30,6 @@ object Package {
   case class Body(elements: Seq[Element], override val metadata: Metadata)
     extends base.Partial.Scope(metadata = metadata)
 
-  case class Name(source:String,metadata: Metadata) extends Partial.Identifier(metadata=metadata){
-    assert(text().matches("[a-z]*"))
-    override def text(): String = source
-  }
+
   type Element = Value.Definition |  ParseError
 }

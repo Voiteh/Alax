@@ -17,7 +17,7 @@ class ParseModuleDeclarationTest extends AnyWordSpec {
         result mustBe a[ast.Module.Declaration]
         inside(result.asInstanceOf[ast.Module.Declaration]) {
           case moduleDeclaration: ast.Module.Declaration => {
-            moduleDeclaration.name.text() mustBe "com.ble.ble"
+            moduleDeclaration.identifier.text mustBe "com.ble.ble"
           }
         }
 

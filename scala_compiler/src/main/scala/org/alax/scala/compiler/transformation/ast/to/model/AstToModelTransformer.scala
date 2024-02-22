@@ -49,39 +49,29 @@ class AstToModelTransformer {
     }
 
     object `type` {
-      def reference(typeReference: Partial.Type.Reference, imports: Seq[Import]): Type.Reference | CompilerError = {
-        return typeReference match {
-          case valueTypeReference: ast.Value.Type.Reference => transform.`type`.reference.value(valueTypeReference, imports);
-          case other => CompilerBugError(cause = Exception(s"Not implemented - $other !"))
-        }
+      def reference(identifier: ast.Value.Type.Identifier, imports: Seq[Import]): Type.Reference | CompilerError = {
+        return transform.`type`.id.value(identifier, imports)
       }
 
-      object reference {
-        def value(valueTypeReference: ast.Value.Type.Reference, imports: Seq[Import]): Value.Type.Reference | CompilerError = {
-          return valueTypeReference.id match {
-            case Identifier.UpperCase(value, _) => imports.find(element =>
-              value.equals(element.alias) || value.equals(element.member)
+      object id {
+        def value(typeIdentifier: ast.Value.Type.Identifier, imports: Seq[Import]): Value.Type.Reference | CompilerError = {
+          val typeIdOrError: Type.Id | CompilationError = if typeIdentifier.prefix.isEmpty then
+            imports.find(element =>
+              typeIdentifier.suffix.text.equals(element.alias) || typeIdentifier.suffix.text.equals(element.member)
             ).map(element => s"${element.ancestor}.${element.member}")
-              .map(result => Value.Type.Reference(id =
-                Type.Id(value = result)
-              ))
-              .getOrElse(
+              .map[Type.Id | CompilationError](result => Type.Id(value = result))
+              .getOrElse[Type.Id | CompilationError](
                 new CompilationError(
-                  path = valueTypeReference.metadata.location.unit,
-                  startIndex = valueTypeReference.metadata.location.startIndex,
-                  endIndex = valueTypeReference.metadata.location.endIndex,
-                  message = s"Unknown type: ${valueTypeReference.id}, did You forget to import?: "
+                  path = typeIdentifier.metadata.location.unit,
+                  startIndex = typeIdentifier.metadata.location.startIndex,
+                  endIndex = typeIdentifier.metadata.location.endIndex,
+                  message = s"Unknown type: ${typeIdentifier.suffix.text}, did You forget to import?: "
                 ))
-            case ast.partial.Identifier.Qualified(value: Seq[ast.partial.Identifier.LowerCase | ast.partial.Identifier.UpperCase], _) =>
-              compiler.model.Value.Type.Reference(
-                id = Type.Id(
-                  value = {
-                    val prefix = imports.find(element => element.alias.equals(value.head.text()) || element.member.equals(value.head.text()))
-                      .map(element => s"${element.ancestor}").getOrElse("")
-                    value.foldLeft(mutable.StringBuilder(prefix))((acc, element) => acc.append(if acc.isEmpty then element.text() else s".${element.text()}")).toString
-                  }
-                )
-              )
+          else Type.Id(value = typeIdentifier.text)
+
+          return typeIdOrError match {
+            case typeId: Type.Id => Value.Type.Reference(typeId)
+            case error: CompilerError => error
           }
         }
       }
@@ -95,7 +85,7 @@ class AstToModelTransformer {
           case unit: Contexts.Unit => unit.imports
           case null => Seq[Import]()
 
-        val typeOrError: Value.Type.Reference | CompilerError = transform.`type`.reference.value(valueDefinition.typeReference, imports)
+        val typeOrError: Value.Type.Reference | CompilerError = transform.`type`.id.value(valueDefinition.typeReference, imports)
         val nameOrError: String | CompilerError = transform.value.declaration.name(name = valueDefinition.name)
         val expressionOrError: Expression | CompilerError = transform.expression(valueDefinition.initialization)
         return typeOrError match {
@@ -126,11 +116,11 @@ class AstToModelTransformer {
 
 
       object declaration {
-        def name(name: ast.Value.Name): String | CompilerError = name.text();
+        def name(name: ast.Value.Identifier): String | CompilerError = name.text;
 
         object `type` {
-          def reference(valueTypeReference: ast.Value.Type.Reference, imports: Seq[Import]): Value.Type.Reference | CompilerError = {
-            val typeReferenceOrError: Type.Reference | CompilerError = transform.`type`.reference(typeReference = valueTypeReference, imports = imports);
+          def reference(valueTypeReference: ast.Value.Type.Identifier, imports: Seq[Import]): Value.Type.Reference | CompilerError = {
+            val typeReferenceOrError: Type.Reference | CompilerError = transform.`type`.reference(identifier = valueTypeReference, imports = imports);
             return typeReferenceOrError match {
               case valueTypeReference: Value.Type.Reference => valueTypeReference
               case error: CompilerError => error
@@ -150,7 +140,7 @@ class AstToModelTransformer {
 
 
         val typeOrError: Value.Type.Reference | CompilerError = transform.value.declaration.`type`.reference(valueDeclaration.typeReference, imports);
-        val nameOrError = transform.value.declaration.name(valueDeclaration.name);
+        val nameOrError = transform.value.declaration.name(valueDeclaration.identifier);
 
         return typeOrError match {
           case tpe: Value.Type.Reference =>
@@ -171,13 +161,13 @@ class AstToModelTransformer {
     object `package` {
 
       object declaration {
-        def name(name: ast.Package.Name): String | CompilationError = {
-          return name.text()
+        def name(name: ast.Package.Identifier): String | CompilationError = {
+          return name.text
         }
       }
 
       def declaration(declaration: ast.Package.Declaration, context: Contexts.Unit | Null = null): compiler.model.Package.Declaration | CompilerError = {
-        return `package`.declaration.name(declaration.name) match {
+        return `package`.declaration.name(declaration.identifier) match {
           case string: String => compiler.model.Package.Declaration(
             name = string
           )
@@ -196,9 +186,9 @@ class AstToModelTransformer {
       }
 
       def definition(definition: ast.Package.Definition, context: Contexts.Unit | Null = null): compiler.model.Package.Definition | CompilerError = {
-        return `package`.declaration.name(definition.name) match {
+        return `package`.declaration.name(definition.identifier) match {
           case name: String =>
-            `package`.definition.body(definition.body,context) match {
+            `package`.definition.body(definition.body, context) match {
               case body: compiler.model.Package.Definition.Body => compiler.model.Package.Definition(
                 declaration = compiler.model.Package.Declaration(
                   name = name
@@ -212,15 +202,16 @@ class AstToModelTransformer {
       }
 
     }
+
     object module {
       object declaration {
-        def name(name: ast.Module.Name): String | CompilationError = {
-          return name.text()
+        def name(name: ast.Module.Identifier): String | CompilationError = {
+          return name.text
         }
       }
 
       def declaration(declaration: ast.Module.Declaration, context: Contexts.Unit | Null = null): compiler.model.Module.Declaration | CompilerError = {
-        return module.declaration.name(declaration.name) match {
+        return module.declaration.name(declaration.identifier) match {
           case string: String => compiler.model.Module.Declaration(
             name = string
           )
@@ -239,7 +230,7 @@ class AstToModelTransformer {
       }
 
       def definition(definition: ast.Module.Definition, context: Contexts.Unit | Null = null): compiler.model.Module.Definition | CompilerError = {
-        return module.declaration.name(definition.name) match {
+        return module.declaration.name(definition.identifier) match {
           case name: String =>
             module.definition.body(definition.body, context) match {
               case body: compiler.model.Module.Definition.Body => compiler.model.Module.Definition(
@@ -254,6 +245,7 @@ class AstToModelTransformer {
         }
       }
     }
+
     def trace(location: ast.base.Node.Location): Trace = compiler.base.model.Trace(
       unit = location.unit,
       lineNumber = location.startLine,
@@ -261,45 +253,30 @@ class AstToModelTransformer {
       endIndex = location.endIndex
     )
 
-    private def foldNames(names: Seq[ast.base.Partial.Identifier]): String = {
-      return names.foldLeft(mutable.StringBuilder())((acc: mutable.StringBuilder, ancestor: base.Partial.Identifier) =>
-        if acc.isEmpty then acc.append(ancestor.text())
-        else acc.append("." + ancestor.text()))
-        .toString()
-    }
-
-
     //TODO use streams instead of sequences
-    def imports(`import`: ast.Import.Declaration, ancestors: Seq[ast.partial.Identifier.Qualified] = Seq()): Seq[Tracable[Import]] = {
+    def imports(`import`: ast.Import.Declaration, ancestors: Seq[ast.Import.Identifier] = Seq()): Seq[Tracable[Import]] = {
       return `import` match {
         case container: ast.Imports.Nested => container.nestee.flatMap(element => this.imports(element, ancestors :+ container.nest))
         case simple: ast.Imports.Simple => Seq(Tracable(
           trace = trace(simple.metadata.location),
-          transformed = compiler.base.model.Import(
-            ancestor = simple.member match {
-              case qualified: Qualified => foldNames(ancestors) + foldNames(qualified.prefix)
-              case _ => foldNames(ancestors)
-            },
-            member = simple.member match {
-              case qualified: Qualified => qualified.suffix.text();
-              case uppercase: UpperCase => uppercase.text();
-              case lowercase: LowerCase => lowercase.text();
-            },
-          )
+          transformed = if simple.member.parts.size > 1 then compiler.base.model.Import(
+            ancestor = ast.base.Identifier.fold(ancestors.appendedAll(simple.member.prefix), "."),
+            member = simple.member.suffix.text) else
+            compiler.base.model.Import(
+              ancestor = ast.base.Identifier.fold(ancestors, "."),
+              member = simple.member.suffix.text
+            )
         ))
         case alias: ast.Imports.Alias => Seq(Tracable(
           trace = trace(alias.metadata.location),
-          transformed = compiler.base.model.Import(
-            ancestor = alias.member match {
-              case qualified: Qualified => foldNames(ancestors) + foldNames(qualified.prefix)
-              case _ => foldNames(ancestors)
-            },
-            member = alias.member match {
-              case qualified: Qualified => qualified.suffix.text();
-              case uppercase: UpperCase => uppercase.text();
-              case lowercase: LowerCase => lowercase.text();
-            },
-            alias = alias.alias.text()
+          transformed = if alias.member.parts.size > 1 then compiler.base.model.Import(
+            ancestor = ast.base.Identifier.fold(ancestors.appendedAll(alias.member.prefix), "."),
+            member = alias.member.suffix.text,
+            alias = alias.alias.text
+          ) else compiler.base.model.Import(
+            ancestor = ast.base.Identifier.fold(ancestors, "."),
+            member = alias.member.suffix.text,
+            alias = alias.alias.text
           )
         ))
       }

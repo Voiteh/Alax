@@ -19,14 +19,21 @@ object Partial {
    * Identifiers of the statements and expressions, type references and other language constructs
    */
   abstract class Identifier(metadata: Metadata) extends Partial(metadata = metadata) {
-    def text(): String;
+    def text: String;
+  }
+
+  object Identifier {
+    def fold(parts: Seq[Identifier], separator: String = ""): String = parts
+      .foldLeft(new mutable.StringBuilder())((acc: mutable.StringBuilder, item: Identifier) =>
+        if acc.isEmpty then acc.append(item.text) else acc.append(separator).append(item.text))
+      .toString()
   }
 
   object Type {
     abstract class Reference(val metadata: Metadata) extends Partial(metadata = metadata);
   }
 
-  abstract class Scope(val metadata: Metadata) extends Partial(metadata = metadata){
+  abstract class Scope(val metadata: Metadata) extends Partial(metadata = metadata) {
 
   }
 
