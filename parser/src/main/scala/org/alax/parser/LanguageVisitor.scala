@@ -327,6 +327,7 @@ class LanguageVisitor(
       case error: ParseError => new ParseError(cause = Seq(error), message = "Invalid value declaration", metadata = metadataParser.parse.metadata(ctx))
     }
   }
+
   override def visitValueDefinition(ctx: LanguageParser.ValueDefinitionContext): ast.Value.Definition | ParseError = {
     super.visitValueDefinition(ctx);
 
@@ -364,7 +365,64 @@ class LanguageVisitor(
     }
   }
 
+  override def visitFunctionCallNamedArgument(ctx: LanguageParser.FunctionCallNamedArgumentContext): ast.Function.Call.Named.Argument | ParseError = {
+    super.visitFunctionCallNamedArgument(ctx)
+    val idOrError: ast.Identifier.LowerCase | ParseError = visitLowercaseIdentifier(ctx.lowercaseIdentifier())
+    val chainExpressionOrError: ast.Chain.Expression | ParseError = visitChainExpression(ctx.chainExpression())
+
+    return idOrError match {
+      case parseError: ParseError => new ParseError(
+        metadata = metadataParser.parse.metadata(ctx),
+        message = "Invalid function call named argument",
+        cause = Seq(parseError)
+      )
+      case id: ast.Identifier.LowerCase => chainExpressionOrError match {
+        case chainExpression: ast.Chain.Expression => ast.Function.Call.Named.Argument(
+          identifier = id,
+          expression = chainExpression,
+          metadata = metadataParser.parse.metadata(ctx)
+        )
+        case error: ParseError => new ParseError(
+          metadata = metadataParser.parse.metadata(ctx),
+          message = "Invalid value type",
+          cause = Seq(error)
+        )
+      }
+    }
+
+
+  }
+
+  override def visitFunctionCallPositionalArgument(ctx: LanguageParser.FunctionCallPositionalArgumentContext): ast.Function.Call.Positional.Argument | ParseError = {
+    super.visitFunctionCallPositionalArgument(ctx)
+    val chainExpressionOrError: ast.Chain.Expression | ParseError = visitChainExpression(ctx.chainExpression())
+    return chainExpressionOrError match {
+      case chainExpression: ast.Chain.Expression => ast.Function.Call.Positional.Argument(
+        expression = chainExpression, metadata = metadataParser.parse.metadata(ctx)
+      )
+      case error: ParseError => new ParseError(
+        metadata = metadataParser.parse.metadata(ctx),
+        message = "Invalid value type",
+        cause = Seq(error)
+      )
+    }
+
+  }
+
+  override def visitFunctionCallArgument(ctx: LanguageParser.FunctionCallArgumentContext): ast.Function.Call.Argument | ParseError = {
+    super.visitFunctionCallArgument(ctx)
+    return Option(ctx.functionCallPositionalArgument())
+      .map(item => visitFunctionCallPositionalArgument(item))
+      .orElse(
+      Option(ctx.functionCallNamedArgument())
+        .map(item => visitFunctionCallNamedArgument(item))
+    ).getOrElse(()=>new ParserBugError(
+      metadata = metadataParser.parse.metadata(ctx)
+    ))
+  }
+
   override def visitValueAssignmentStatement(ctx: LanguageParser.ValueAssignmentStatementContext): Value.Assignment = super.visitValueAssignmentStatement(ctx)
+
   override def visitFunctionCallExpression(ctx: LanguageParser.FunctionCallExpressionContext): ast.Function.Call.Expression | ParseError = {
     super.visitFunctionCallExpression(ctx)
   }

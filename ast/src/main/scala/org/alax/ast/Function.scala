@@ -24,7 +24,7 @@ object Function {
 
     object Named {
       case class Argument(
-                           name: ast.Identifier.LowerCase,
+                           identifier: ast.Identifier.LowerCase,
                            expression: Chain.Expression,
                            metadata: Metadata
                          ) extends ast.base.Argument(metadata = metadata)
