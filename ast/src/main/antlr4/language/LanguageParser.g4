@@ -22,9 +22,10 @@ packageIdentifier: lowercaseIdentifier;
 functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|valueAssignmentStatement;
 
 functionDefinition: sideEffectFunctionDefinition|pureFunctionDefinition;
-sideEffectFunctionDefinition: FUNCTION functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET NOT_FAT_ARROW functionBody ;
-pureFunctionDefinition: FUNCTION functionReturnType functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW functionBody;
-functionDeclaration: FUNCTION functionReturnType? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
+sideEffectFunctionDefinition: FUNCTION functionIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET NOT_FAT_ARROW functionBody ;
+pureFunctionDefinition: FUNCTION functionReturnType functionIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET FAT_ARROW functionBody;
+functionDeclaration: FUNCTION functionReturnType? functionIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET SEMI_COLON;
+functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS chainExpression)?;
 functionReturnType: valueTypeIdentifier;
 
 functionLambdaBody: valueAssignmentStatement|functionCallStatement SEMI_COLON;
@@ -34,9 +35,6 @@ functionIdentifier: lowercaseIdentifier;
 
 
 
-functionParameters: functionParameter (COMMA functionParameter)*;
-functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS expressionChain)?;
-
 valueDefinition: accessModifier? VALUE valueTypeIdentifier valueIdentifier EQUALS expression SEMI_COLON ;
 valueDeclaration: accessModifier? VALUE valueTypeIdentifier valueIdentifier SEMI_COLON;
 valueIdentifier: lowercaseIdentifier;
@@ -44,25 +42,22 @@ valueIdentifier: lowercaseIdentifier;
 
 
 functionCallStatement: functionCallExpression SEMI_COLON;
-functionCallExpression: functionIdentifier OPEN_BRACKET functionCallArguments?  CLOSE_BRACKET;
-functionCallArguments:  positionalArguments| namedArguments ;
-positionalArguments: expressionChain (COMMA expressionChain)*;
-namedArguments: lowercaseIdentifier EQUALS expressionChain (COMMA lowercaseIdentifier EQUALS expression)*;
+functionCallExpression: functionReference OPEN_BRACKET (functionCallArgument (COMMA functionCallArgument)*)?  CLOSE_BRACKET;
+functionCallPositionalArgument: chainExpression;
+functionCallNamedArgument: lowercaseIdentifier EQUALS chainExpression;
+functionCallArgument: functionCallPositionalArgument|functionCallNamedArgument;
 
-
-valueAssignmentStatement: valueReference EQUALS expressionChain SEMI_COLON;
-returnStatement: RETURN expressionChain SEMI_COLON;
+valueAssignmentStatement: valueReference EQUALS chainExpression SEMI_COLON;
+returnStatement: RETURN chainExpression SEMI_COLON;
 
 //Refernces
 valueTypeIdentifier: (identifier (DOT identifier)* DOT)* uppercaseIdentifier  ;
+functionReference: (valueTypeIdentifier DOT)? functionIdentifier;
+valueReference: (valueTypeIdentifier DOT)? valueIdentifier;
 
-functionReference: ((valueTypeIdentifier DOT)|(accessor DOT))? lowercaseIdentifier;
-valueReference: ((valueTypeIdentifier DOT)|(accessor DOT))? lowercaseIdentifier;
-
-referenceExpression: valueTypeIdentifier|valueReference|functionReference;
+referenceExpression: valueReference|functionReference;
 
 accessModifier: SHARED|PROTECTED;
-accessor:THIS|SUPER|OUTER;
 
 //Imports
 nestedImportDeclaration: IMPORT imports SEMI_COLON;
@@ -84,6 +79,6 @@ identifier: (LOWERCASE_WORD|UPPERCASE_WORD)+;
 
 literalExpression: BOOLEAN_LITERAL|CHARACTER_LITERAL|INTEGER_LITERAL|FLOAT_LITERAL|STRING_LITERAL;
 
-expressionChain: expression (DOT expression)*;
+chainExpression: expression (DOT chainExpression)?;
 
 expression: literalExpression|functionCallExpression|referenceExpression;

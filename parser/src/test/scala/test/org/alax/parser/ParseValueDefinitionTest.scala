@@ -2,8 +2,7 @@ package test.org.alax.parser
 
 import org.alax.ast.LanguageParser.{AS, ValueDefinitionContext}
 import org.alax.ast.base.Node.Metadata
-import org.alax.ast.partial.Identifier
-import org.alax.ast.base.{ParseError, Partial}
+import org.alax.ast.base.{ParseError}
 import org.alax.ast
 import org.alax.ast.{LanguageLexer, LanguageParser, Literals}
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}

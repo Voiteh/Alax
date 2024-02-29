@@ -1,13 +1,11 @@
 package org.alax.ast
 
 import org.alax.ast
-import org.alax.ast.base.{Expression, Partial}
+import org.alax.ast.base.Expression
 import org.alax.ast.base.Node.Metadata
 import org.alax.ast.base.Statement as BaseStatement
 import org.alax.ast.base.statements.Declaration as BaseDeclaration
 import org.alax.ast.base.statements.Definition as BaseDefinition
-import org.alax.ast.base.Partial.Type.Reference as BaseReference
-import org.alax.ast.partial.Identifier
 
 object Value {
 
@@ -25,7 +23,16 @@ object Value {
 
   }
 
-  case class Identifier(value: String, metadata: Metadata) extends Partial.Identifier(metadata = metadata) {
+  case class Reference(
+                        typeId: Value.Type.Identifier | Null,
+                        valueId: Value.Identifier,
+                        metadata: Metadata
+                      )
+    extends ast.base.expressions.Reference(metadata = metadata) {
+
+  }
+
+  case class Identifier(value: String, metadata: Metadata) extends ast.base.Identifier(metadata = metadata) {
     assert(value.matches("^[a-z][a-zA-Z0-9\\s]*[a-zA-Z0-9]$"))
 
     override def text: String = value
@@ -41,11 +48,12 @@ object Value {
 
   object Type {
 
-    case class Identifier(prefix: Seq[ast.Identifier] =Seq(), suffix: ast.Identifier.UpperCase, metadata: Metadata = Metadata.unknown) extends ast.base.Identifier(metadata = metadata) {
+
+    case class Identifier(prefix: Seq[ast.Identifier] = Seq(), suffix: ast.Identifier.UpperCase, metadata: Metadata = Metadata.unknown) extends ast.base.Identifier(metadata = metadata) {
 
       def text: String = if prefix.isEmpty
       then suffix.text
-      else s"${ast.base.Identifier.fold(prefix,".")}.${suffix.text}"
+      else s"${ast.base.Identifier.fold(prefix, ".")}.${suffix.text}"
 
     }
   }

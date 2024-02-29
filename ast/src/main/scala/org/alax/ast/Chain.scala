@@ -4,5 +4,9 @@ import org.alax.ast.base.{ParseError, Expression as BaseExpression}
 import org.alax.ast.base.Node.Metadata
 
 object Chain {
-  case class Expression(expressions: Seq[BaseExpression|ParseError], metadata: Metadata) extends BaseExpression(metadata)
+  case class Expression(
+                         expression: BaseExpression|ParseError,
+                         next:Chain.Expression|Null,
+                         metadata: Metadata
+                       ) extends BaseExpression(metadata)
 }

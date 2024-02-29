@@ -2,7 +2,7 @@ package org.alax.scala.compiler.transformation.ast.to.model
 
 import org.alax.ast
 import org.alax.ast.base
-import org.alax.ast.base.{ParseError, Partial, Expression as AstExpression, Statement as AstStatement}
+import org.alax.ast.base.{ParseError, Expression as AstExpression, Statement as AstStatement}
 import org.alax.ast.Identifier.{LowerCase, UpperCase}
 import org.alax.ast.base.statements.Declaration as AstDeclartion
 import org.alax.ast.base.expressions.Literal as AstLiteral

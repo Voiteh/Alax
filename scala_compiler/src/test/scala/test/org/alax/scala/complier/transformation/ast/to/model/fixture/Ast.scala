@@ -16,7 +16,6 @@ import org.alax.scala.compiler
 import org.alax.scala.compiler.base.model.{Import, Trace}
 import org.alax.scala.compiler.transformation
 import os.Path
-import org.alax.ast.partial.Identifier
 
 import java.nio.file.Path as JPath
 import scala.annotation.targetName
