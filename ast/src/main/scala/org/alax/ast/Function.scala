@@ -36,20 +36,24 @@ object Function {
                            metadata: Metadata = Metadata.unknown
                          ) extends ast.base.Expression(metadata = metadata)
 
-    case class Statement(metadata: Metadata = Metadata.unknown) extends ast.base.Statement(metadata = metadata)
+    case class Statement(functionReference: Function.Reference,
+                         arguments: Seq[Function.Call.Argument],
+                         metadata: Metadata = Metadata.unknown) extends ast.base.Statement(metadata = metadata)
   }
 
   case class Reference(valueTypeIdentifier: Value.Type.Identifier | Null, functionId: Function.Identifier, metadata: Metadata = Metadata.unknown)
     extends ast.base.expressions.Reference(metadata = metadata);
 
   object Lambda {
-    type Element = Chain.Expression | Value.Assignment | ParseError
+    type Element = Chain.Expression | Value.Assignment.Expression | ParseError
 
     case class Body(element: Element, metadata: Metadata) extends ast.base.Node(metadata = metadata)
   }
 
+  type Body = Block.Body | Lambda.Body;
+
   object Block {
-    type Element = Chain.Expression | Value.Definition | Value.Declaration | Value.Assignment | Return.Statement | ParseError
+    type Element = Chain.Expression | Value.Definition | Value.Declaration | Value.Assignment.Expression | ParseError
 
     case class Body(elements: Seq[Element], metadata: Metadata) extends ast.base.Node(metadata = metadata)
   }

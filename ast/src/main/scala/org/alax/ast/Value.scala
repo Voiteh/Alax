@@ -4,6 +4,7 @@ import org.alax.ast
 import org.alax.ast.base.Expression
 import org.alax.ast.base.Node.Metadata
 import org.alax.ast.base.Statement as BaseStatement
+import org.alax.ast.base.Expression as BaseExpression
 import org.alax.ast.base.statements.Declaration as BaseDeclaration
 import org.alax.ast.base.statements.Definition as BaseDefinition
 
@@ -58,7 +59,9 @@ object Value {
     }
   }
 
+  object Assignment {
+    case class Expression(left: Value.Reference, right: Chain.Expression, metadata: Metadata) extends BaseExpression(metadata = metadata)
+  }
 
-  case class Assignment(left: Value.Identifier, right: Chain.Expression, metadata: Metadata) extends BaseStatement(metadata = metadata)
 
 }

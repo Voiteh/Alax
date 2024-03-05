@@ -13,13 +13,10 @@ moduleDefinition: MODULE moduleIdentifier moduleBody;
 moduleBody: OPEN_CURLY (valueDefinition)*  CLOSE_CURLY;
 moduleIdentifier: lowercaseIdentifier (DOT lowercaseIdentifier)*;
 
-
 packageDefinition: PACKAGE packageIdentifier packageBody;
 packageDeclaration: PACKAGE packageIdentifier SEMI_COLON;
 packageBody: OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
 packageIdentifier: lowercaseIdentifier;
-
-functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|valueAssignmentStatement;
 
 functionDefinition: sideEffectFunctionDefinition|pureFunctionDefinition;
 sideEffectFunctionDefinition: FUNCTION functionIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET NOT_FAT_ARROW functionBody ;
@@ -28,27 +25,21 @@ functionDeclaration: FUNCTION functionReturnType? functionIdentifier OPEN_BRACKE
 functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS chainExpression)?;
 functionReturnType: valueTypeIdentifier;
 
-functionLambdaBody: valueAssignmentStatement|functionCallStatement SEMI_COLON;
-functionBlockBody: OPEN_CURLY (valueDeclaration|valueDefinition|valueAssignmentStatement|functionCallStatement)* CLOSE_CURLY;
+functionLambdaBody: valueAssignmentExpression|functionCallExpression SEMI_COLON;
+functionBlockBody: OPEN_CURLY (valueDeclaration|valueDefinition|valueAssignmentExpression|functionCallExpression)* CLOSE_CURLY;
 functionBody: functionBlockBody|functionLambdaBody;
 functionIdentifier: lowercaseIdentifier;
-
-
 
 valueDefinition: accessModifier? VALUE valueTypeIdentifier valueIdentifier EQUALS expression SEMI_COLON ;
 valueDeclaration: accessModifier? VALUE valueTypeIdentifier valueIdentifier SEMI_COLON;
 valueIdentifier: lowercaseIdentifier;
 
-
-
-functionCallStatement: functionCallExpression SEMI_COLON;
 functionCallExpression: functionReference OPEN_BRACKET (functionCallArgument (COMMA functionCallArgument)*)?  CLOSE_BRACKET;
 functionCallPositionalArgument: chainExpression;
 functionCallNamedArgument: lowercaseIdentifier EQUALS chainExpression;
 functionCallArgument: functionCallPositionalArgument|functionCallNamedArgument;
 
-valueAssignmentStatement: valueReference EQUALS chainExpression SEMI_COLON;
-returnStatement: RETURN chainExpression SEMI_COLON;
+valueAssignmentExpression: valueReference EQUALS chainExpression;
 
 //Refernces
 valueTypeIdentifier: (identifier (DOT identifier)* DOT)* uppercaseIdentifier  ;
