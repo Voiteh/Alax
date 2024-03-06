@@ -43,9 +43,6 @@ object Value {
     def matches(value: String): Boolean = value.matches("^[a-z][a-z0-9\\s]*[a-z0-9]$")
   }
 
-  case class Type() {
-
-  }
 
   object Type {
 

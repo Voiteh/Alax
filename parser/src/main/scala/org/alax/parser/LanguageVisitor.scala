@@ -22,7 +22,7 @@ class LanguageVisitor(
       .map(item => item.getText).foldLeft(new mutable.StringBuilder(""))((acc: mutable.StringBuilder, item: String) =>
       if acc.isEmpty then acc.append(item) else acc.append(" ").append(item))
       .toString()
-    return if ast.Identifier.matches(text)
+    if ast.Identifier.matches(text)
     then ast.Identifier(text, metadataParser.parse.metadata(ctx))
     else new ParseError(metadata = metadataParser.parse.metadata(ctx), message = "Invalid identifier")
   }
@@ -33,7 +33,7 @@ class LanguageVisitor(
       .map(item => item.getText).foldLeft(new mutable.StringBuilder(""))((acc: mutable.StringBuilder, item: String) =>
       if acc.isEmpty then acc.append(item) else acc.append(" ").append(item))
       .toString()
-    return if ast.Identifier.LowerCase.matches(text)
+    if ast.Identifier.LowerCase.matches(text)
     then ast.Identifier.LowerCase(text, metadataParser.parse.metadata(ctx))
     else new ParseError(metadata = metadataParser.parse.metadata(ctx), message = "Invalid lowercase identifier")
   }
@@ -44,7 +44,7 @@ class LanguageVisitor(
       .map(item => item.getText).foldLeft(new mutable.StringBuilder(""))((acc: mutable.StringBuilder, item: String) =>
       if acc.isEmpty then acc.append(item) else acc.append(" ").append(item))
       .toString()
-    return if ast.Identifier.UpperCase.matches(text)
+    if ast.Identifier.UpperCase.matches(text)
     then ast.Identifier.UpperCase(text, metadataParser.parse.metadata(ctx))
     else new ParseError(metadata = metadataParser.parse.metadata(ctx), message = "Invalid uppercase identifier")
   }
@@ -53,7 +53,7 @@ class LanguageVisitor(
   override def visitSimpleImportDeclaration(ctx: LanguageParser.SimpleImportDeclarationContext): ast.Imports.Simple | ParseError = {
     super.visitSimpleImportDeclaration(ctx)
     val identifierOrError = visitImportIdentifier(ctx.importIdentifier());
-    return identifierOrError match {
+    identifierOrError match {
       case e: ParseError => new ParseError(metadata = metadataParser.parse.metadata(ctx), message = "Invalid import declaration", cause = Seq(e));
       case identifier: ast.Import.Identifier => {
         ast.Imports.Simple(member = identifier, metadata = metadataParser.parse.metadata(ctx))
@@ -72,7 +72,7 @@ class LanguageVisitor(
         case id: ast.Identifier => identifiers.addOne(id)
         case error: ParseError => errors.addOne(error)
       }
-    return if errors.nonEmpty then new ParseError(
+    if errors.nonEmpty then new ParseError(
       metadata = metadataParser.parse.metadata(ctx),
       message = "Invalid import identifier",
       cause = errors.toSeq
@@ -92,7 +92,7 @@ class LanguageVisitor(
         case id: ast.Identifier => identifiers.addOne(id)
         case error: ParseError => errors.addOne(error)
       }
-    return if errors.nonEmpty then new ParseError(
+    if errors.nonEmpty then new ParseError(
       metadata = metadataParser.parse.metadata(ctx),
       message = "Invalid value type identifier",
       cause = errors.toSeq
@@ -113,7 +113,7 @@ class LanguageVisitor(
   override def visitValueIdentifier(ctx: LanguageParser.ValueIdentifierContext): ast.Value.Identifier | ParseError = {
     super.visitValueIdentifier(ctx)
     val idOrError: ast.Identifier.LowerCase | ParseError = visitLowercaseIdentifier(ctx.lowercaseIdentifier());
-    return idOrError match {
+    idOrError match {
       case id: ast.Identifier.LowerCase => ast.Value.Identifier(
         value = id.text, metadata = metadataParser.parse.metadata(ctx),
       )
@@ -128,7 +128,7 @@ class LanguageVisitor(
   override def visitFunctionIdentifier(ctx: LanguageParser.FunctionIdentifierContext): ast.Function.Identifier | ParseError = {
     super.visitFunctionIdentifier(ctx)
     val idOrError: ast.Identifier.LowerCase | ParseError = visitLowercaseIdentifier(ctx.lowercaseIdentifier());
-    return idOrError match {
+    idOrError match {
       case id: ast.Identifier.LowerCase => id
       case error: ParseError => ParseError(
         metadata = metadataParser.parse.metadata(ctx),
@@ -138,23 +138,201 @@ class LanguageVisitor(
     }
   }
 
+  override def visitPureFunctionDefinition(ctx: LanguageParser.PureFunctionDefinitionContext): ast.Function.Pure.Definition | ParseError = {
+    super.visitPureFunctionDefinition(ctx)
+    val returnTypeOrError: ast.Function.Return.Type | ParseError = visitFunctionReturnType(ctx.functionReturnType())
+    val identifierOrError: ast.Function.Identifier | ParseError = visitFunctionIdentifier(ctx.functionIdentifier())
+    val bodyOrError: ast.Function.Body | ParseError = visitFunctionBody(ctx.functionBody())
+    val parametersAndErrors: (Seq[ast.Function.Parameter], Seq[ParseError]) = ctx.functionParameter().asScala
+      .map(item => visitFunctionParameter(item)).toSeq
+      .partitionMap {
+        case parameter: ast.Function.Parameter => Left(parameter)
+        case parseError: ParseError => Right(parseError)
+      }
+    returnTypeOrError match {
+      case returnType: ast.Function.Return.Type => identifierOrError match {
+        case identifier: ast.Function.Identifier => parametersAndErrors match {
+          case (params: Seq[ast.Function.Parameter], Nil) => bodyOrError match {
+            case error: ParseError => new ParseError(
+              metadata = metadataParser.parse.metadata(ctx),
+              message = s"Invalid pure function definition",
+              cause = Seq(error)
+            )
+            case body: ast.Function.Body => ast.Function.Pure.Definition(
+              returnTypeReference = returnType,
+              identifier = identifier,
+              parameters = params,
+              body = body,
+              metadata = metadataParser.parse.metadata(ctx),
+            )
+          }
+          case (_, errors: Seq[ParseError]) => new ParseError(
+            metadata = metadataParser.parse.metadata(ctx),
+            message = s"Invalid pure function definition",
+            cause = errors
+          )
+        }
+
+        case error: ParseError => new ParseError(
+          metadata = metadataParser.parse.metadata(ctx),
+          message = s"Invalid pure function definition",
+          cause = Seq(error)
+        )
+      }
+      case error: ParseError => ParseError(
+        metadata = metadataParser.parse.metadata(ctx),
+        message = s"Invalid pure function definition",
+        cause = Seq(error)
+      )
+    }
+  }
+
+  override def visitSideEffectFunctionDefinition(ctx: LanguageParser.SideEffectFunctionDefinitionContext): ast.Function.SideEffect.Definition | ParseError = {
+    super.visitSideEffectFunctionDefinition(ctx)
+    val identifierOrError: ast.Function.Identifier | ParseError = visitFunctionIdentifier(ctx.functionIdentifier())
+    val bodyOrError: ast.Function.Body | ParseError = visitFunctionBody(ctx.functionBody())
+    val parametersAndErrors: (Seq[ast.Function.Parameter], Seq[ParseError]) = ctx.functionParameter().asScala
+      .map(item => visitFunctionParameter(item)).toSeq
+      .partitionMap {
+        case parameter: ast.Function.Parameter => Left(parameter)
+        case parseError: ParseError => Right(parseError)
+      }
+    identifierOrError match {
+      case identifier: ast.Function.Identifier => parametersAndErrors match {
+        case (params: Seq[ast.Function.Parameter], Nil) => bodyOrError match {
+          case error: ParseError => new ParseError(
+            metadata = metadataParser.parse.metadata(ctx),
+            message = s"Invalid side effect function definition",
+            cause = Seq(error)
+          )
+          case body: ast.Function.Body => ast.Function.SideEffect.Definition(
+            identifier = identifier,
+            parameters = params,
+            body = body,
+            metadata = metadataParser.parse.metadata(ctx),
+          )
+        }
+        case (_, errors: Seq[ParseError]) => new ParseError(
+          metadata = metadataParser.parse.metadata(ctx),
+          message = s"Invalid side effect function definition",
+          cause = errors
+        )
+      }
+
+      case error: ParseError => new ParseError(
+        metadata = metadataParser.parse.metadata(ctx),
+        message = s"Invalid side effect function definition",
+        cause = Seq(error)
+      )
+    }
+  }
+
+  override def visitFunctionDefinition(ctx: LanguageParser.FunctionDefinitionContext): ast.Function.Definition | ParseError = {
+    super.visitFunctionDefinition(ctx)
+    Option(ctx.pureFunctionDefinition()).map(item => visitPureFunctionDefinition(item))
+      .orElse(
+        Option(ctx.sideEffectFunctionDefinition()).map(item => visitSideEffectFunctionDefinition(item))
+      )
+      .getOrElse(new ParserBugError(
+        metadata = metadataParser.parse.metadata(ctx),
+      ))
+  }
+
+  override def visitFunctionDeclaration(ctx: LanguageParser.FunctionDeclarationContext): ast.Function.Declaration | ParseError = {
+    super.visitFunctionDeclaration(ctx)
+    val returnTypeOrError: ast.Function.Return.Type | ParseError = visitFunctionReturnType(ctx.functionReturnType())
+    val identifierOrError: ast.Function.Identifier | ParseError = visitFunctionIdentifier(ctx.functionIdentifier())
+    val parametersAndErrors: (Seq[ast.Function.Parameter], Seq[ParseError]) = ctx.functionParameter().asScala
+      .map(item => visitFunctionParameter(item)).toSeq
+      .partitionMap {
+        case parameter: ast.Function.Parameter => Left(parameter)
+        case parseError: ParseError => Right(parseError)
+      }
+    returnTypeOrError match {
+      case returnType: ast.Function.Return.Type => identifierOrError match {
+        case identifier: ast.Function.Identifier => parametersAndErrors match {
+          case (params: Seq[ast.Function.Parameter], Nil) => ast.Function.Declaration(
+            returnTypeReference = returnType,
+            identifier = identifier,
+            parameters = params,
+            metadata = metadataParser.parse.metadata(ctx),
+          )
+          case (_, errors: Seq[ParseError]) => new ParseError(
+            metadata = metadataParser.parse.metadata(ctx),
+            message = s"Invalid function declaration",
+            cause = errors
+          )
+        }
+
+        case error: ParseError => new ParseError(
+          metadata = metadataParser.parse.metadata(ctx),
+          message = s"Invalid function declaration",
+          cause = Seq(error)
+        )
+      }
+      case error: ParseError => ParseError(
+        metadata = metadataParser.parse.metadata(ctx),
+        message = s"Invalid function declaration",
+        cause = Seq(error)
+      )
+    }
+
+  }
+
+  override def visitFunctionParameter(ctx: LanguageParser.FunctionParameterContext): ast.Function.Parameter | ParseError = {
+    super.visitFunctionParameter(ctx)
+    val typeIdentifierOrError: Value.Type.Identifier | ParseError = visitValueTypeIdentifier(ctx.valueTypeIdentifier())
+    val lowercaseIdentifierOrError: ast.Identifier.LowerCase | ParseError = visitLowercaseIdentifier(ctx.lowercaseIdentifier());
+    val optionChainExpressionOrError: Option[ast.Chain.Expression | ParseError] = Option(ctx.chainExpression()).map(item => visitChainExpression(item))
+    typeIdentifierOrError match {
+      case typeIdentifier: Value.Type.Identifier => lowercaseIdentifierOrError match {
+        case lowercaseIdentifier: ast.Identifier.LowerCase => optionChainExpressionOrError match {
+          case someChainExpression: Some[ast.Chain.Expression | ParseError] => someChainExpression.get match {
+            case chainExpression: ast.Chain.Expression => ast.Function.Parameter(
+              identifier = lowercaseIdentifier,
+              `type` = typeIdentifier,
+              expression = chainExpression,
+              metadata = metadataParser.parse.metadata(ctx)
+            )
+            case parseError: ParseError => new ParseError(
+              metadata = metadataParser.parse.metadata(ctx), message = "Invalid function parameter definition", cause = Seq(parseError)
+            )
+          }
+          case None => ast.Function.Parameter(
+            identifier = lowercaseIdentifier,
+            `type` = typeIdentifier,
+            metadata = metadataParser.parse.metadata(ctx)
+          )
+        }
+        case parseError: ParseError => new ParseError(
+          metadata = metadataParser.parse.metadata(ctx), message = "Invalid function parameter definition", cause = Seq(parseError)
+        )
+      }
+      case parseError: ParseError => new ParseError(
+        metadata = metadataParser.parse.metadata(ctx), message = "Invalid function parameter definition", cause = Seq(parseError)
+      )
+    }
+  }
+
+  override def visitFunctionReturnType(ctx: LanguageParser.FunctionReturnTypeContext): ast.Function.Return.Type | ParseError = {
+    super.visitFunctionReturnType(ctx)
+    visitValueTypeIdentifier(ctx.valueTypeIdentifier())
+  }
+
   override def visitFunctionBlockBody(ctx: LanguageParser.FunctionBlockBodyContext): ast.Function.Block.Body | ParseError = {
     super.visitFunctionBlockBody(ctx)
     ast.Function.Block.Body(
-      elements = ctx.children.asScala.filter(item => item.isInstanceOf[
-          LanguageParser.ValueDeclarationContext
-            | LanguageParser.ValueDefinitionContext
-            | LanguageParser.ValueAssignmentExpressionContext
-            | LanguageParser.FunctionCallExpressionContext
-        ])
-          .map {
-            case valueDeclaration: LanguageParser.ValueDeclarationContext => visitValueDeclaration(valueDeclaration)
-            case valueDefinition: LanguageParser.ValueDefinitionContext => visitValueDefinition(valueDefinition)
-            case assignmentExpression: LanguageParser.ValueAssignmentExpressionContext => visitValueAssignmentExpression(assignmentExpression)
-            case functionCallExpression: LanguageParser.FunctionCallExpressionContext => visitFunctionCallExpression(functionCallExpression)
-            case _ => new ParserBugError(metadata = metadataParser.parse.metadata(ctx))
-          }
-          .toSeq,
+      elements = ctx.children.asScala.filter(item => item.isInstanceOf[ast.Function.Block.Element])
+        .map {
+          case valueDeclaration: LanguageParser.ValueDeclarationContext => visitValueDeclaration(valueDeclaration)
+          case valueDefinition: LanguageParser.ValueDefinitionContext => visitValueDefinition(valueDefinition)
+          case assignmentExpression: LanguageParser.ValueAssignmentExpressionContext => visitValueAssignmentExpression(assignmentExpression)
+          case functionCallExpression: LanguageParser.FunctionCallExpressionContext => visitFunctionCallExpression(functionCallExpression)
+          case functionReference: LanguageParser.FunctionReferenceContext => visitFunctionReference(functionReference)
+          case valueReference: LanguageParser.ValueReferenceContext => visitValueReference(valueReference)
+          case _ => new ParserBugError(metadata = metadataParser.parse.metadata(ctx))
+        }
+        .toSeq,
       metadata = metadataParser.parse.metadata(ctx)
     )
 
@@ -163,11 +341,30 @@ class LanguageVisitor(
 
   override def visitFunctionLambdaBody(ctx: LanguageParser.FunctionLambdaBodyContext): ast.Function.Lambda.Body | ParseError = {
     super.visitFunctionLambdaBody(ctx)
-    Option(ctx.functionCallExpression()).map(item => visitFunctionCallExpression(item))
-      .orElse(
-        Option(ctx.valueAssignmentExpression())
-          .map(item => visitValueAssignmentExpression(item))
-      ).getOrElse(new ParserBugError(metadata = metadataParser.parse.metadata(ctx)))
+    ast.Function.Lambda.Body(
+      element = Option(ctx.chainExpression())
+        .map(item => visitChainExpression(item))
+        .orElse(
+          Option(ctx.functionCallExpression())
+            .map(item => visitFunctionCallExpression(item))
+        )
+        .orElse(
+          Option(ctx.valueAssignmentExpression())
+            .map(item => visitValueAssignmentExpression(item))
+        )
+        .orElse(
+          Option(
+            ctx.functionReference()
+          ).map(item => visitFunctionReference(item))
+        )
+        .orElse(
+          Option(ctx.valueReference())
+            .map(item => visitValueReference(item))
+        )
+        .getOrElse(new ParserBugError(metadata = metadataParser.parse.metadata(ctx))),
+      metadata = metadataParser.parse.metadata(ctx)
+    )
+
   }
 
   override def visitFunctionBody(ctx: LanguageParser.FunctionBodyContext): ast.Function.Body | ParseError = {
@@ -188,7 +385,7 @@ class LanguageVisitor(
     val nextOrError: Chain.Expression | ParseError | Null = Option(ctx.chainExpression())
       .map((item: LanguageParser.ChainExpressionContext) => visitChainExpression(item))
       .orNull;
-    return expressionOrParseError match {
+    expressionOrParseError match {
       case expression: ast.base.Expression =>
         nextOrError match {
           case chain: Chain.Expression => Chain.Expression(
@@ -196,7 +393,12 @@ class LanguageVisitor(
             next = chain,
             metadata = metadataParser.parse.metadata(ctx)
           )
-          case null: Null => Chain.Expression(
+          case error: ParseError => ParseError(
+            message = "Invalid chain expression",
+            metadata = metadataParser.parse.metadata(ctx),
+            cause = Seq(error)
+          )
+          case null => Chain.Expression(
             expression = expression,
             next = null,
             metadata = metadataParser.parse.metadata(ctx)
@@ -215,7 +417,7 @@ class LanguageVisitor(
   override def visitModuleDeclaration(ctx: LanguageParser.ModuleDeclarationContext): ast.Module.Declaration | ParseError = {
     super.visitModuleDeclaration(ctx)
     val moduleName: ast.Module.Identifier | ParseError = visitModuleIdentifier(ctx.moduleIdentifier())
-    return moduleName match {
+    moduleName match {
       case name: ast.Module.Identifier => ast.Module.Declaration(
         identifier = name,
         metadata = metadataParser.parse.metadata(ctx)
@@ -234,7 +436,7 @@ class LanguageVisitor(
     val valueDefinitions: Seq[ast.Value.Definition | ParseError] = ctx.valueDefinition().asScala
       .map(item => visitValueDefinition(item)).toSeq
 
-    return ast.Module.Body(
+    ast.Module.Body(
       elements = valueDefinitions,
       metadata = metadataParser.parse.metadata(ctx)
     )
@@ -244,7 +446,7 @@ class LanguageVisitor(
     super.visitModuleDefinition(ctx)
     val moduleIdentifier: ast.Module.Identifier | ParseError = visitModuleIdentifier(ctx.moduleIdentifier())
     val moduleBody: ast.Module.Body | ParseError = visitModuleBody(ctx.moduleBody())
-    return moduleIdentifier match {
+    moduleIdentifier match {
       case name: ast.Module.Identifier => moduleBody match {
         case body: ast.Module.Body => ast.Module.Definition(
           identifier = name,
@@ -285,7 +487,7 @@ class LanguageVisitor(
   override def visitPackageIdentifier(ctx: LanguageParser.PackageIdentifierContext): ast.Package.Identifier | ParseError = {
     super.visitPackageIdentifier(ctx);
     val identifierOrError: ast.Identifier.LowerCase | ParseError = visitLowercaseIdentifier(ctx.lowercaseIdentifier());
-    return identifierOrError match {
+    identifierOrError match {
       case id: ast.Identifier.LowerCase => ast.Package.Identifier(
         value = id.text,
         metadata = metadataParser.parse.metadata(ctx),
@@ -316,7 +518,7 @@ class LanguageVisitor(
     super.visitPackageDefinition(ctx)
     val name: ast.Package.Identifier | ParseError = visitPackageIdentifier(ctx.packageIdentifier())
     val body: ast.Package.Body | ParseError = visitPackageBody(ctx.packageBody());
-    return name match {
+    name match {
       case shadowName: ast.Package.Identifier =>
         body match {
           case shadowBody: ast.Package.Body => ast.Package.Definition(
@@ -337,7 +539,7 @@ class LanguageVisitor(
     val valueDefinitions: Seq[ast.Value.Definition | ParseError] = ctx.valueDefinition().asScala
       .map(item => visitValueDefinition(item)).toSeq
 
-    return ast.Package.Body(
+    ast.Package.Body(
       elements = valueDefinitions,
       metadata = metadataParser.parse.metadata(ctx)
     )
@@ -347,7 +549,7 @@ class LanguageVisitor(
     super.visitValueDeclaration(ctx);
     val valueTypeIdentifier: ast.Value.Type.Identifier | ParseError = visitValueTypeIdentifier(ctx.valueTypeIdentifier());
     val name: ast.Value.Identifier | ParseError = visitValueIdentifier(ctx.valueIdentifier());
-    return valueTypeIdentifier match {
+    valueTypeIdentifier match {
       case valueType: ast.Value.Type.Identifier =>
         name match {
           case shadowName: ast.Value.Identifier =>
@@ -368,7 +570,7 @@ class LanguageVisitor(
     val typeIdentifier: ast.Value.Type.Identifier | ParseError = visitValueTypeIdentifier(ctx.valueTypeIdentifier());
     val name: ast.Value.Identifier | ParseError = visitValueIdentifier(ctx.valueIdentifier());
     val initialization: Expression | ParseError = visitExpression(ctx.expression());
-    return typeIdentifier match {
+    typeIdentifier match {
       case valueType: ast.Value.Type.Identifier =>
         name match {
           case shadowName: ast.Value.Identifier =>
@@ -404,7 +606,7 @@ class LanguageVisitor(
     val idOrError: ast.Identifier.LowerCase | ParseError = visitLowercaseIdentifier(ctx.lowercaseIdentifier())
     val chainExpressionOrError: ast.Chain.Expression | ParseError = visitChainExpression(ctx.chainExpression())
 
-    return idOrError match {
+    idOrError match {
       case parseError: ParseError => new ParseError(
         metadata = metadataParser.parse.metadata(ctx),
         message = "Invalid function call named argument",
@@ -430,7 +632,7 @@ class LanguageVisitor(
   override def visitFunctionCallPositionalArgument(ctx: LanguageParser.FunctionCallPositionalArgumentContext): ast.Function.Call.Positional.Argument | ParseError = {
     super.visitFunctionCallPositionalArgument(ctx)
     val chainExpressionOrError: ast.Chain.Expression | ParseError = visitChainExpression(ctx.chainExpression())
-    return chainExpressionOrError match {
+    chainExpressionOrError match {
       case chainExpression: ast.Chain.Expression => ast.Function.Call.Positional.Argument(
         expression = chainExpression, metadata = metadataParser.parse.metadata(ctx)
       )
@@ -445,7 +647,7 @@ class LanguageVisitor(
 
   override def visitFunctionCallArgument(ctx: LanguageParser.FunctionCallArgumentContext): ast.Function.Call.Argument | ParseError = {
     super.visitFunctionCallArgument(ctx)
-    return Option(ctx.functionCallPositionalArgument())
+    Option(ctx.functionCallPositionalArgument())
       .map(item => visitFunctionCallPositionalArgument(item))
       .orElse(
         Option(ctx.functionCallNamedArgument())
@@ -459,7 +661,7 @@ class LanguageVisitor(
     super.visitValueAssignmentExpression(ctx)
     val referenceOrError: Value.Reference | ParseError = visitValueReference(ctx.valueReference())
     val chainExpressionOrError: Chain.Expression | ParseError = visitChainExpression(ctx.chainExpression())
-    return referenceOrError match {
+    referenceOrError match {
       case reference: Value.Reference => chainExpressionOrError match {
         case chain: Chain.Expression => Value.Assignment.Expression(left = reference, right = chain, metadata = metadataParser.parse.metadata(ctx))
         case error: ParseError => new ParseError(metadata = metadataParser.parse.metadata(ctx), message = "Invalid value assignment expression", cause = Seq(error))
@@ -472,7 +674,7 @@ class LanguageVisitor(
   override def visitFunctionCallExpression(ctx: LanguageParser.FunctionCallExpressionContext): ast.Function.Call.Expression | ParseError = {
     super.visitFunctionCallExpression(ctx)
     val referenceOrError: ast.Function.Reference | ParseError = visitFunctionReference(ctx.functionReference())
-    return referenceOrError match {
+    referenceOrError match {
       case reference: ast.Function.Reference => {
         val arguments = mutable.Buffer[ast.Function.Call.Argument]();
         val errors = mutable.Buffer[ParseError]();
@@ -521,7 +723,7 @@ class LanguageVisitor(
     val typeOrError: ast.Value.Type.Identifier | Null | ParseError = Option(ctx.valueTypeIdentifier())
       .map(item => visitValueTypeIdentifier(item))
       .orNull
-    return idOrError match {
+    idOrError match {
       case valueId: ast.Function.Identifier => typeOrError match {
         case typeId: ast.Value.Type.Identifier => ast.Function.Reference(
           functionId = valueId,
@@ -549,7 +751,7 @@ class LanguageVisitor(
     val typeOrError: ast.Value.Type.Identifier | Null | ParseError = Option(ctx.valueTypeIdentifier())
       .map(item => visitValueTypeIdentifier(item))
       .orNull
-    return idOrError match {
+    idOrError match {
       case valueId: ast.Value.Identifier => typeOrError match {
         case typeId: ast.Value.Type.Identifier => ast.Value.Reference(
           valueId = valueId,
@@ -601,7 +803,7 @@ class LanguageVisitor(
       .orElseGet(() => new ParserBugError(
         metadata = metadataParser.parse.metadata(ctx)
       ));
-    return result match {
+    result match {
       case terminalNode: TerminalNode => {
         val text = terminalNode.getText;
         terminalNode.getSymbol.getType match {

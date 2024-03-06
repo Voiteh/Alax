@@ -11,6 +11,10 @@ import org.alax.ast.Value;
 
 object Function {
 
+  object Return {
+    type Type = Value.Type.Identifier;
+  }
+
   object Call {
 
     type Argument = Function.Call.Positional.Argument | Function.Call.Named.Argument;
@@ -45,7 +49,12 @@ object Function {
     extends ast.base.expressions.Reference(metadata = metadata);
 
   object Lambda {
-    type Element = Chain.Expression | Value.Assignment.Expression | ParseError
+    type Element = Chain.Expression
+      | Value.Assignment.Expression
+      | Value.Reference
+      | Function.Reference
+      | Function.Call.Expression
+      | ParseError
 
     case class Body(element: Element, metadata: Metadata) extends ast.base.Node(metadata = metadata)
   }
@@ -53,18 +62,28 @@ object Function {
   type Body = Block.Body | Lambda.Body;
 
   object Block {
-    type Element = Chain.Expression | Value.Definition | Value.Declaration | Value.Assignment.Expression | ParseError
+    type Element = Chain.Expression
+      | Value.Declaration
+      | Value.Definition
+      | Value.Assignment.Expression
+      | Value.Reference
+      | Function.Reference
+      | Function.Call.Expression
+      | ParseError
 
     case class Body(elements: Seq[Element], metadata: Metadata) extends ast.base.Node(metadata = metadata)
   }
 
   type Identifier = Identifier.LowerCase;
 
+  type Definition = Pure.Definition | SideEffect.Definition
+
   object Pure {
     case class Definition(
                            returnTypeReference: Value.Type.Identifier,
                            identifier: Function.Identifier,
                            parameters: Seq[Function.Parameter],
+                           body: Function.Body,
                            metadata: Metadata
                          ) extends BaseDefinition(metadata)
 
@@ -75,6 +94,7 @@ object Function {
     case class Definition(
                            identifier: Function.Identifier,
                            parameters: Seq[Function.Parameter],
+                           body: Function.Body,
                            metadata: Metadata
                          ) extends BaseDefinition(metadata)
 
@@ -86,6 +106,7 @@ object Function {
   case class Parameter(
                         identifier: Identifier.LowerCase,
                         `type`: Value.Type.Identifier,
+                        expression: Chain.Expression | Null = null,
                         metadata: Metadata
                       ) extends Node(metadata) {
 

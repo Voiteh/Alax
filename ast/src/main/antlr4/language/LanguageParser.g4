@@ -25,14 +25,16 @@ functionDeclaration: FUNCTION functionReturnType? functionIdentifier OPEN_BRACKE
 functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS chainExpression)?;
 functionReturnType: valueTypeIdentifier;
 
-functionLambdaBody: valueAssignmentExpression|functionCallExpression SEMI_COLON;
-functionBlockBody: OPEN_CURLY (valueDeclaration|valueDefinition|valueAssignmentExpression|functionCallExpression)* CLOSE_CURLY;
+functionLambdaBody: chainExpression|valueAssignmentExpression|functionCallExpression|functionReference|valueReference SEMI_COLON;
+functionBlockBody: OPEN_CURLY (valueDeclaration|valueDefinition|valueAssignmentExpression|functionCallExpression|functionReference|valueReference)* CLOSE_CURLY;
 functionBody: functionBlockBody|functionLambdaBody;
 functionIdentifier: lowercaseIdentifier;
 
 valueDefinition: accessModifier? VALUE valueTypeIdentifier valueIdentifier EQUALS expression SEMI_COLON ;
 valueDeclaration: accessModifier? VALUE valueTypeIdentifier valueIdentifier SEMI_COLON;
 valueIdentifier: lowercaseIdentifier;
+valueTypeIdentifier: (identifier (DOT identifier)* DOT)* uppercaseIdentifier  ;
+
 
 functionCallExpression: functionReference OPEN_BRACKET (functionCallArgument (COMMA functionCallArgument)*)?  CLOSE_BRACKET;
 functionCallPositionalArgument: chainExpression;
@@ -42,7 +44,7 @@ functionCallArgument: functionCallPositionalArgument|functionCallNamedArgument;
 valueAssignmentExpression: valueReference EQUALS chainExpression;
 
 //Refernces
-valueTypeIdentifier: (identifier (DOT identifier)* DOT)* uppercaseIdentifier  ;
+
 functionReference: (valueTypeIdentifier DOT)? functionIdentifier;
 valueReference: (valueTypeIdentifier DOT)? valueIdentifier;
 
