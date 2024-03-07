@@ -115,7 +115,7 @@ class AstToModelTransformer {
 
 
       object declaration {
-        def name(name: ast.Value.Identifier): String | CompilerError = name.text;
+        def name(name: ast.Identifier.LowerCase): String | CompilerError = name.text;
 
         object `type` {
           def reference(valueTypeReference: ast.Value.Type.Identifier, imports: Seq[Import]): Value.Type.Reference | CompilerError = {

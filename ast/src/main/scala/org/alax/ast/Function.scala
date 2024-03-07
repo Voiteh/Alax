@@ -22,7 +22,7 @@ object Function {
     object Positional {
       case class Argument(
                            expression: Chain.Expression,
-                           metadata: Metadata
+                           metadata: Metadata = Metadata.unknown
                          ) extends ast.base.Argument(metadata = metadata)
     }
 
@@ -30,7 +30,7 @@ object Function {
       case class Argument(
                            identifier: ast.Identifier.LowerCase,
                            expression: Chain.Expression,
-                           metadata: Metadata
+                           metadata: Metadata = Metadata.unknown
                          ) extends ast.base.Argument(metadata = metadata)
     }
 
@@ -45,7 +45,11 @@ object Function {
                          metadata: Metadata = Metadata.unknown) extends ast.base.Statement(metadata = metadata)
   }
 
-  case class Reference(valueTypeIdentifier: Value.Type.Identifier | Null, functionId: Function.Identifier, metadata: Metadata = Metadata.unknown)
+  case class Reference(
+                        valueTypeIdentifier: Value.Type.Identifier | Null,
+                        functionId: ast.Identifier.LowerCase,
+                        metadata: Metadata = Metadata.unknown
+                      )
     extends ast.base.expressions.Reference(metadata = metadata);
 
   object Lambda {
@@ -56,7 +60,12 @@ object Function {
       | Function.Call.Expression
       | ParseError
 
-    case class Body(element: Element, metadata: Metadata) extends ast.base.Node(metadata = metadata)
+    case class Body(
+                     element: Element,
+                     metadata: Metadata = Metadata.unknown
+                   ) extends ast.base.Node(metadata = metadata)
+
+
   }
 
   type Body = Block.Body | Lambda.Body;
@@ -71,20 +80,21 @@ object Function {
       | Function.Call.Expression
       | ParseError
 
-    case class Body(elements: Seq[Element], metadata: Metadata) extends ast.base.Node(metadata = metadata)
+    case class Body(
+                     elements: Seq[Element],
+                     metadata: Metadata = Metadata.unknown
+                   ) extends ast.base.Node(metadata = metadata)
   }
-
-  type Identifier = Identifier.LowerCase;
 
   type Definition = Pure.Definition | SideEffect.Definition
 
   object Pure {
     case class Definition(
                            returnTypeReference: Value.Type.Identifier,
-                           identifier: Function.Identifier,
+                           identifier: ast.Identifier.LowerCase,
                            parameters: Seq[Function.Parameter],
                            body: Function.Body,
-                           metadata: Metadata
+                           metadata: Metadata = Metadata.unknown
                          ) extends BaseDefinition(metadata)
 
 
@@ -92,10 +102,10 @@ object Function {
 
   object SideEffect {
     case class Definition(
-                           identifier: Function.Identifier,
+                           identifier: ast.Identifier.LowerCase,
                            parameters: Seq[Function.Parameter],
                            body: Function.Body,
-                           metadata: Metadata
+                           metadata: Metadata = Metadata.unknown
                          ) extends BaseDefinition(metadata)
 
     case class Body() {
@@ -107,7 +117,7 @@ object Function {
                         identifier: Identifier.LowerCase,
                         `type`: Value.Type.Identifier,
                         expression: Chain.Expression | Null = null,
-                        metadata: Metadata
+                        metadata: Metadata = Metadata.unknown
                       ) extends Node(metadata) {
 
   }
@@ -115,8 +125,9 @@ object Function {
 
   case class Declaration(
                           returnTypeReference: Value.Type.Identifier | Null,
-                          identifier: Function.Identifier,
-                          parameters: Seq[Function.Parameter], metadata: Metadata
+                          identifier: ast.Identifier.LowerCase,
+                          parameters: Seq[Function.Parameter],
+                          metadata: Metadata = Metadata.unknown
                         ) extends BaseDeclaration(metadata) {
 
   }

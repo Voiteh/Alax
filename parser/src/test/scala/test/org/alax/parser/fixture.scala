@@ -1,5 +1,8 @@
 package test.org.alax.parser
 
+import test.org.alax.parser.base.Match
+import org.alax.ast;
+
 object fixture {
 
 
@@ -33,12 +36,14 @@ object fixture {
     val `a_sd 123`: String = "a_sd def"
     val `_ad`: String = "_ad"
     val `123`: String = "123"
+
     object lowercase {
       val `asd`: String = "asd"
       val `a_sd 123`: String = "a_sd def"
       val `_ad`: String = "_ad"
       val `123`: String = "123"
     }
+
     object uppercase {
       val `Asd`: String = "Asd"
       val `A_sd Def`: String = "A_sd Def"
@@ -98,5 +103,35 @@ object fixture {
     val `-99.123` = "-99.123"
   }
 
+  object function {
+    object pure {
+      object definition {
+        val `function String abc(String one)=>one;` = Match(
+          text = "function String abc(String one)=>one;",
+          node = ast.Function.Pure.Definition(
+            returnTypeReference = ast.Value.Type.Identifier(
+              suffix = ast.Identifier.UpperCase(
+                "String"
+              ),
+            ),
+            identifier = ast.Identifier.LowerCase("abc"),
+            parameters = Seq(
+              ast.Function.Parameter(
+                identifier = ast.Identifier.LowerCase("one"),
+                `type` = ast.Value.Type.Identifier(
+                  suffix = ast.Identifier.UpperCase("String")
+                )
+              )
+            ),
+            body = ast.Function.Lambda.Body(
+              element = ast.Value.Reference(
+                valueId = ast.Identifier.LowerCase("one"),
+              )
+            ),
+          )
+        )
+      }
+    }
+  }
 
 }

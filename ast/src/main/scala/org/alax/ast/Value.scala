@@ -10,13 +10,13 @@ import org.alax.ast.base.statements.Definition as BaseDefinition
 
 object Value {
 
-  case class Declaration(identifier: Identifier,
+  case class Declaration(identifier: ast.Identifier.LowerCase,
                          typeReference: Value.Type.Identifier,
                          metadata: Metadata = Metadata.unknown
                         ) extends BaseDeclaration(metadata = metadata);
 
   case class Definition(
-                         name: Identifier,
+                         name: ast.Identifier.LowerCase,
                          typeReference: Value.Type.Identifier,
                          initialization: Expression,
                          metadata: Metadata = Metadata.unknown
@@ -25,19 +25,14 @@ object Value {
   }
 
   case class Reference(
-                        typeId: Value.Type.Identifier | Null,
-                        valueId: Value.Identifier,
-                        metadata: Metadata
+                        typeId: Value.Type.Identifier | Null = null,
+                        valueId: ast.Identifier.LowerCase,
+                        metadata: Metadata = Metadata.unknown
                       )
     extends ast.base.expressions.Reference(metadata = metadata) {
 
   }
 
-  case class Identifier(value: String, metadata: Metadata) extends ast.base.Identifier(metadata = metadata) {
-    assert(value.matches("^[a-z][a-zA-Z0-9\\s]*[a-zA-Z0-9]$"))
-
-    override def text: String = value
-  }
 
   object Identifier {
     def matches(value: String): Boolean = value.matches("^[a-z][a-z0-9\\s]*[a-z0-9]$")

@@ -8,7 +8,7 @@ abstract class Node(metadata: Node.Metadata) extends Product {
   override def toString: String = org.alax.utilities.toString(this)
 
   override def equals(obj: Any): Boolean = obj match {
-    case node: Node => org.alax.utilities.equals(this, node, (name, _) => !name.equals("metadata"))
+    case node: Node => org.alax.utilities.equals(this, node, (name, value) => !value.isInstanceOf[Node.Metadata])
     case _ => false
   }
 
@@ -19,6 +19,9 @@ object Node {
 
     override def toString: String = org.alax.utilities.toString(this)
 
+    override def equals(obj: Any): Boolean = {
+      super.equals(obj)
+    }
   }
 
   object Metadata {

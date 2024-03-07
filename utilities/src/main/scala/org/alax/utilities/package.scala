@@ -5,22 +5,45 @@ def toString(product: Product): String = product.productElementNames.zip(product
   .map { case (name, value) => s"$name = $value" }
   .mkString("(", ", ", ")")
 
-def equals(left: Product, right: Product, filter: (String, Any) => Boolean = (_,_) =>true): Boolean = {
-  val leftIterator: Iterator[(String, Any)] = left.productElementNames.zip(left.productIterator)
+def equals(left: Product, right: Product, filter: (String, Any) => Boolean = (_, _) => true): Boolean = {
+  val leftIterator: Seq[(String, Any)] = left.productElementNames.zip(left.productIterator)
+    .toSeq
     .filter { case (name, value) => filter(name, value) }
-  val rightIterator: Iterator[(String, Any)] = right.productElementNames.zip(right.productIterator)
+  val rightIterator: Seq[(String, Any)] = right.productElementNames.zip(right.productIterator)
+    .toSeq
     .filter { case (name, value) => filter(name, value) }
   leftIterator.zip(rightIterator).foldLeft(true)((acc: Boolean, items: ((String, Any), (String, Any))) => {
-    if acc then {
-      val value1 = items._1._2
-      val value2 = items._2._2
+    val result = if acc then {
+      val (leftName, leftValue) = items._1;
+      val (rightName, rightValue) = items._2;
+
       //null and self reference
-      return if value1 == value2 then true
+      if leftValue == rightValue then {
+        println(s"Comparing references: ${leftName} <> ${rightName} => true")
+        true
+      }
+      else if (leftValue.isInstanceOf[Product] && rightValue.isInstanceOf[Product]) {
+        val result = equals(leftValue.asInstanceOf[Product], rightValue.asInstanceOf[Product], filter)
+        println(s"Comparing products: ${leftName} <> ${rightName} => ${result}")
+        result
+      }
       //equality check for objects
-      else if value1 != null && value2 != null then value1.equals(value2)
+      else if leftValue != null && rightValue != null then {
+        val result = leftValue.equals(rightValue)
+        println(s"Comparing equals: ${leftName} <> ${rightName} => ${result}")
+        result
+      }
       // all other cases
-      else false
-    } else false
+      else {
+        println(s"Unknown comparing equals: ${leftName} <> ${rightName} (${leftValue} with ${rightValue})=> false")
+        false
+      }
+    } else {
+      println("Previous comparison returned false ")
+      false
+    }
+    result
   }
+
   )
 }

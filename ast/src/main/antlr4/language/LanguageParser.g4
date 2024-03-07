@@ -44,7 +44,7 @@ functionCallArgument: functionCallPositionalArgument|functionCallNamedArgument;
 valueAssignmentExpression: valueReference EQUALS chainExpression;
 
 //Refernces
-
+//TODO we need to find common name for those two like functionOrValueReference -> operand
 functionReference: (valueTypeIdentifier DOT)? functionIdentifier;
 valueReference: (valueTypeIdentifier DOT)? valueIdentifier;
 
