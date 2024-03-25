@@ -85,7 +85,7 @@ class AstToModelTransformer {
           case null => Seq[Import]()
 
         val typeOrError: Value.Type.Reference | CompilerError = transform.`type`.id.value(valueDefinition.typeReference, imports)
-        val nameOrError: String | CompilerError = transform.value.declaration.name(name = valueDefinition.name)
+        val nameOrError: String | CompilerError = transform.value.declaration.identifier(name = valueDefinition.identifier)
         val expressionOrError: Expression | CompilerError = transform.expression(valueDefinition.initialization)
         return typeOrError match {
           case tpe: Value.Type.Reference =>
@@ -115,7 +115,7 @@ class AstToModelTransformer {
 
 
       object declaration {
-        def name(name: ast.Identifier.LowerCase): String | CompilerError = name.text;
+        def identifier(name: ast.Evaluable.Identifier): String | CompilerError = name.text;
 
         object `type` {
           def reference(valueTypeReference: ast.Value.Type.Identifier, imports: Seq[Import]): Value.Type.Reference | CompilerError = {
@@ -139,7 +139,7 @@ class AstToModelTransformer {
 
 
         val typeOrError: Value.Type.Reference | CompilerError = transform.value.declaration.`type`.reference(valueDeclaration.typeReference, imports);
-        val nameOrError = transform.value.declaration.name(valueDeclaration.identifier);
+        val nameOrError = transform.value.declaration.identifier(valueDeclaration.identifier);
 
         return typeOrError match {
           case tpe: Value.Type.Reference =>

@@ -19,36 +19,34 @@ packageBody: OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
 packageIdentifier: lowercaseIdentifier;
 
 functionDefinition: sideEffectFunctionDefinition|pureFunctionDefinition;
-sideEffectFunctionDefinition: FUNCTION functionIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET NOT_FAT_ARROW functionBody ;
-pureFunctionDefinition: FUNCTION functionReturnType functionIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET FAT_ARROW functionBody;
-functionDeclaration: FUNCTION functionReturnType? functionIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET SEMI_COLON;
+sideEffectFunctionDefinition: FUNCTION evaluableIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET NOT_FAT_ARROW functionBody ;
+pureFunctionDefinition: FUNCTION functionReturnType evaluableIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET FAT_ARROW functionBody;
+functionDeclaration: FUNCTION functionReturnType? evaluableIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET SEMI_COLON;
 functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS chainExpression)?;
 functionReturnType: valueTypeIdentifier;
 
-functionLambdaBody: chainExpression|valueAssignmentExpression|functionCallExpression|functionReference|valueReference SEMI_COLON;
-functionBlockBody: OPEN_CURLY (valueDeclaration|valueDefinition|valueAssignmentExpression|functionCallExpression|functionReference|valueReference)* CLOSE_CURLY;
+functionLambdaBody: chainExpression|valueAssignmentExpression|functionCallExpression|evaluableReference SEMI_COLON;
+functionBlockBody: OPEN_CURLY (valueDeclaration|valueDefinition|valueAssignmentExpression|functionCallExpression|evaluableReference)* CLOSE_CURLY;
 functionBody: functionBlockBody|functionLambdaBody;
-functionIdentifier: lowercaseIdentifier;
 
-valueDefinition: accessModifier? VALUE valueTypeIdentifier valueIdentifier EQUALS expression SEMI_COLON ;
-valueDeclaration: accessModifier? VALUE valueTypeIdentifier valueIdentifier SEMI_COLON;
-valueIdentifier: lowercaseIdentifier;
+valueDefinition: accessModifier? VALUE valueTypeIdentifier evaluableIdentifier EQUALS expression SEMI_COLON ;
+valueDeclaration: accessModifier? VALUE valueTypeIdentifier evaluableIdentifier SEMI_COLON;
 valueTypeIdentifier: (identifier (DOT identifier)* DOT)* uppercaseIdentifier  ;
 
 
-functionCallExpression: functionReference OPEN_BRACKET (functionCallArgument (COMMA functionCallArgument)*)?  CLOSE_BRACKET;
+functionCallExpression: evaluableReference OPEN_BRACKET (functionCallArgument (COMMA functionCallArgument)*)?  CLOSE_BRACKET;
 functionCallPositionalArgument: chainExpression;
 functionCallNamedArgument: lowercaseIdentifier EQUALS chainExpression;
 functionCallArgument: functionCallPositionalArgument|functionCallNamedArgument;
 
-valueAssignmentExpression: valueReference EQUALS chainExpression;
+valueAssignmentExpression: evaluableReference EQUALS chainExpression;
+
+
 
 //Refernces
-//TODO we need to find common name for those two like functionOrValueReference -> operand
-functionReference: (valueTypeIdentifier DOT)? functionIdentifier;
-valueReference: (valueTypeIdentifier DOT)? valueIdentifier;
+evaluableReference: (valueTypeIdentifier DOT)? evaluableIdentifier;
 
-referenceExpression: valueReference|functionReference;
+evaluableIdentifier:lowercaseIdentifier;
 
 accessModifier: SHARED|PROTECTED;
 
@@ -74,4 +72,4 @@ literalExpression: BOOLEAN_LITERAL|CHARACTER_LITERAL|INTEGER_LITERAL|FLOAT_LITER
 
 chainExpression: expression (DOT chainExpression)?;
 
-expression: literalExpression|functionCallExpression|referenceExpression;
+expression: literalExpression|functionCallExpression|evaluableReference;

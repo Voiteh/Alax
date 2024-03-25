@@ -35,28 +35,21 @@ object Function {
     }
 
     case class Expression(
-                           functionReference: Function.Reference,
+                           functionReference: Evaluable.Reference,
                            arguments: Seq[Function.Call.Argument],
                            metadata: Metadata = Metadata.unknown
                          ) extends ast.base.Expression(metadata = metadata)
 
-    case class Statement(functionReference: Function.Reference,
+    case class Statement(functionReference: Evaluable.Reference,
                          arguments: Seq[Function.Call.Argument],
                          metadata: Metadata = Metadata.unknown) extends ast.base.Statement(metadata = metadata)
   }
 
-  case class Reference(
-                        valueTypeIdentifier: Value.Type.Identifier | Null,
-                        functionId: ast.Identifier.LowerCase,
-                        metadata: Metadata = Metadata.unknown
-                      )
-    extends ast.base.expressions.Reference(metadata = metadata);
 
   object Lambda {
     type Element = Chain.Expression
       | Value.Assignment.Expression
-      | Value.Reference
-      | Function.Reference
+      | Evaluable.Reference
       | Function.Call.Expression
       | ParseError
 
@@ -75,8 +68,7 @@ object Function {
       | Value.Declaration
       | Value.Definition
       | Value.Assignment.Expression
-      | Value.Reference
-      | Function.Reference
+      | Evaluable.Reference
       | Function.Call.Expression
       | ParseError
 
@@ -91,22 +83,30 @@ object Function {
   object Pure {
     case class Definition(
                            returnTypeReference: Value.Type.Identifier,
-                           identifier: ast.Identifier.LowerCase,
+                           identifier: ast.Evaluable.Identifier,
                            parameters: Seq[Function.Parameter],
                            body: Function.Body,
                            metadata: Metadata = Metadata.unknown
-                         ) extends BaseDefinition(metadata)
+                         ) extends ast.Evaluable.Definition[Function.Body](
+      metadata = metadata,
+      identifier = identifier,
+      definable = body
+    )
 
 
   }
 
   object SideEffect {
     case class Definition(
-                           identifier: ast.Identifier.LowerCase,
+                           identifier: ast.Evaluable.Identifier,
                            parameters: Seq[Function.Parameter],
                            body: Function.Body,
                            metadata: Metadata = Metadata.unknown
-                         ) extends BaseDefinition(metadata)
+                         ) extends ast.Evaluable.Definition[Function.Body](
+      identifier = identifier,
+      metadata = metadata,
+      definable = body
+    )
 
     case class Body() {
 
@@ -125,7 +125,7 @@ object Function {
 
   case class Declaration(
                           returnTypeReference: Value.Type.Identifier | Null,
-                          identifier: ast.Identifier.LowerCase,
+                          identifier: ast.Evaluable.Identifier,
                           parameters: Seq[Function.Parameter],
                           metadata: Metadata = Metadata.unknown
                         ) extends BaseDeclaration(metadata) {

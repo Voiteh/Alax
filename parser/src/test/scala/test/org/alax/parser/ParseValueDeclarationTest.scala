@@ -55,8 +55,8 @@ class ParseValueDeclarationTest extends AnyWordSpec {
           .visit((visitor, context) => visitor.visitValueDeclaration(context))
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
-          case ast.Value.Declaration(name: ast.Identifier.LowerCase, tpe: ast.Value.Type.Identifier, _) =>
-            name.text mustBe "some long item"
+          case ast.Value.Declaration(identifier: ast.Evaluable.Identifier, tpe: ast.Value.Type.Identifier, _) =>
+            identifier.text mustBe "some long item"
             tpe mustBe a[ast.Value.Type.Identifier]
             inside(tpe) {
               case typeIdentifier:ast.Value.Type.Identifier =>

@@ -1,43 +1,30 @@
 package org.alax.ast
 
 import org.alax.ast
-import org.alax.ast.base.Expression
+import org.alax.ast.base.{Expression as BaseExpression,  Statement as BaseStatement}
 import org.alax.ast.base.Node.Metadata
-import org.alax.ast.base.Statement as BaseStatement
-import org.alax.ast.base.Expression as BaseExpression
-import org.alax.ast.base.statements.Declaration as BaseDeclaration
-import org.alax.ast.base.statements.Definition as BaseDefinition
+import org.alax.ast.Evaluable
 
 object Value {
 
-  case class Declaration(identifier: ast.Identifier.LowerCase,
+  case class Declaration(identifier: Evaluable.Identifier,
                          typeReference: Value.Type.Identifier,
                          metadata: Metadata = Metadata.unknown
-                        ) extends BaseDeclaration(metadata = metadata);
+                        ) extends Evaluable.Declaration(identifier = identifier, metadata = metadata);
 
   case class Definition(
-                         name: ast.Identifier.LowerCase,
+                         identifier: Evaluable.Identifier,
                          typeReference: Value.Type.Identifier,
-                         initialization: Expression,
+                         initialization: BaseExpression,
                          metadata: Metadata = Metadata.unknown
-                       ) extends BaseDefinition(metadata = metadata) {
+                       )
+    extends Evaluable.Definition[BaseExpression](
+      metadata = metadata,
+      identifier = identifier,
+      definable = initialization
+    ) {
 
   }
-
-  case class Reference(
-                        typeId: Value.Type.Identifier | Null = null,
-                        valueId: ast.Identifier.LowerCase,
-                        metadata: Metadata = Metadata.unknown
-                      )
-    extends ast.base.expressions.Reference(metadata = metadata) {
-
-  }
-
-
-  object Identifier {
-    def matches(value: String): Boolean = value.matches("^[a-z][a-z0-9\\s]*[a-z0-9]$")
-  }
-
 
   object Type {
 
@@ -52,7 +39,7 @@ object Value {
   }
 
   object Assignment {
-    case class Expression(left: Value.Reference, right: Chain.Expression, metadata: Metadata) extends BaseExpression(metadata = metadata)
+    case class Expression(left: Evaluable.Reference, right: Chain.Expression, metadata: Metadata) extends BaseExpression(metadata = metadata)
   }
 
 

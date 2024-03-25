@@ -114,7 +114,7 @@ object fixture {
                 "String"
               ),
             ),
-            identifier = ast.Identifier.LowerCase("abc"),
+            identifier = ast.Evaluable.Identifier("abc"),
             parameters = Seq(
               ast.Function.Parameter(
                 identifier = ast.Identifier.LowerCase("one"),
@@ -124,8 +124,8 @@ object fixture {
               )
             ),
             body = ast.Function.Lambda.Body(
-              element = ast.Value.Reference(
-                valueId = ast.Identifier.LowerCase("one"),
+              element = ast.Evaluable.Reference(
+                valueId = ast.Evaluable.Identifier("one"),
               )
             ),
           )

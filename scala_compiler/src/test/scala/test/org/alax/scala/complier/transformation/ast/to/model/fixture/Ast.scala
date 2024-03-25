@@ -68,14 +68,14 @@ object Ast {
 
     object Definition {
       val `Integer int = 4;`: ValueDefinition = ValueDefinition(
-        name = ast.Identifier.LowerCase(value = "int", metadata = Metadata.unknown),
+        identifier = ast.Evaluable.Identifier(value = "int", metadata = Metadata.unknown),
         typeReference = ast.Value.Type.Identifier(
           suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
         initialization = Literals.Integer(4),
       )
       val `String text = "text";`: ValueDefinition = ValueDefinition(
-        name = ast.Identifier.LowerCase(value = "text", metadata = Metadata.unknown),
+        identifier = ast.Evaluable.Identifier(value = "text", metadata = Metadata.unknown),
         typeReference = ast.Value.Type.Identifier(
           suffix = ast.Identifier.UpperCase("String"), metadata = Metadata.unknown
         ),
@@ -85,13 +85,13 @@ object Ast {
 
     object Declaration {
       val `Integer int`: ValueDeclaration = ValueDeclaration(
-        identifier = ast.Identifier.LowerCase(value = "int", metadata = Metadata.unknown),
+        identifier = ast.Evaluable.Identifier(value = "int", metadata = Metadata.unknown),
         typeReference = ast.Value.Type.Identifier(
           suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
       )
       val `String str`: ValueDeclaration = ValueDeclaration(
-        identifier = ast.Identifier.LowerCase(value = "int", metadata = Metadata.unknown),
+        identifier = ast.Evaluable.Identifier(value = "int", metadata = Metadata.unknown),
         typeReference = ast.Value.Type.Identifier(
           suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
