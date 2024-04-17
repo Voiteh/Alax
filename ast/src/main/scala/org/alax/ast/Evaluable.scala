@@ -3,7 +3,7 @@ package org.alax.ast
 import org.alax.ast.base.Node.Metadata
 import org.alax.ast.base.Statement
 import org.alax.ast.base
-
+import org.alax.ast.Package;
 import scala.collection.mutable
 
 object Evaluable {
@@ -23,7 +23,7 @@ object Evaluable {
    *
    * @param metadata - Metadata for Operand Identifier
    */
-  case class Identifier(value: String, metadata: Metadata=Metadata.unknown) extends base.Identifier(metadata) {
+  case class Identifier(value: String, metadata: Metadata = Metadata.unknown) extends base.Identifier(metadata) {
     assert(Identifier.matches(value))
 
     override def text: String = value
@@ -43,11 +43,18 @@ object Evaluable {
   abstract class Declaration(identifier: Identifier, metadata: Metadata) extends Statement(metadata = metadata)
 
   case class Reference(
-                        typeId: Value.Type.Identifier | Null = null,
-                        valueId: Identifier,
+                        container: Container.Reference | Null = null,
+                        identifier: Identifier,
                         metadata: Metadata = Metadata.unknown
                       )
     extends base.expressions.Reference(metadata = metadata) {
+
+    def text: String = container match {
+      case reference: Container.Reference => reference match
+        case valTypeRef: Value.Type.Reference  => valTypeRef.text
+        case pkgRef: Package.Reference => pkgRef.text
+      case null => identifier.text
+    }
 
   }
 

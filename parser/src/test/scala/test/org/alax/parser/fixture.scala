@@ -109,8 +109,9 @@ object fixture {
         val `function String abc(String one)=>one;` = Match(
           text = "function String abc(String one)=>one;",
           node = ast.Function.Pure.Definition(
-            returnTypeReference = ast.Value.Type.Identifier(
-              suffix = ast.Identifier.UpperCase(
+            returnTypeReference = ast.Value.Type.Reference(
+              `package` = null,
+              identifier = ast.Identifier.UpperCase(
                 "String"
               ),
             ),
@@ -118,14 +119,15 @@ object fixture {
             parameters = Seq(
               ast.Function.Parameter(
                 identifier = ast.Identifier.LowerCase("one"),
-                `type` = ast.Value.Type.Identifier(
-                  suffix = ast.Identifier.UpperCase("String")
+                `type` = ast.Value.Type.Reference(
+                  `package` = null,
+                  identifier = ast.Identifier.UpperCase("String")
                 )
               )
             ),
             body = ast.Function.Lambda.Body(
               element = ast.Evaluable.Reference(
-                valueId = ast.Evaluable.Identifier("one"),
+                identifier = ast.Evaluable.Identifier("one"),
               )
             ),
           )

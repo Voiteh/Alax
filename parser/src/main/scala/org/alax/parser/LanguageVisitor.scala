@@ -7,6 +7,7 @@ import org.alax.ast
 import org.antlr.v4.runtime.{ParserRuleContext, Token, TokenStream}
 import org.antlr.v4.runtime.tree.{ParseTree, TerminalNode}
 
+import java.util.Optional
 import javax.management.ValueExp
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
@@ -83,30 +84,41 @@ class LanguageVisitor(
 
   override def visitValueTypeIdentifier(ctx: LanguageParser.ValueTypeIdentifierContext): ast.Value.Type.Identifier | ParseError = {
     super.visitValueTypeIdentifier(ctx)
-    val typeIdOrError: ast.Identifier.UpperCase | ParseError = visitUppercaseIdentifier(ctx.uppercaseIdentifier())
-    val identifiers = mutable.Buffer[ast.Identifier]();
-    val errors = mutable.Buffer[ParseError]();
-    ctx.identifier().asScala
-      .map(item => visitIdentifier(item))
-      .foreach {
-        case id: ast.Identifier => identifiers.addOne(id)
-        case error: ParseError => errors.addOne(error)
-      }
-    if errors.nonEmpty then new ParseError(
-      metadata = metadataParser.parse.metadata(ctx),
-      message = "Invalid value type identifier",
-      cause = errors.toSeq
-    ) else typeIdOrError match {
-      case typeId: ast.Identifier.UpperCase => ast.Value.Type.Identifier(
-        prefix = identifiers.toSeq,
-        suffix = typeId,
-        metadata = metadataParser.parse.metadata(ctx)
-      )
-      case parseError: ParseError => new ParseError(
+    visitUppercaseIdentifier(ctx.uppercaseIdentifier())
+  }
+
+  override def visitValueTypeReference(ctx: LanguageParser.ValueTypeReferenceContext): ast.Value.Type.Reference | ParseError = {
+    super.visitValueTypeReference(ctx)
+    val packageOrError: ast.Package.Reference | ParseError | Null = Option(ctx.packageReference())
+      .map(item => visitPackageReference(item))
+      .orNull
+    val typeIdOrError: ast.Value.Type.Identifier | ParseError = visitValueTypeIdentifier(ctx.valueTypeIdentifier())
+    typeIdOrError match {
+      case error: ParseError => ParseError(
         metadata = metadataParser.parse.metadata(ctx),
-        message = "Invalid value type identifier",
-        cause = Seq(parseError)
+        message = s"Invalid value type identifier",
+        cause = Seq(error)
       )
+      case typeId: ast.Value.Type.Identifier =>
+        packageOrError match {
+          case error: ParseError => ParseError(
+            metadata = metadataParser.parse.metadata(ctx),
+            message = s"Invalid package reference",
+            cause = Seq(error)
+          )
+          case pkg: ast.Package.Reference => ast.Value.Type.Reference(
+            `package` = pkg,
+            identifier = typeId,
+            metadata = metadataParser.parse.metadata(ctx)
+
+          )
+          case null => ast.Value.Type.Reference(
+            `package` = null,
+            identifier = typeId,
+            metadata = metadataParser.parse.metadata(ctx)
+
+          )
+        }
     }
   }
 
@@ -266,11 +278,11 @@ class LanguageVisitor(
 
   override def visitFunctionParameter(ctx: LanguageParser.FunctionParameterContext): ast.Function.Parameter | ParseError = {
     super.visitFunctionParameter(ctx)
-    val typeIdentifierOrError: Value.Type.Identifier | ParseError = visitValueTypeIdentifier(ctx.valueTypeIdentifier())
+    val typeIdentifierOrError: Value.Type.Reference | ParseError = visitValueTypeReference(ctx.valueTypeReference())
     val lowercaseIdentifierOrError: ast.Identifier.LowerCase | ParseError = visitLowercaseIdentifier(ctx.lowercaseIdentifier());
     val optionChainExpressionOrError: Option[ast.Chain.Expression | ParseError] = Option(ctx.chainExpression()).map(item => visitChainExpression(item))
     typeIdentifierOrError match {
-      case typeIdentifier: Value.Type.Identifier => lowercaseIdentifierOrError match {
+      case typeIdentifier: Value.Type.Reference => lowercaseIdentifierOrError match {
         case lowercaseIdentifier: ast.Identifier.LowerCase => optionChainExpressionOrError match {
           case someChainExpression: Some[ast.Chain.Expression | ParseError] => someChainExpression.get match {
             case chainExpression: ast.Chain.Expression => ast.Function.Parameter(
@@ -301,7 +313,7 @@ class LanguageVisitor(
 
   override def visitFunctionReturnType(ctx: LanguageParser.FunctionReturnTypeContext): ast.Function.Return.Type | ParseError = {
     super.visitFunctionReturnType(ctx)
-    visitValueTypeIdentifier(ctx.valueTypeIdentifier())
+    visitValueTypeReference(ctx.valueTypeReference())
   }
 
   override def visitFunctionBlockBody(ctx: LanguageParser.FunctionBlockBodyContext): ast.Function.Block.Body | ParseError = {
@@ -480,6 +492,36 @@ class LanguageVisitor(
     }
   }
 
+  override def visitContainerReference(ctx: LanguageParser.ContainerReferenceContext): ast.Container.Reference | ParseError = {
+    super.visitContainerReference(ctx)
+    Some(ctx.valueTypeReference())
+      .map(item => visitValueTypeReference(item))
+      .orElse(Some(ctx.packageReference()).map(item => visitPackageReference(item)))
+      .getOrElse(new ParserBugError(
+        metadata = metadataParser.parse.metadata(ctx),
+      ))
+  }
+
+  override def visitPackageReference(ctx: LanguageParser.PackageReferenceContext): ast.Package.Reference | ParseError = {
+    super.visitPackageReference(ctx)
+    val identifiers = mutable.Buffer[ast.Identifier.LowerCase]();
+    val errors = mutable.Buffer[ParseError]();
+    ctx.lowercaseIdentifier()
+      .asScala.map(item => visitLowercaseIdentifier(item))
+      .foreach {
+        case id: ast.Identifier.LowerCase => identifiers.addOne(id)
+        case error: ParseError => errors.addOne(error)
+      }
+    if errors.isEmpty then ast.Package.Reference(
+      parts = identifiers.toSeq,
+      metadata = metadataParser.parse.metadata(ctx),
+    ) else new ParseError(
+      metadata = metadataParser.parse.metadata(ctx),
+      message = s"Invalid package reference",
+      cause = errors.toSeq
+    )
+  }
+
 
   override def visitPackageDeclaration(ctx: LanguageParser.PackageDeclarationContext): ast.Package.Declaration | ParseError = {
     super.visitPackageDeclaration(ctx)
@@ -527,10 +569,10 @@ class LanguageVisitor(
 
   override def visitValueDeclaration(ctx: LanguageParser.ValueDeclarationContext): ast.Value.Declaration | ParseError = {
     super.visitValueDeclaration(ctx);
-    val valueTypeIdentifier: ast.Value.Type.Identifier | ParseError = visitValueTypeIdentifier(ctx.valueTypeIdentifier());
+    val valueTypeIdentifier: ast.Value.Type.Reference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
     val name: ast.Evaluable.Identifier | ParseError = visitEvaluableIdentifier(ctx.evaluableIdentifier());
     valueTypeIdentifier match {
-      case valueType: ast.Value.Type.Identifier =>
+      case valueType: ast.Value.Type.Reference =>
         name match {
           case shadowName: ast.Evaluable.Identifier =>
             ast.Value.Declaration(
@@ -547,11 +589,11 @@ class LanguageVisitor(
   override def visitValueDefinition(ctx: LanguageParser.ValueDefinitionContext): ast.Value.Definition | ParseError = {
     super.visitValueDefinition(ctx);
 
-    val typeIdentifier: ast.Value.Type.Identifier | ParseError = visitValueTypeIdentifier(ctx.valueTypeIdentifier());
+    val typeIdentifier: ast.Value.Type.Reference | ParseError = visitValueTypeReference(ctx.valueTypeReference());
     val name: ast.Evaluable.Identifier | ParseError = visitEvaluableIdentifier(ctx.evaluableIdentifier());
     val initialization: Expression | ParseError = visitExpression(ctx.expression());
     typeIdentifier match {
-      case valueType: ast.Value.Type.Identifier =>
+      case valueType: ast.Value.Type.Reference =>
         name match {
           case shadowName: ast.Evaluable.Identifier =>
             initialization match {
@@ -683,17 +725,17 @@ class LanguageVisitor(
 
   }
 
-  override def visitEvaluableReference(ctx: LanguageParser.EvaluableReferenceContext): ast.Evaluable.Reference| ParseError = {
+  override def visitEvaluableReference(ctx: LanguageParser.EvaluableReferenceContext): ast.Evaluable.Reference | ParseError = {
     super.visitEvaluableReference(ctx)
     val idOrError: ast.Evaluable.Identifier | ParseError = visitEvaluableIdentifier(ctx.evaluableIdentifier())
-    val typeOrError: ast.Value.Type.Identifier | Null | ParseError = Option(ctx.valueTypeIdentifier())
-      .map(item => visitValueTypeIdentifier(item))
+    val containerOrError: ast.Container.Reference | Null | ParseError = Option(ctx.containerReference())
+      .map(item => visitContainerReference(item))
       .orNull
     idOrError match {
-      case valueId: ast.Evaluable.Identifier => typeOrError match {
-        case typeId: ast.Value.Type.Identifier => ast.Evaluable.Reference(
-          valueId = valueId,
-          typeId = typeId,
+      case valueId: ast.Evaluable.Identifier => containerOrError match {
+        case typeId: ast.Container.Reference => ast.Evaluable.Reference(
+          identifier = valueId,
+          container = typeId,
           metadata = metadataParser.parse.metadata(ctx)
         )
         case typeError: ParseError => new ParseError(
@@ -702,7 +744,7 @@ class LanguageVisitor(
           cause = Seq(typeError)
         )
         case null => ast.Evaluable.Reference(
-          valueId = valueId,
+          identifier = valueId,
           metadata = metadataParser.parse.metadata(ctx)
         )
       }

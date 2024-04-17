@@ -69,15 +69,17 @@ object Ast {
     object Definition {
       val `Integer int = 4;`: ValueDefinition = ValueDefinition(
         identifier = ast.Evaluable.Identifier(value = "int", metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Identifier(
-          suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
+        typeReference = ast.Value.Type.Reference(
+          `package` = null,
+          identifier = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
         initialization = Literals.Integer(4),
       )
       val `String text = "text";`: ValueDefinition = ValueDefinition(
         identifier = ast.Evaluable.Identifier(value = "text", metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Identifier(
-          suffix = ast.Identifier.UpperCase("String"), metadata = Metadata.unknown
+        typeReference = ast.Value.Type.Reference(
+          `package` = null,
+          identifier = ast.Identifier.UpperCase("String"), metadata = Metadata.unknown
         ),
         initialization = Literals.String("text"),
       )
@@ -86,14 +88,16 @@ object Ast {
     object Declaration {
       val `Integer int`: ValueDeclaration = ValueDeclaration(
         identifier = ast.Evaluable.Identifier(value = "int", metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Identifier(
-          suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
+        typeReference = ast.Value.Type.Reference(
+          `package` = null,
+          identifier = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
       )
       val `String str`: ValueDeclaration = ValueDeclaration(
         identifier = ast.Evaluable.Identifier(value = "int", metadata = Metadata.unknown),
-        typeReference = ast.Value.Type.Identifier(
-          suffix = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
+        typeReference = ast.Value.Type.Reference(
+          `package` = null,
+          identifier = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
         ),
       )
 

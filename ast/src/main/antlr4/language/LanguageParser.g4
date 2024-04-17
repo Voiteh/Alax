@@ -1,37 +1,36 @@
 parser grammar LanguageParser;
 options { tokenVocab=LanguageLexer; }
 
-
-
-
 definition: valueDefinition|functionDefinition|packageDefinition|moduleDefinition;
 declaration: valueDeclaration|packageDeclaration|functionDeclaration|moduleDeclaration;
 
-
 moduleDeclaration: MODULE moduleIdentifier SEMI_COLON ;
 moduleDefinition: MODULE moduleIdentifier moduleBody;
-moduleBody: OPEN_CURLY (valueDefinition)*  CLOSE_CURLY;
+moduleBody: OPEN_CURLY (valueDefinition)* CLOSE_CURLY;
+//TODO find another way for identifying modules, it is cumbersome with all that com.bleh.blah.bluh especially when not owning com.bleh domain
 moduleIdentifier: lowercaseIdentifier (DOT lowercaseIdentifier)*;
 
 packageDefinition: PACKAGE packageIdentifier packageBody;
 packageDeclaration: PACKAGE packageIdentifier SEMI_COLON;
-packageBody: OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
+packageBody: OPEN_CURLY (valueDefinition|functionDefinition)* CLOSE_CURLY;
 packageIdentifier: lowercaseIdentifier;
+packageReference: lowercaseIdentifier (DOT lowercaseIdentifier)*;
 
 functionDefinition: sideEffectFunctionDefinition|pureFunctionDefinition;
 sideEffectFunctionDefinition: FUNCTION evaluableIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET NOT_FAT_ARROW functionBody ;
 pureFunctionDefinition: FUNCTION functionReturnType evaluableIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET FAT_ARROW functionBody;
 functionDeclaration: FUNCTION functionReturnType? evaluableIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET SEMI_COLON;
-functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS chainExpression)?;
-functionReturnType: valueTypeIdentifier;
+functionParameter: valueTypeReference lowercaseIdentifier (EQUALS chainExpression)?;
+functionReturnType: valueTypeReference;
 
 functionLambdaBody: chainExpression|valueAssignmentExpression|functionCallExpression|evaluableReference SEMI_COLON;
 functionBlockBody: OPEN_CURLY (valueDeclaration|valueDefinition|valueAssignmentExpression|functionCallExpression|evaluableReference)* CLOSE_CURLY;
 functionBody: functionBlockBody|functionLambdaBody;
 
-valueDefinition: accessModifier? VALUE valueTypeIdentifier evaluableIdentifier EQUALS expression SEMI_COLON ;
-valueDeclaration: accessModifier? VALUE valueTypeIdentifier evaluableIdentifier SEMI_COLON;
-valueTypeIdentifier: (identifier (DOT identifier)* DOT)* uppercaseIdentifier  ;
+valueDefinition: accessModifier? VALUE valueTypeReference evaluableIdentifier EQUALS expression SEMI_COLON ;
+valueDeclaration: accessModifier? VALUE valueTypeReference evaluableIdentifier SEMI_COLON;
+valueTypeReference: (packageReference DOT)? valueTypeIdentifier;
+valueTypeIdentifier: uppercaseIdentifier;
 
 
 functionCallExpression: evaluableReference OPEN_BRACKET (functionCallArgument (COMMA functionCallArgument)*)?  CLOSE_BRACKET;
@@ -41,10 +40,9 @@ functionCallArgument: functionCallPositionalArgument|functionCallNamedArgument;
 
 valueAssignmentExpression: evaluableReference EQUALS chainExpression;
 
-
-
 //Refernces
-evaluableReference: (valueTypeIdentifier DOT)? evaluableIdentifier;
+containerReference: valueTypeReference|packageReference;
+evaluableReference: (containerReference DOT)? evaluableIdentifier;
 
 evaluableIdentifier:lowercaseIdentifier;
 

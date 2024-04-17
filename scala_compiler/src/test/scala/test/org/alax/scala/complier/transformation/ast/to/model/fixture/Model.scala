@@ -82,7 +82,7 @@ object Model {
 
     object Declaration {
       val `int: scala.lang.Integer` = compiler.model.Value.Declaration(
-        name = "int",
+        identifier = "int",
         `type` = compiler.model.Value.Type.Reference(
           id = Type.Id(
             value = "scala.lang.Integer"
@@ -103,7 +103,7 @@ object Model {
   object Package {
     object Declaration {
       val `package abc` = compiler.model.Package.Declaration(
-        name = "abc"
+        identifier = "abc"
       )
     }
 
@@ -121,7 +121,7 @@ object Model {
   object Module {
     object Declaration {
       val `module abc.def` = compiler.model.Module.Declaration(
-        name = "abc.def"
+        identifier = "abc.def"
       )
     }
 

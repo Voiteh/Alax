@@ -8,27 +8,39 @@ import scala.meta.{Decl, Defn, Pat, Term, Tree, Name as MName, Type as MType}
 
 object Value {
 
+
+  case class Reference(`package`: Package.Reference | Null, identifier: Value.Declaration.Identifier) extends model.Reference {
+    override val scala: Term.Name | Term.Select =
+      if `package` == null then Term.Name(identifier)
+      else Term.Select(qual = `package`.scala, name = Term.Name(identifier))
+
+  }
+
   /**
    * Value declaration
    *
-   * @param name   - simple name of that declaration available to identify that value
+   * @param identifier   - simple name of that declaration available to identify that value
    * @param `type` - type of value declaration
    */
   case class Declaration(
-                          override val name: BaseDeclaration.Name,
+                          override val identifier: Declaration.Identifier,
                           `type`: Value.Type.Reference //|Union.Type|Intersection.Type|Functional.Type...
                         )
-    extends model.Declaration(name = name) {
+    extends model.Declaration(identifier = identifier) {
 
     override val scala: Decl.Val = Decl.Val(
       mods = collection.immutable.List(),
       pats = collection.immutable.List(
-        Term.Name(name)
+        Term.Name(identifier)
       ),
       decltpe = `type`.scala
     )
 
 
+  }
+
+  object Declaration{
+    type Identifier = BaseDeclaration.Identifier;
   }
 
 
@@ -62,7 +74,7 @@ object Value {
       mods = collection.immutable.List(),
       pats = collection.immutable.List(
         Pat.Var(
-          Term.Name(declaration.name)
+          Term.Name(declaration.identifier)
         )
       ),
       decltpe = Option(MType.Name(declaration.`type`.id.value)),

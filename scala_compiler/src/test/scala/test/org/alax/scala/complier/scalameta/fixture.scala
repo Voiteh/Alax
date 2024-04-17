@@ -13,7 +13,7 @@ object fixture {
     object definition {
       val `java.lang.String abc="abc"`: (Value.Definition, ScalaSourceCode) = (Value.Definition(
         declaration = Value.Declaration(
-          name = "def",
+          identifier = "def",
           `type` = Value.Type.Reference(
             Type.Id(
               value = "Integer"
@@ -29,14 +29,14 @@ object fixture {
     object declaration {
 
       val `Integer def`: (Value.Declaration, ScalaSourceCode) = (Value.Declaration(
-        name = "def",
+        identifier = "def",
         `type` = Value.Type.Reference(Type.Id(
           value = "Integer",
         ))
       ), "val `def`: Integer")
 
       val `java.lang.String abc`: (Value.Declaration, ScalaSourceCode) = (Value.Declaration(
-        name = "abc", `type` = Value.Type.Reference(Type.Id(
+        identifier = "abc", `type` = Value.Type.Reference(Type.Id(
           value = "java.lang.String"
         ))
       ), "val abc: `java.lang.String`")

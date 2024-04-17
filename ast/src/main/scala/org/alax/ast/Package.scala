@@ -7,6 +7,13 @@ import org.alax.ast.base.statements.Declaration as BaseDeclaration
 import org.alax.ast.base.statements.Definition as BaseDefinition
 object Package {
 
+
+  case class Reference(parts: Seq[ast.Identifier.LowerCase], metadata: Metadata) extends ast.base.expressions.Reference(metadata = metadata) {
+
+    def text: String = ast.base.Identifier.fold(parts, ".")
+  }
+
+
   case class Identifier(value: String, metadata: Metadata) extends ast.base.Identifier(metadata = metadata) {
     assert(value.matches(value))
 

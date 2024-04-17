@@ -1,20 +1,20 @@
 package org.alax.ast
 
 import org.alax.ast
-import org.alax.ast.base.{Expression as BaseExpression,  Statement as BaseStatement}
+import org.alax.ast.base.{Expression as BaseExpression, Statement as BaseStatement}
 import org.alax.ast.base.Node.Metadata
 import org.alax.ast.Evaluable
 
 object Value {
 
   case class Declaration(identifier: Evaluable.Identifier,
-                         typeReference: Value.Type.Identifier,
+                         typeReference: Value.Type.Reference,
                          metadata: Metadata = Metadata.unknown
                         ) extends Evaluable.Declaration(identifier = identifier, metadata = metadata);
 
   case class Definition(
                          identifier: Evaluable.Identifier,
-                         typeReference: Value.Type.Identifier,
+                         typeReference: Value.Type.Reference,
                          initialization: BaseExpression,
                          metadata: Metadata = Metadata.unknown
                        )
@@ -27,13 +27,14 @@ object Value {
   }
 
   object Type {
+    type Identifier = ast.Identifier.UpperCase;
 
+    case class Reference(`package`: ast.Package.Reference | Null, identifier: Identifier, metadata: Metadata = Metadata.unknown) extends ast.base.expressions.Reference(metadata = metadata) {
 
-    case class Identifier(prefix: Seq[ast.Identifier] = Seq(), suffix: ast.Identifier.UpperCase, metadata: Metadata = Metadata.unknown) extends ast.base.Identifier(metadata = metadata) {
-
-      def text: String = if prefix.isEmpty
-      then suffix.text
-      else s"${ast.base.Identifier.fold(prefix, ".")}.${suffix.text}"
+      def text: String = `package` match {
+        case reference: ast.Package.Reference => s"${reference.text}.${identifier.text}"
+        case null => identifier.text
+      }
 
     }
   }

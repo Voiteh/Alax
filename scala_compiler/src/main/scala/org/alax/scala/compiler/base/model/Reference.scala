@@ -6,5 +6,5 @@ import scala.meta.{Tree, Term}
  * Reference to specific member
  */
 abstract class Reference extends Expression{
-  override val scala: Term = ???
+  override val scala: Term.Name|Term.Select = ???
 }

@@ -12,7 +12,7 @@ import org.alax.ast.Value;
 object Function {
 
   object Return {
-    type Type = Value.Type.Identifier;
+    type Type = Value.Type.Reference;
   }
 
   object Call {
@@ -82,7 +82,7 @@ object Function {
 
   object Pure {
     case class Definition(
-                           returnTypeReference: Value.Type.Identifier,
+                           returnTypeReference: Value.Type.Reference,
                            identifier: ast.Evaluable.Identifier,
                            parameters: Seq[Function.Parameter],
                            body: Function.Body,
@@ -115,7 +115,7 @@ object Function {
 
   case class Parameter(
                         identifier: Identifier.LowerCase,
-                        `type`: Value.Type.Identifier,
+                        `type`: Value.Type.Reference,
                         expression: Chain.Expression | Null = null,
                         metadata: Metadata = Metadata.unknown
                       ) extends Node(metadata) {
@@ -124,7 +124,7 @@ object Function {
 
 
   case class Declaration(
-                          returnTypeReference: Value.Type.Identifier | Null,
+                          returnTypeReference: Value.Type.Reference | Null,
                           identifier: ast.Evaluable.Identifier,
                           parameters: Seq[Function.Parameter],
                           metadata: Metadata = Metadata.unknown

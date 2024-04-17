@@ -10,9 +10,9 @@ import scala.meta.Type.ParamClause
 import scala.meta.contrib.DocToken.Constructor
 
 object Module {
-  case class Declaration(override val name: String) extends base.model.Declaration(name = name) {
+  case class Declaration(override val identifier: String) extends base.model.Declaration(identifier = identifier) {
     override def scala: Type.Name = {
-      return Type.Name(name)
+      return Type.Name(identifier)
     }
   }
 

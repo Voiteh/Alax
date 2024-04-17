@@ -16,8 +16,8 @@ class ModelToFileTransformer(basePath: Path) {
   private object resolve {
     def path(context: Contexts.Package | Contexts.Module): Path = {
       context match {
-        case packageContext: Contexts.Package => path(packageContext.parent).resolve(packageContext.declaration.name)
-        case moduleContext: Contexts.Module => moduleContext.declaration.name.split("\\.")
+        case packageContext: Contexts.Package => path(packageContext.parent).resolve(packageContext.declaration.identifier)
+        case moduleContext: Contexts.Module => moduleContext.declaration.identifier.split("\\.")
           .foldLeft(basePath)((acc: Path, item: String) => acc.resolve(item))
       }
     }
@@ -27,7 +27,7 @@ class ModelToFileTransformer(basePath: Path) {
   object transform {
     def `package`(definition: Package.Definition, context: Contexts.Package | Contexts.Module): Virtual[File] = Virtual(
       () => {
-        val path = resolve.path(context).resolve(definition.declaration.name).resolve("package.scala")
+        val path = resolve.path(context).resolve(definition.declaration.identifier).resolve("package.scala")
         val file: File = path.toFile;
         FileUtils.createParentDirectories(path.toFile);
         if (!file.exists()) then assert(file.createNewFile())
