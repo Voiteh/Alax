@@ -1,8 +1,8 @@
 package org.alax.scala.compiler.base.model
+import org.alax.scala.compiler.model.Package
+case class Import(ancestor: Package.Reference, member: String, alias: String | Null = null) extends Statement {
 
-case class Import(ancestor: String, member: String, alias: String | Null = null) extends Statement {
-
-  val text: String = if (alias != null) then s"${ancestor}.$alias" else s"${ancestor}.$member";
+  val text: String = if (alias != null) then s"${ancestor.text}.$alias" else s"${ancestor.text}.$member";
 
 
   override def toString : String = text;

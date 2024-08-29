@@ -1,8 +1,9 @@
 package org.alax.scala.compiler.model
 
+
 import scala.meta.{Decl, Defn, Member, Name, Term, Type}
 import org.alax.scala.compiler.base.model
-import org.alax.scala.compiler.base.model.{Expression, ScalaMetaNode}
+import org.alax.scala.compiler.base.model.{Expression, Statement, ScalaMetaNode}
 
 object Function {
 
@@ -38,16 +39,15 @@ object Function {
   object Declaration {
     type Identifier = model.Declaration.Identifier
   }
-
   case class Declaration(override val identifier: Function.Declaration.Identifier,
-                         parameters: Seq[Parameter],
+                         parameters: Seq[Parameter] = Seq(),
                          returnType: Value.Type.Reference | Null = null) extends model.Declaration(
     identifier = identifier
   ) {
     override def scala: Decl.Def = Decl.Def(
       mods = List(),
       name = Term.Name(identifier),
-      decltpe = Type.Name(returnType.id.value),
+      decltpe = if(returnType!=null) Type.Name(returnType.id.value) else Type.Name("scala.Unit") ,
       paramClauseGroups = List(
         Member.ParamClauseGroup(
           tparamClause = Type.ParamClause(values = List()),
@@ -81,12 +81,12 @@ object Function {
     type Identifier = String
   }
 
-  case class Parameter(identifier: Parameter.Identifier, `type`: Value.Type.Reference, initialization: Expression | Null = null) extends ScalaMetaNode {
+  case class Parameter(identifier: Parameter.Identifier, typeReference: Value.Type.Reference, initialization: Expression | Null = null) extends ScalaMetaNode {
     override def scala: Term.Param = Term.Param(
       mods = List(),
       name = Name(identifier),
       decltpe = Some(
-        Type.Name(`type`.id.value)
+        Type.Name(typeReference.id.value)
       ),
       default = initialization match {
         case expression: Expression => Some(expression.scala)
@@ -97,14 +97,17 @@ object Function {
 
   object Definition {
 
-    abstract class Body(expressions: Seq[Expression]) extends ScalaMetaNode {
+    abstract class Body(expressions: Seq[Expression|Statement]) extends ScalaMetaNode {
       override def scala: Term;
     }
 
     object Bodies {
-      case class BlockBody(expressions: Seq[Expression]) extends Function.Definition.Body(expressions = expressions) {
+      case class BlockBody(elements: Seq[Expression|  Statement]) extends Function.Definition.Body(expressions = elements) {
         override def scala: Term = Term.Block(
-          stats = expressions.map(item => item.scala).toList
+          stats =  elements.map(item => item match {
+            case statement: Statement => statement.scala
+            case expression: Expression => expression.scala
+          }).toList
         )
       }
 

@@ -36,7 +36,7 @@ class TransformValueDeclarationTest extends AnyWordSpec {
         inside(result.asInstanceOf[Value.Declaration]){
           case Value.Declaration(name,tpe) =>
             name mustBe "int"
-            tpe.id.value mustBe "scala.lang.Integer"
+            tpe.text mustBe "scala.lang.Integer"
         }
       }
     }
@@ -50,7 +50,7 @@ class TransformValueDeclarationTest extends AnyWordSpec {
         inside(result.asInstanceOf[Value.Declaration]) {
           case Value.Declaration(name, tpe) =>
             name mustBe "int"
-            tpe.id.value mustBe "scala.lang.Integer"
+            tpe.text mustBe "scala.lang.Integer"
         }
       }
     }

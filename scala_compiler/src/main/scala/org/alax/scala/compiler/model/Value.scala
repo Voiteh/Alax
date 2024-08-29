@@ -19,12 +19,12 @@ object Value {
   /**
    * Value declaration
    *
-   * @param identifier   - simple name of that declaration available to identify that value
-   * @param `type` - type of value declaration
+   * @param identifier    - simple name of that declaration available to identify that value
+   * @param typeReference - type of value declaration
    */
   case class Declaration(
                           override val identifier: Declaration.Identifier,
-                          `type`: Value.Type.Reference //|Union.Type|Intersection.Type|Functional.Type...
+                          typeReference: Value.Type.Reference //|Union.Type|Intersection.Type|Functional.Type...
                         )
     extends model.Declaration(identifier = identifier) {
 
@@ -33,13 +33,13 @@ object Value {
       pats = collection.immutable.List(
         Term.Name(identifier)
       ),
-      decltpe = `type`.scala
+      decltpe = typeReference.scala
     )
 
 
   }
 
-  object Declaration{
+  object Declaration {
     type Identifier = BaseDeclaration.Identifier;
   }
 
@@ -52,7 +52,10 @@ object Value {
 
 
   object Type {
-    case class Reference(id: BaseType.Id) extends BaseType.Reference() {
+    case class Reference(packageReference: Package.Reference | Null = null, id: BaseType.Id) extends BaseType.Reference() {
+
+      val text: String = if (packageReference) != null then s"${packageReference.text}.${id.value}" else id.value
+
       override def equals(obj: Any): Boolean = {
         return obj match {
           case value: Reference => id == value.id;
@@ -77,7 +80,7 @@ object Value {
           Term.Name(declaration.identifier)
         )
       ),
-      decltpe = Option(MType.Name(declaration.`type`.id.value)),
+      decltpe = Option(MType.Name(declaration.typeReference.id.value)),
 
     )
 

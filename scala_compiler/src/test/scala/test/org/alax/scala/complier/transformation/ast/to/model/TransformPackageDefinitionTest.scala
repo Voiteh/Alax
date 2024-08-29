@@ -27,6 +27,16 @@ class TransformPackageDefinitionTest extends AnyWordSpec {
 
         }
       }
+      "transform body" in {
+        val result = astTransformer.transform.`package`.definition.body(
+          body = Ast.Package.Definition.`package abc { Integer int = 4;}`.body,
+          context = Contexts.Unit(imports = Seq(Model.Context.Import.`scala.lang.Integer`))
+        )
+        inside(result){
+          case body: Package.Definition.Body => body mustBe Model.Package.Definition.`package abc { int: scala.lang.Integer; }`.body
+          case result => fail(s"invalid result expected package definition body but was: ${result}")
+        }
+      }
     }
 
 

@@ -2,7 +2,7 @@ package org.alax.scala.compiler.transformation.ast.to.model
 
 import org.alax.ast
 import org.alax.ast.base.{ParseError, Expression as AstExpression, Statement as AstStatement}
-import org.alax.ast.Identifier.{LowerCase, UpperCase}
+import org.alax.ast.Identifier.{LowerCase, UpperCase, matches}
 import org.alax.ast.base.statements.Declaration as AstDeclartion
 import org.alax.ast.base.expressions.Literal as AstLiteral
 import org.alax.scala.compiler
@@ -53,23 +53,23 @@ class AstToModelTransformer {
 
       object id {
         def value(typeReference: ast.Value.Type.Reference, imports: Seq[Import]): model.Value.Type.Reference | CompilerError = {
-          val typeIdOrError: Type.Id | CompilationError = if typeReference.`package` == null then
-            imports.find(element =>
-              typeReference.identifier.text.equals(element.alias) || typeReference.identifier.text.equals(element.member)
-            ).map(element => s"${element.ancestor}.${element.member}")
-              .map[Type.Id | CompilationError](result => Type.Id(value = result))
-              .getOrElse[Type.Id | CompilationError](
-                new CompilationError(
-                  path = typeReference.metadata.location.unit,
-                  startIndex = typeReference.metadata.location.startIndex,
-                  endIndex = typeReference.metadata.location.endIndex,
-                  message = s"Unknown type: ${typeReference.identifier.text}, did You forget to import?: "
-                ))
-          else Type.Id(value = typeReference.text)
-
-          return typeIdOrError match {
-            case typeId: Type.Id => model.Value.Type.Reference(typeId)
-            case error: CompilerError => error
+          val packageReference: model.Package.Reference | CompilationError = if typeReference.`package` != null then
+            transform.`package`.reference(typeReference.`package`)
+          else imports.find(element =>
+            typeReference.identifier.text.equals(element.alias) || typeReference.identifier.text.equals(element.member)
+          ).map[model.Package.Reference | CompilationError](`import` => `import`.ancestor)
+            .getOrElse(new CompilationError(
+              path = typeReference.metadata.location.unit,
+              startIndex = typeReference.metadata.location.startIndex,
+              endIndex = typeReference.metadata.location.endIndex,
+              message = s"Unknown type: ${typeReference.identifier.text}, did You forget to import?: "
+            ))
+          packageReference match {
+            case pkg: model.Package.Reference => model.Value.Type.Reference(
+              packageReference = pkg,
+              id = base.model.Type.Id(typeReference.identifier.text)
+            )
+            case error: CompilationError => error
           }
         }
       }
@@ -79,8 +79,8 @@ class AstToModelTransformer {
 
 
     }
-    object value {
 
+    object value {
 
 
       def definition(valueDefinition: ast.Value.Definition, context: Contexts.Unit | Null
@@ -102,7 +102,7 @@ class AstToModelTransformer {
                       case valid@(_: base.model.Literal | _: model.Value.Reference) => compiler.model.Value.Definition(
                         declaration = model.Value.Declaration(
                           identifier = name,
-                          `type` = tpe
+                          typeReference = tpe
                         ),
                         meaning = valid
                       )
@@ -151,7 +151,7 @@ class AstToModelTransformer {
             nameOrError match {
               case name: String => compiler.model.Value.Declaration(
                 identifier = name,
-                `type` = tpe
+                typeReference = tpe
               )
               case error: CompilerError => error;
             }
@@ -167,6 +167,12 @@ class AstToModelTransformer {
     }
 
     object `package` {
+
+      def reference(reference: ast.Package.Reference, context: Contexts.Unit | Null = null): model.Package.Reference = {
+        model.Package.Reference(
+          identifiers = reference.parts.map(item => item.text)
+        )
+      }
 
       object declaration {
         def name(name: ast.Package.Identifier): String | CompilationError = {
@@ -263,26 +269,30 @@ class AstToModelTransformer {
 
     //TODO use streams instead of sequences
     def imports(`import`: ast.Import.Declaration, ancestors: Seq[ast.Import.Identifier] = Seq()): Seq[Tracable[Import]] = {
-      return `import` match {
+      `import` match {
         case container: ast.Imports.Nested => container.nestee.flatMap(element => this.imports(element, ancestors :+ container.nest))
         case simple: ast.Imports.Simple => Seq(Tracable(
           trace = trace(simple.metadata.location),
           transformed = if simple.member.parts.size > 1 then compiler.base.model.Import(
-            ancestor = ast.base.Identifier.fold(ancestors.appendedAll(simple.member.prefix), "."),
+            ancestor = model.Package.Reference(identifiers = ancestors.appendedAll(simple.member.prefix)
+              .map(item => item.text)
+            ),
             member = simple.member.suffix.text) else
             compiler.base.model.Import(
-              ancestor = ast.base.Identifier.fold(ancestors, "."),
+              ancestor = model.Package.Reference(identifiers = ancestors.map(item => item.text)),
               member = simple.member.suffix.text
             )
         ))
         case alias: ast.Imports.Alias => Seq(Tracable(
           trace = trace(alias.metadata.location),
           transformed = if alias.member.parts.size > 1 then compiler.base.model.Import(
-            ancestor = ast.base.Identifier.fold(ancestors.appendedAll(alias.member.prefix), "."),
+            ancestor = model.Package.Reference(identifiers = ancestors.appendedAll(alias.member.prefix)
+              .map(item => item.text)
+            ),
             member = alias.member.suffix.text,
             alias = alias.alias.text
           ) else compiler.base.model.Import(
-            ancestor = ast.base.Identifier.fold(ancestors, "."),
+            ancestor = model.Package.Reference(identifiers = ancestors.map(item => item.text)),
             member = alias.member.suffix.text,
             alias = alias.alias.text
           )

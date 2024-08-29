@@ -17,7 +17,7 @@ class TransformImportTest {
 
     assert(result.size == 1)
     val transformed = result.last.transformed;
-    assert(transformed.ancestor == "scala.lang")
+    assert(transformed.ancestor.toString == "scala.lang")
     assert(transformed.member == "String")
 
 
@@ -30,7 +30,7 @@ class TransformImportTest {
 
     assert(result.size == 1)
     val transformed = result.last.transformed;
-    assert(transformed.ancestor == "scala.lang")
+    assert(transformed.ancestor.toString == "scala.lang")
     assert(transformed.member == "Integer")
     assert(transformed.alias == "Bleh")
 
@@ -43,7 +43,7 @@ class TransformImportTest {
     val result = astTransformer.transform.imports(Ast.Import.`scala.lang [ String, Integer as Bleh ]`);
 
     assert(result.size == 2)
-    result.foreach(element => assert(element.transformed.ancestor == "scala.lang"))
+    result.foreach(element => assert(element.transformed.ancestor.toString == "scala.lang"))
     assert(result.exists(element => element.transformed.member == "String"))
     assert(result.exists(element => element.transformed.member == "Integer" && element.transformed.alias == "Bleh"))
 
