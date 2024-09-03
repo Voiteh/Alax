@@ -76,12 +76,19 @@ class AstToModelTransformer {
     }
 
     object evaluable {
+      object declaration {
+        def identifier(name: ast.Evaluable.Identifier): String | CompilerError = name.text;
 
-
+      }
     }
 
     object value {
 
+      object declaration {
+        def identifier(id: ast.Evaluable.Identifier): model.Value.Declaration.Identifier | CompilerError = id.value
+
+
+      }
 
       def definition(valueDefinition: ast.Value.Definition, context: Contexts.Unit | Null
                     ): model.Value.Definition | CompilerError = {
@@ -90,7 +97,7 @@ class AstToModelTransformer {
           case null => Seq[Import]()
 
         val typeOrError: model.Value.Type.Reference | CompilerError = transform.`type`.id.value(valueDefinition.typeReference, imports)
-        val nameOrError: String | CompilerError = transform.value.declaration.identifier(name = valueDefinition.identifier)
+        val nameOrError: String | CompilerError = transform.value.declaration.identifier(valueDefinition.identifier)
         val expressionOrError: Expression | CompilerError = transform.expression(valueDefinition.initialization)
         return typeOrError match {
           case tpe: model.Value.Type.Reference =>
@@ -118,21 +125,17 @@ class AstToModelTransformer {
 
       }
 
-
-      object declaration {
-        def identifier(name: ast.Evaluable.Identifier): String | CompilerError = name.text;
-
-        object `type` {
-          def reference(valueTypeReference: ast.Value.Type.Reference, imports: Seq[Import]): model.Value.Type.Reference | CompilerError = {
-            val typeReferenceOrError: Type.Reference | CompilerError = transform.`type`.reference(identifier = valueTypeReference, imports = imports);
-            return typeReferenceOrError match {
-              case valueTypeReference: model.Value.Type.Reference => valueTypeReference
-              case error: CompilerError => error
-              case other => CompilerBugError(cause = Exception(f"Unhandled type: $other !"))
-            }
+      object `type` {
+        def reference(valueTypeReference: ast.Value.Type.Reference, imports: Seq[Import]): model.Value.Type.Reference | CompilerError = {
+          val typeReferenceOrError: Type.Reference | CompilerError = transform.`type`.reference(identifier = valueTypeReference, imports = imports);
+          return typeReferenceOrError match {
+            case valueTypeReference: model.Value.Type.Reference => valueTypeReference
+            case error: CompilerError => error
+            case other => CompilerBugError(cause = Exception(f"Unhandled type: $other !"))
           }
         }
       }
+
 
       def declaration(
                        valueDeclaration: ast.Value.Declaration,
@@ -143,8 +146,8 @@ class AstToModelTransformer {
           case null => Seq[Import]()
 
 
-        val typeOrError: model.Value.Type.Reference | CompilerError = transform.value.declaration.`type`.reference(valueDeclaration.typeReference, imports);
-        val nameOrError = transform.value.declaration.identifier(valueDeclaration.identifier);
+        val typeOrError: model.Value.Type.Reference | CompilerError = transform.value.`type`.reference(valueDeclaration.typeReference, imports);
+        val nameOrError = transform.evaluable.declaration.identifier(valueDeclaration.identifier);
 
         return typeOrError match {
           case tpe: model.Value.Type.Reference =>
@@ -164,6 +167,82 @@ class AstToModelTransformer {
 
     object function {
 
+
+      def declaration(declaration: ast.Function.Declaration, context: Contexts.Unit | Null): model.Function.Declaration | CompilerError = {
+        val imports: Seq[Import] = context match {
+          case unit: Contexts.Unit => unit.imports
+          case null => Seq[Import]()
+        }
+        val identifierOrError: model.Function.Declaration.Identifier | CompilerError = transform.function.declaration.identifier(declaration.identifier)
+        val returnTypeOrError: model.Value.Type.Reference | Null | CompilerError = declaration.returnTypeReference match {
+          case valueType: ast.Value.Type.Reference => value.`type`.reference(valueType, imports);
+          case null => null
+        }
+        val parameters: Seq[model.Function.Declaration.Parameter | CompilerError] = declaration.parameters.map(item => transform.function.declaration.parameter(
+          parameter = item,
+          imports = imports
+        ))
+
+        identifierOrError match {
+          case identifier: model.Function.Declaration.Identifier => returnTypeOrError match {
+            case returnType: model.Value.Type.Reference => model.Function.Declaration(
+              identifier = identifier,
+              parameters = parameters,
+              returnType = returnType
+            )
+
+            case error: CompilerError => error
+          }
+          case error: CompilerError => error
+        }
+
+      }
+
+      object declaration {
+
+        def identifier(id: ast.Evaluable.Identifier): model.Function.Declaration.Identifier | CompilerError = id.value
+
+        def parameter(parameter: ast.Function.Declaration.Parameter, imports: Seq[Import]): model.Function.Declaration.Parameter | CompilerError = {
+          val identifierOrError: String | CompilerError = function.declaration.parameter.identifier(parameter.identifier)
+          val typeReferenceOrError: model.Value.Type.Reference | CompilerError = transform.value.`type`.reference(
+            valueTypeReference = parameter.`type`,
+            imports = imports
+          )
+          val initializationOrError: base.model.Expression | Null | CompilerError = if (parameter.expression != null)
+          then transform.expression(parameter.expression)
+          else null;
+          identifierOrError match {
+            case identifier: String => typeReferenceOrError match {
+              case typeReference: model.Value.Type.Reference => initializationOrError match {
+                case initialization: base.model.Expression => model.Function.Declaration.Parameter(
+                  identifier = identifier,
+                  typeReference = typeReference,
+                  initialization = initialization
+                )
+                case null => model.Function.Declaration.Parameter(
+                  identifier = identifier,
+                  typeReference = typeReference
+                )
+                case error: CompilerError => error
+              }
+              case error: CompilerError => error
+            }
+            case error: CompilerError => error
+          }
+        }
+
+        object parameter {
+          def identifier(identifier: ast.Identifier.LowerCase): model.Function.Declaration.Parameter.Identifier = identifier.text
+        }
+      }
+
+      object definition {
+
+      }
+
+      object call {
+
+      }
     }
 
     object `package` {

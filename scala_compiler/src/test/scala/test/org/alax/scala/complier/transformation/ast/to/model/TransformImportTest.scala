@@ -2,53 +2,73 @@ package test.org.alax.scala.complier.transformation.ast.to.model
 
 import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.transformation.ast.to.model.AstToModelTransformer
-import org.junit.jupiter.api.Test
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.must.Matchers
 import test.org.alax.scala.complier.transformation.ast.to.model.fixture.Ast
 
-//TODO refactor into scala.test
-class TransformImportTest {
+class TransformImportTest extends AnyWordSpec with Matchers {
 
   val astTransformer = AstToModelTransformer()
 
+  "AstToModelTransformer" when {
+    "transforming a basic import with null package" must {
+      val result = astTransformer.transform.imports(Ast.Import.`scala.lang.String`)
+      val transformed = result.last.transformed
 
-  @Test
-  def `when provided null package and basic import then should return sequence of tracable import`(): Unit = {
-    val result = astTransformer.transform.imports(Ast.Import.`scala.lang.String`);
+      "return a sequence with one element" in {
+        result.size mustBe 1
+      }
 
-    assert(result.size == 1)
-    val transformed = result.last.transformed;
-    assert(transformed.ancestor.toString == "scala.lang")
-    assert(transformed.member == "String")
+      "have the correct ancestor" in {
+        transformed.ancestor.text mustBe "scala.lang"
+      }
 
+      "have the correct member" in {
+        transformed.member mustBe "String"
+      }
+    }
 
+    "transforming an import with an alias and null package" must {
+      val result = astTransformer.transform.imports(Ast.Import.`scala.lang.Integer as Bleh`)
+      val transformed = result.last.transformed
+
+      "return a sequence with one element" in {
+        result.size mustBe 1
+      }
+
+      "have the correct ancestor" in {
+        transformed.ancestor.text mustBe "scala.lang"
+      }
+
+      "have the correct member" in {
+        transformed.member mustBe "Integer"
+      }
+
+      "have the correct alias" in {
+        transformed.alias mustBe "Bleh"
+      }
+    }
+
+    "transforming a container with 2 imports and null package" must {
+      val result = astTransformer.transform.imports(Ast.Import.`scala.lang [ String, Integer as Bleh ]`)
+
+      "return a sequence with two elements" in {
+        result.size mustBe 2
+      }
+
+      "have the correct ancestor for all elements" in {
+        result.forall(_.transformed.ancestor.text == "scala.lang") mustBe true
+      }
+
+      "contain an import for String" in {
+        result.exists(_.transformed.member == "String") mustBe true
+      }
+
+      "contain an import for Integer with alias Bleh" in {
+        result.exists(element =>
+          element.transformed.member == "Integer" && element.transformed.alias == "Bleh"
+        ) mustBe true
+      }
+    }
   }
-
-
-  @Test
-  def `when provided null package and alias then should return sequence of tracable import`(): Unit = {
-    val result = astTransformer.transform.imports(Ast.Import.`scala.lang.Integer as Bleh`);
-
-    assert(result.size == 1)
-    val transformed = result.last.transformed;
-    assert(transformed.ancestor.toString == "scala.lang")
-    assert(transformed.member == "Integer")
-    assert(transformed.alias == "Bleh")
-
-
-  }
-
-
-  @Test
-  def `when provided null package and container with 2 imports then should return sequence of tracable import`(): Unit = {
-    val result = astTransformer.transform.imports(Ast.Import.`scala.lang [ String, Integer as Bleh ]`);
-
-    assert(result.size == 2)
-    result.foreach(element => assert(element.transformed.ancestor.toString == "scala.lang"))
-    assert(result.exists(element => element.transformed.member == "String"))
-    assert(result.exists(element => element.transformed.member == "Integer" && element.transformed.alias == "Bleh"))
-
-
-  }
-
-
 }

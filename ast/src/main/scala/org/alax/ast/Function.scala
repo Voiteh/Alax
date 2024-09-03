@@ -84,7 +84,7 @@ object Function {
     case class Definition(
                            returnTypeReference: Value.Type.Reference,
                            identifier: ast.Evaluable.Identifier,
-                           parameters: Seq[Function.Parameter],
+                           parameters: Seq[Function.Declaration.Parameter],
                            body: Function.Body,
                            metadata: Metadata = Metadata.unknown
                          ) extends ast.Evaluable.Definition[Function.Body](
@@ -99,7 +99,7 @@ object Function {
   object SideEffect {
     case class Definition(
                            identifier: ast.Evaluable.Identifier,
-                           parameters: Seq[Function.Parameter],
+                           parameters: Seq[Function.Declaration.Parameter],
                            body: Function.Body,
                            metadata: Metadata = Metadata.unknown
                          ) extends ast.Evaluable.Definition[Function.Body](
@@ -113,20 +113,22 @@ object Function {
     }
   }
 
-  case class Parameter(
-                        identifier: Identifier.LowerCase,
-                        `type`: Value.Type.Reference,
-                        expression: Chain.Expression | Null = null,
-                        metadata: Metadata = Metadata.unknown
-                      ) extends Node(metadata) {
 
+  object Declaration{
+    case class Parameter(
+                          identifier: Identifier.LowerCase,
+                          `type`: Value.Type.Reference,
+                          expression: Chain.Expression | Null = null,
+                          metadata: Metadata = Metadata.unknown
+                        ) extends Node(metadata) {
+
+    }
   }
-
 
   case class Declaration(
                           returnTypeReference: Value.Type.Reference | Null,
                           identifier: ast.Evaluable.Identifier,
-                          parameters: Seq[Function.Parameter],
+                          parameters: Seq[Function.Declaration.Parameter],
                           metadata: Metadata = Metadata.unknown
                         ) extends BaseDeclaration(metadata) {
 

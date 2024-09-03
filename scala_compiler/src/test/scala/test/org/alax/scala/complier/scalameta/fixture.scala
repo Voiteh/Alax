@@ -29,11 +29,11 @@ object fixture {
       val `abc(String abc,String def)`: (Function.Declaration, ScalaSourceCode) = (
         Function.Declaration(
           identifier = "abc", parameters = Seq(
-            Function.Parameter(identifier = "abc",
+            Function.Declaration.Parameter(identifier = "abc",
               typeReference = Value.Type.Reference(
                 id = Type.Id("String")
               )),
-            Function.Parameter(identifier = "def",
+            Function.Declaration.Parameter(identifier = "def",
               typeReference = Value.Type.Reference(
                 id = Type.Id("String")
               ))
@@ -45,11 +45,11 @@ object fixture {
       val `Integer some name(java.lang.String abc, String def)`: (Function.Declaration, ScalaSourceCode) = (
         Function.Declaration(
           identifier = "some name", parameters = Seq(
-            Function.Parameter(identifier = "abc",
+            Function.Declaration.Parameter(identifier = "abc",
               typeReference = Value.Type.Reference(
                 id = Type.Id("java.lang.String")
               )),
-            Function.Parameter(identifier = "def",
+            Function.Declaration.Parameter(identifier = "def",
               typeReference = Value.Type.Reference(
                 id = Type.Id("String")
               ))

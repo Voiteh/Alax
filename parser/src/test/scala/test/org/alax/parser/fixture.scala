@@ -117,7 +117,7 @@ object fixture {
             ),
             identifier = ast.Evaluable.Identifier("abc"),
             parameters = Seq(
-              ast.Function.Parameter(
+              ast.Function.Declaration.Parameter(
                 identifier = ast.Identifier.LowerCase("one"),
                 `type` = ast.Value.Type.Reference(
                   `package` = null,

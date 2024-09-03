@@ -140,16 +140,16 @@ class LanguageVisitor(
     val returnTypeOrError: ast.Function.Return.Type | ParseError = visitFunctionReturnType(ctx.functionReturnType())
     val identifierOrError: ast.Evaluable.Identifier | ParseError = visitEvaluableIdentifier(ctx.evaluableIdentifier())
     val bodyOrError: ast.Function.Body | ParseError = visitFunctionBody(ctx.functionBody())
-    val parametersAndErrors: (Seq[ast.Function.Parameter], Seq[ParseError]) = ctx.functionParameter().asScala
+    val parametersAndErrors: (Seq[ast.Function.Declaration.Parameter], Seq[ParseError]) = ctx.functionParameter().asScala
       .map(item => visitFunctionParameter(item)).toSeq
       .partitionMap {
-        case parameter: ast.Function.Parameter => Left(parameter)
+        case parameter: ast.Function.Declaration.Parameter => Left(parameter)
         case parseError: ParseError => Right(parseError)
       }
     returnTypeOrError match {
       case returnType: ast.Function.Return.Type => identifierOrError match {
         case identifier: ast.Evaluable.Identifier => parametersAndErrors match {
-          case (params: Seq[ast.Function.Parameter], Nil) => bodyOrError match {
+          case (params: Seq[ast.Function.Declaration.Parameter], Nil) => bodyOrError match {
             case error: ParseError => new ParseError(
               metadata = metadataParser.parse.metadata(ctx),
               message = s"Invalid pure function definition",
@@ -188,15 +188,15 @@ class LanguageVisitor(
     super.visitSideEffectFunctionDefinition(ctx)
     val identifierOrError: ast.Evaluable.Identifier | ParseError = visitEvaluableIdentifier(ctx.evaluableIdentifier())
     val bodyOrError: ast.Function.Body | ParseError = visitFunctionBody(ctx.functionBody())
-    val parametersAndErrors: (Seq[ast.Function.Parameter], Seq[ParseError]) = ctx.functionParameter().asScala
+    val parametersAndErrors: (Seq[ast.Function.Declaration.Parameter], Seq[ParseError]) = ctx.functionParameter().asScala
       .map(item => visitFunctionParameter(item)).toSeq
       .partitionMap {
-        case parameter: ast.Function.Parameter => Left(parameter)
+        case parameter: ast.Function.Declaration.Parameter => Left(parameter)
         case parseError: ParseError => Right(parseError)
       }
     identifierOrError match {
       case identifier: ast.Evaluable.Identifier => parametersAndErrors match {
-        case (params: Seq[ast.Function.Parameter], Nil) => bodyOrError match {
+        case (params: Seq[ast.Function.Declaration.Parameter], Nil) => bodyOrError match {
           case error: ParseError => new ParseError(
             metadata = metadataParser.parse.metadata(ctx),
             message = s"Invalid side effect function definition",
@@ -239,16 +239,16 @@ class LanguageVisitor(
     super.visitFunctionDeclaration(ctx)
     val returnTypeOrError: ast.Function.Return.Type | ParseError = visitFunctionReturnType(ctx.functionReturnType())
     val identifierOrError: ast.Evaluable.Identifier | ParseError = visitEvaluableIdentifier(ctx.evaluableIdentifier())
-    val parametersAndErrors: (Seq[ast.Function.Parameter], Seq[ParseError]) = ctx.functionParameter().asScala
+    val parametersAndErrors: (Seq[ast.Function.Declaration.Parameter], Seq[ParseError]) = ctx.functionParameter().asScala
       .map(item => visitFunctionParameter(item)).toSeq
       .partitionMap {
-        case parameter: ast.Function.Parameter => Left(parameter)
+        case parameter: ast.Function.Declaration.Parameter => Left(parameter)
         case parseError: ParseError => Right(parseError)
       }
     returnTypeOrError match {
       case returnType: ast.Function.Return.Type => identifierOrError match {
         case identifier: ast.Evaluable.Identifier => parametersAndErrors match {
-          case (params: Seq[ast.Function.Parameter], Nil) => ast.Function.Declaration(
+          case (params: Seq[ast.Function.Declaration.Parameter], Nil) => ast.Function.Declaration(
             returnTypeReference = returnType,
             identifier = identifier,
             parameters = params,
@@ -276,7 +276,7 @@ class LanguageVisitor(
 
   }
 
-  override def visitFunctionParameter(ctx: LanguageParser.FunctionParameterContext): ast.Function.Parameter | ParseError = {
+  override def visitFunctionParameter(ctx: LanguageParser.FunctionParameterContext): ast.Function.Declaration.Parameter | ParseError = {
     super.visitFunctionParameter(ctx)
     val typeIdentifierOrError: Value.Type.Reference | ParseError = visitValueTypeReference(ctx.valueTypeReference())
     val lowercaseIdentifierOrError: ast.Identifier.LowerCase | ParseError = visitLowercaseIdentifier(ctx.lowercaseIdentifier());
@@ -285,7 +285,7 @@ class LanguageVisitor(
       case typeIdentifier: Value.Type.Reference => lowercaseIdentifierOrError match {
         case lowercaseIdentifier: ast.Identifier.LowerCase => optionChainExpressionOrError match {
           case someChainExpression: Some[ast.Chain.Expression | ParseError] => someChainExpression.get match {
-            case chainExpression: ast.Chain.Expression => ast.Function.Parameter(
+            case chainExpression: ast.Chain.Expression => ast.Function.Declaration.Parameter(
               identifier = lowercaseIdentifier,
               `type` = typeIdentifier,
               expression = chainExpression,
@@ -295,7 +295,7 @@ class LanguageVisitor(
               metadata = metadataParser.parse.metadata(ctx), message = "Invalid function parameter definition", cause = Seq(parseError)
             )
           }
-          case None => ast.Function.Parameter(
+          case None => ast.Function.Declaration.Parameter(
             identifier = lowercaseIdentifier,
             `type` = typeIdentifier,
             metadata = metadataParser.parse.metadata(ctx)
