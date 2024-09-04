@@ -29,7 +29,7 @@ object Value {
   object Type {
     type Identifier = ast.Identifier.UpperCase;
 
-    case class Reference(`package`: ast.Package.Reference | Null, identifier: Identifier, metadata: Metadata = Metadata.unknown) extends ast.base.expressions.Reference(metadata = metadata) {
+    case class Reference(identifier: Identifier, `package`: ast.Package.Reference | Null = null, metadata: Metadata = Metadata.unknown) extends ast.base.expressions.Reference(metadata = metadata) {
 
       def text: String = `package` match {
         case reference: ast.Package.Reference => s"${reference.text}.${identifier.text}"

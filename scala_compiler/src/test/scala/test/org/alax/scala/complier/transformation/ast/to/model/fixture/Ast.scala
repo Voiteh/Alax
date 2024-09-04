@@ -68,18 +68,18 @@ object Ast {
 
     object Definition {
       val `Integer int = 4;`: ValueDefinition = ValueDefinition(
-        identifier = ast.Evaluable.Identifier(value = "int", metadata = Metadata.unknown),
+        identifier = ast.Evaluable.Identifier(value = "int"),
         typeReference = ast.Value.Type.Reference(
           `package` = null,
-          identifier = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
+          identifier = ast.Identifier.UpperCase("Integer")
         ),
         initialization = Literals.Integer(4),
       )
       val `String text = "text";`: ValueDefinition = ValueDefinition(
-        identifier = ast.Evaluable.Identifier(value = "text", metadata = Metadata.unknown),
+        identifier = ast.Evaluable.Identifier(value = "text"),
         typeReference = ast.Value.Type.Reference(
           `package` = null,
-          identifier = ast.Identifier.UpperCase("String"), metadata = Metadata.unknown
+          identifier = ast.Identifier.UpperCase("String")
         ),
         initialization = Literals.String("text"),
       )
@@ -87,19 +87,58 @@ object Ast {
 
     object Declaration {
       val `Integer int`: ValueDeclaration = ValueDeclaration(
-        identifier = ast.Evaluable.Identifier(value = "int", metadata = Metadata.unknown),
+        identifier = ast.Evaluable.Identifier(value = "int"),
         typeReference = ast.Value.Type.Reference(
           `package` = null,
-          identifier = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
+          identifier = ast.Identifier.UpperCase("Integer")
         ),
       )
       val `String str`: ValueDeclaration = ValueDeclaration(
-        identifier = ast.Evaluable.Identifier(value = "int", metadata = Metadata.unknown),
+        identifier = ast.Evaluable.Identifier(value = "int"),
         typeReference = ast.Value.Type.Reference(
           `package` = null,
-          identifier = ast.Identifier.UpperCase("Integer"), metadata = Metadata.unknown
+          identifier = ast.Identifier.UpperCase("Integer"),
         ),
       )
+
+    }
+  }
+
+  object Function {
+    object Declaration {
+
+      val `function bleh()` = ast.Function.Declaration(identifier = Identifier.bleh)
+      val `function Integer bleh() `= ast.Function.Declaration(
+        identifier = Identifier.bleh,
+        returnTypeReference = ast.Value.Type.Reference(
+          identifier = ast.Identifier.UpperCase("Integer")
+        )
+      )
+      val `function bleh(Integer param) ` = ast.Function.Declaration(
+        identifier = Identifier.bleh,
+        parameters = Seq(
+          Parameter.`Integer param`
+        )
+      )
+      object Identifier {
+        val bleh = ast.Evaluable.Identifier(value = "bleh")
+      }
+
+      object Parameter {
+        object Identifier {
+          val param = ast.Identifier.LowerCase("param")
+        }
+
+        val `Integer param` = ast.Function.Declaration.Parameter(
+          identifier = Identifier.param,
+          `type` = ast.Value.Type.Reference(
+            identifier = ast.Identifier.UpperCase("Integer")
+          )
+        )
+      }
+    }
+
+    object Definition {
 
     }
   }

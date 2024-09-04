@@ -126,9 +126,9 @@ object Function {
   }
 
   case class Declaration(
-                          returnTypeReference: Value.Type.Reference | Null,
                           identifier: ast.Evaluable.Identifier,
-                          parameters: Seq[Function.Declaration.Parameter],
+                          returnTypeReference: Value.Type.Reference | Null = null,
+                          parameters: Seq[Function.Declaration.Parameter] = Seq(),
                           metadata: Metadata = Metadata.unknown
                         ) extends BaseDeclaration(metadata) {
 

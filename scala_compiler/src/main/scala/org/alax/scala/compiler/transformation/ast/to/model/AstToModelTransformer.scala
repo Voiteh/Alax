@@ -168,7 +168,7 @@ class AstToModelTransformer {
     object function {
 
 
-      def declaration(declaration: ast.Function.Declaration, context: Contexts.Unit | Null): model.Function.Declaration | CompilerError = {
+      def declaration(declaration: ast.Function.Declaration, context: Contexts.Unit | Null=null): model.Function.Declaration | CompilerError = {
         val imports: Seq[Import] = context match {
           case unit: Contexts.Unit => unit.imports
           case null => Seq[Import]()
@@ -185,12 +185,15 @@ class AstToModelTransformer {
 
         identifierOrError match {
           case identifier: model.Function.Declaration.Identifier => returnTypeOrError match {
+            case null => model.Function.Declaration(
+              identifier = identifier,
+              parameters = parameters
+            )
             case returnType: model.Value.Type.Reference => model.Function.Declaration(
               identifier = identifier,
               parameters = parameters,
               returnType = returnType
             )
-
             case error: CompilerError => error
           }
           case error: CompilerError => error

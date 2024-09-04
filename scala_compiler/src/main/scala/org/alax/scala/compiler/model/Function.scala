@@ -43,7 +43,12 @@ object Function {
       type Identifier = String
     }
 
-    case class Parameter(identifier: Parameter.Identifier, typeReference: Value.Type.Reference, initialization: Expression | Null = null) extends ScalaMetaNode {
+    case class Parameter(
+                          identifier: Parameter.Identifier,
+                          typeReference: Value.Type.Reference,
+                          initialization: Expression | Null = null
+                        )
+      extends ScalaMetaNode {
       override def scala: Term.Param = Term.Param(
         mods = List(),
         name = Name(identifier),
@@ -62,7 +67,7 @@ object Function {
 
   case class Declaration(override val identifier: Function.Declaration.Identifier,
                          parameters: Seq[Declaration.Parameter | CompilerError] = Seq(),
-                         returnType: Value.Type.Reference | Null = null ) extends model.Declaration(
+                         returnType: Value.Type.Reference | Null = null) extends model.Declaration(
     identifier = identifier
   ) {
     override def scala: Decl.Def = Decl.Def(

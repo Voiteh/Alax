@@ -23,18 +23,19 @@ object Model {
 
     object Import {
       val `scala.lang.Integer`: Import = compiler.base.model.Import(
-        ancestor = PackageModel.Reference(Seq("scala","lang")),
+        ancestor = PackageModel.Reference(Seq("scala", "lang")),
         member = "Integer"
       );
       val `java.lang.Integer as JInteger`: Import = compiler.base.model.Import(
-        ancestor = PackageModel.Reference(Seq("java","lang")),
+        ancestor = PackageModel.Reference(Seq("java", "lang")),
         member = "Integer", alias = "JInteger"
       );
       val `scala.lang.Integer as JInteger`: Import = compiler.base.model.Import(
-        ancestor = PackageModel.Reference(Seq("scala","lang")),
+        ancestor = PackageModel.Reference(Seq("scala", "lang")),
         member = "Integer", alias = "JInteger"
       );
     }
+
     object Imports {
 
       val `duplicate member imports` = Seq(
@@ -49,25 +50,25 @@ object Model {
 
       )
       val `duplicate nested ancestor imports` = Seq(
-        new Import(ancestor = PackageModel.Reference(Seq("alax","something")), member = "One", alias = null),
-        new Import(ancestor = PackageModel.Reference(Seq("alax","something")), member = "Two", alias = null)
+        new Import(ancestor = PackageModel.Reference(Seq("alax", "something")), member = "One", alias = null),
+        new Import(ancestor = PackageModel.Reference(Seq("alax", "something")), member = "Two", alias = null)
 
       )
       val `duplicate nested with different top ancestor imports` = Seq(
-        new Import(ancestor = PackageModel.Reference(Seq("java","something")), member = "One", alias = null),
-        new Import(ancestor = PackageModel.Reference(Seq("alax","something")), member = "Two", alias = null)
+        new Import(ancestor = PackageModel.Reference(Seq("java", "something")), member = "One", alias = null),
+        new Import(ancestor = PackageModel.Reference(Seq("alax", "something")), member = "Two", alias = null)
 
       )
       val `non duplicating imports ` = Seq(
-        new Import(ancestor = PackageModel.Reference(Seq("different","something")), member = "Foo", alias = null),
-        new Import(ancestor = PackageModel.Reference(Seq("something","different")) , member = "Foo", alias = "Bar")
+        new Import(ancestor = PackageModel.Reference(Seq("different", "something")), member = "Foo", alias = null),
+        new Import(ancestor = PackageModel.Reference(Seq("something", "different")), member = "Foo", alias = "Bar")
       )
     }
 
     val `package` = Contexts.Unit(imports = Seq.empty)
     val `package with import = scala.lang.Integer` = Contexts.Unit(imports = Seq(Import.`scala.lang.Integer`))
     val unit = Contexts.Unit(imports = Seq.empty)
-    val `unit with import`: Contexts.Unit =  Contexts.Unit(imports = Seq(Import.`scala.lang.Integer`))
+    val `unit with import`: Contexts.Unit = Contexts.Unit(imports = Seq(Import.`scala.lang.Integer`))
     val `unit with import and alias`: Contexts.Unit = Contexts.Unit(
       imports =
         Seq(
@@ -104,6 +105,7 @@ object Model {
     object Reference {
       val `package scala.lang` = compiler.model.Package.Reference(Seq("scala", "lang"))
     }
+
     object Declaration {
       val `package abc` = compiler.model.Package.Declaration(
         identifier = "abc"
@@ -138,5 +140,49 @@ object Model {
     }
   }
 
+  object Function {
+
+
+    object Definition {
+
+    }
+
+    object Declaration {
+
+      object Identifier {
+        val bleh = "bleh";
+      }
+
+      object Parameter {
+          val `java.lang.Integer param` = compiler.model.Function.Declaration.Parameter(
+            identifier = "param",
+            typeReference = compiler.model.Value.Type.Reference(
+              packageReference = compiler.model.Package.Reference(Seq("java", "lang")),
+              id = compiler.base.model.Type.Id("Integer")
+            )
+          )
+      }
+
+      val `function bleh()` = compiler.model.Function.Declaration(
+        identifier = Identifier.bleh
+      )
+
+      val `function java.lang.Integer bleh()` = compiler.model.Function.Declaration(
+        identifier = Identifier.bleh,
+        returnType = compiler.model.Value.Type.Reference(
+          packageReference = compiler.model.Package.Reference(Seq("java", "lang")),
+          id = compiler.base.model.Type.Id("Integer")
+
+        )
+      )
+      val `function bleh(java.lang.Integer param)` = compiler.model.Function.Declaration(
+        identifier = Identifier.bleh,
+        parameters = Seq(
+          Parameter.`java.lang.Integer param`
+        )
+      )
+
+    }
+  }
 
 }
