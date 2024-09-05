@@ -1,4 +1,4 @@
-package test.org.alax.scala.complier.transformation.model.to.file.fixture
+package test.org.alax.scala.compiler.transformation.model.to.file.fixture
 
 import org.alax.ast
 import org.alax.scala.compiler
@@ -8,7 +8,7 @@ import org.alax.scala.compiler.model.{Literals, Value as CompilerValue, Package 
 import org.alax.scala.compiler.transformation
 import org.alax.scala.compiler.transformation.model.to.file.Contexts
 import os.Path
-import test.org.alax.scala.complier.transformation.model.to.file.fixture.Model.Package.Declaration
+import test.org.alax.scala.compiler.transformation.model.to.file.fixture.Model.Package.Declaration
 
 import java.nio.file.Path as JPath
 import scala.annotation.targetName

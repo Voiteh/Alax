@@ -1,12 +1,12 @@
-package test.org.alax.scala.complier.transformation.ast.to.model
+package test.org.alax.scala.compiler.transformation.ast.to.model
 
 import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.transformation.ast.to.model.AstToModelTransformer
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.must.Matchers
-import test.org.alax.scala.complier.transformation.ast.to.model.fixture.Ast
+import test.org.alax.scala.compiler.transformation.ast.to.model.fixture.Ast
 
-class TransformFunctionDeclarationTest extends AnyWordSpec {
+class TransformFunctionDefinitionTest extends AnyWordSpec {
 
   val astTransformer = AstToModelTransformer()
 

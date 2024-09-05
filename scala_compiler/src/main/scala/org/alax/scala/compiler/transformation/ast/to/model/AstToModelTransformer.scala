@@ -62,7 +62,7 @@ class AstToModelTransformer {
               path = typeReference.metadata.location.unit,
               startIndex = typeReference.metadata.location.startIndex,
               endIndex = typeReference.metadata.location.endIndex,
-              message = s"Unknown type: ${typeReference.identifier.text}, did You forget to import?: "
+              message = s"Unknown type: ${typeReference.identifier.text}, did You forget to import?"
             ))
           packageReference match {
             case pkg: model.Package.Reference => model.Value.Type.Reference(

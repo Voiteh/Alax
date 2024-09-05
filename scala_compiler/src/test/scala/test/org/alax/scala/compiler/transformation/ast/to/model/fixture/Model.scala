@@ -1,4 +1,4 @@
-package test.org.alax.scala.complier.transformation.ast.to.model.fixture
+package test.org.alax.scala.compiler.transformation.ast.to.model.fixture
 
 import org.alax.ast
 import org.alax.scala.compiler

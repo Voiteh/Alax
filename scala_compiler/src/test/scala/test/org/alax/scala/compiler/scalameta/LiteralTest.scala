@@ -1,9 +1,9 @@
-package test.org.alax.scala.complier.scalameta
+package test.org.alax.scala.compiler.scalameta
 
 import org.alax.scala.compiler.model.Literals
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.shouldBe
-import test.org.alax.scala.complier.scalameta.fixture.literal
+import test.org.alax.scala.compiler.scalameta.fixture.literal
 
 import scala.language.postfixOps;
 

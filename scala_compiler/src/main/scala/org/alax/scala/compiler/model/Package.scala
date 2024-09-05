@@ -10,6 +10,9 @@ import scala.meta.Term.Name
 object Package {
 
   case class Reference(identifiers: Seq[Package.Declaration.Identifier]) extends base.model.Reference {
+
+    def this(joined:Package.Declaration.Identifier ) =this(identifiers=joined.split("\\."))
+
     private val reversed: Seq[Package.Declaration.Identifier] = identifiers.reverse
     val text: String = identifiers.foldLeft(mutable.StringBuilder())(
       (acc, item) => if acc.isEmpty then acc.append(item) else acc.append(".").append(item)

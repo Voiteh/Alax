@@ -54,6 +54,7 @@ object Value {
   object Type {
     case class Reference(packageReference: Package.Reference | Null = null, id: BaseType.Id) extends BaseType.Reference() {
 
+
       val text: String = if (packageReference) != null then s"${packageReference.text}.${id.value}" else id.value
 
       override def equals(obj: Any): Boolean = {

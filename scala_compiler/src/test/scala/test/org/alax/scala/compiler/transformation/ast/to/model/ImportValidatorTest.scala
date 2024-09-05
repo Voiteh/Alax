@@ -1,10 +1,10 @@
-package test.org.alax.scala.complier.transformation.ast.to.model
+package test.org.alax.scala.compiler.transformation.ast.to.model
 
 import org.alax.scala.compiler.base.model.Tracable
 import org.alax.scala.compiler.transformation.ast.to.model.ImportsValidator
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.must.Matchers.{a, have, must, mustBe, size}
-import test.org.alax.scala.complier.transformation.ast.to.model.fixture.Model
+import test.org.alax.scala.compiler.transformation.ast.to.model.fixture.Model
 
 import scala.language.postfixOps
 

@@ -1,4 +1,4 @@
-package test.org.alax.scala.complier.transformation.ast.to.model.fixture
+package test.org.alax.scala.compiler.transformation.ast.to.model.fixture
 
 import org.alax.ast
 import org.alax.ast.{Literals, base}
@@ -108,13 +108,13 @@ object Ast {
     object Declaration {
 
       val `function bleh()` = ast.Function.Declaration(identifier = Identifier.bleh)
-      val `function Integer bleh() `= ast.Function.Declaration(
+      val `function Integer bleh()`= ast.Function.Declaration(
         identifier = Identifier.bleh,
         returnTypeReference = ast.Value.Type.Reference(
           identifier = ast.Identifier.UpperCase("Integer")
         )
       )
-      val `function bleh(Integer param) ` = ast.Function.Declaration(
+      val `function bleh(Integer param)` = ast.Function.Declaration(
         identifier = Identifier.bleh,
         parameters = Seq(
           Parameter.`Integer param`

@@ -1,4 +1,4 @@
-package test.org.alax.scala.complier.scalameta
+package test.org.alax.scala.compiler.scalameta
 
 
 import org.alax.scala.compiler.model.Function
