@@ -107,17 +107,10 @@ object Ast {
   object Function {
     object Declaration {
 
-      val `function bleh()` = ast.Function.Declaration(identifier = Identifier.bleh)
       val `function Integer bleh()`= ast.Function.Declaration(
         identifier = Identifier.bleh,
         returnTypeReference = ast.Value.Type.Reference(
           identifier = ast.Identifier.UpperCase("Integer")
-        )
-      )
-      val `function bleh(Integer param)` = ast.Function.Declaration(
-        identifier = Identifier.bleh,
-        parameters = Seq(
-          Parameter.`Integer param`
         )
       )
       object Identifier {
@@ -129,7 +122,7 @@ object Ast {
           val param = ast.Identifier.LowerCase("param")
         }
 
-        val `Integer param` = ast.Function.Declaration.Parameter(
+        val `Integer param` = ast.Routine.Declaration.Parameter(
           identifier = Identifier.param,
           `type` = ast.Value.Type.Reference(
             identifier = ast.Identifier.UpperCase("Integer")
@@ -143,7 +136,39 @@ object Ast {
     }
   }
 
+  object Procedure {
+    object Declaration {
 
+      val `procedure bleh()` = ast.Procedure.Declaration(
+        identifier = Identifier.bleh,
+      )
+      val `procedure bleh(Integer param)` = ast.Procedure.Declaration(
+        identifier = Identifier.bleh,
+        parameters = Seq(Parameter.`Integer param`)
+      )
+
+      object Identifier {
+        val bleh = ast.Evaluable.Identifier(value = "bleh")
+      }
+
+      object Parameter {
+        object Identifier {
+          val param = ast.Identifier.LowerCase("param")
+        }
+
+        val `Integer param` = ast.Routine.Declaration.Parameter(
+          identifier = Identifier.param,
+          `type` = ast.Value.Type.Reference(
+            identifier = ast.Identifier.UpperCase("Integer")
+          )
+        )
+      }
+    }
+
+    object Definition {
+
+    }
+  }
   object Import {
     val `scala.lang.String`: ast.Imports.Simple = ast.Imports.Simple(
       member = ast.Import.Identifier(

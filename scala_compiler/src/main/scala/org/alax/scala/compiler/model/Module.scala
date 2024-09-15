@@ -47,7 +47,6 @@ object Module {
         .map((item: Body.Element) => item.scala)
         .toList
 
-
     }
 
     object Body {

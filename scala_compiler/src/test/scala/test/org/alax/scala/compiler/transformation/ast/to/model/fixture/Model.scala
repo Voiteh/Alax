@@ -65,11 +65,17 @@ object Model {
       )
     }
 
-    val `package` = Contexts.Unit(imports = Seq.empty)
-    val `package with import = scala.lang.Integer` = Contexts.Unit(imports = Seq(Import.`scala.lang.Integer`))
-    val unit = Contexts.Unit(imports = Seq.empty)
-    val `unit with import`: Contexts.Unit = Contexts.Unit(imports = Seq(Import.`scala.lang.Integer`))
-    val `unit with import and alias`: Contexts.Unit = Contexts.Unit(
+    val `package bleh` = Contexts.Package(
+      imports = Seq.empty,
+      identifier = "bleh"
+    )
+    val `package with import = scala.lang.Integer` = Contexts.Package(
+      identifier= "with import",
+      imports = Seq(Import.`scala.lang.Integer`)
+    )
+    val `package empty` = Contexts.Package(identifier="empty",imports = Seq.empty)
+    val `package with import and alias`: Contexts.Package = Contexts.Package(
+      identifier= "with import and alias",
       imports =
         Seq(
           Import.`scala.lang.Integer`,
@@ -154,7 +160,7 @@ object Model {
       }
 
       object Parameter {
-          val `java.lang.Integer param` = compiler.model.Function.Declaration.Parameter(
+          val `java.lang.Integer param` = compiler.model.Routine.Declaration.Parameter(
             identifier = "param",
             typeReference = compiler.model.Value.Type.Reference(
               packageReference = compiler.model.Package.Reference(Seq("java", "lang")),
@@ -163,7 +169,7 @@ object Model {
           )
       }
 
-      val `function bleh()` = compiler.model.Function.Declaration(
+      val `procedure bleh()` = compiler.model.Procedure.Declaration(
         identifier = Identifier.bleh
       )
 
@@ -175,7 +181,7 @@ object Model {
 
         )
       )
-      val `function bleh(java.lang.Integer param)` = compiler.model.Function.Declaration(
+      val `procedure bleh(java.lang.Integer param)` = compiler.model.Procedure.Declaration(
         identifier = Identifier.bleh,
         parameters = Seq(
           Parameter.`java.lang.Integer param`
@@ -185,4 +191,47 @@ object Model {
     }
   }
 
+  object Routine{
+    object Declaration {
+      object Identifier {
+        val bleh = "bleh";
+      }
+
+      object Parameter {
+        val `java.lang.Integer param` = compiler.model.Routine.Declaration.Parameter(
+          identifier = "param",
+          typeReference = compiler.model.Value.Type.Reference(
+            packageReference = compiler.model.Package.Reference(Seq("java", "lang")),
+            id = compiler.base.model.Type.Id("Integer")
+          )
+        )
+      }
+    }
+  }
+  object Procedure {
+
+
+    object Definition {
+
+    }
+
+    object Declaration {
+
+
+
+
+
+      val `procedure bleh()` = compiler.model.Procedure.Declaration(
+        identifier = Routine.Declaration.Identifier.bleh
+      )
+
+      val `procedure bleh(java.lang.Integer param)` = compiler.model.Procedure.Declaration(
+        identifier = Routine.Declaration.Identifier.bleh,
+        parameters = Seq(
+          Routine.Declaration.Parameter.`java.lang.Integer param`
+        )
+      )
+
+    }
+  }
 }

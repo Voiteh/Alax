@@ -46,12 +46,10 @@ object Package {
   }
 
   object Definition {
-    case class Body(elements: Seq[Body.Element | CompilerError]) extends Scope {
+    case class Body(elements: Seq[Body.Element]) extends Scope {
       override def scala: List[Stat] = elements.filter(item => item.isInstanceOf[Body.Element])
-        .map(item => item.asInstanceOf[Body.Element])
         .map((item: Body.Element) => item.scala)
         .toList
-
 
     }
 

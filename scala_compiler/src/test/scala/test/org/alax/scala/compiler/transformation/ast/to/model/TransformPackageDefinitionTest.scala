@@ -18,14 +18,17 @@ class TransformPackageDefinitionTest extends AnyWordSpec with Matchers with Insi
 
   val astTransformer = AstToModelTransformer()
   type Testable = ast.Package.Definition
-  type Context = Contexts.Unit
+  type Context = Contexts.Package
   type Expected = model.Package.Definition
 
   val matches: Seq[(Testable, Expected, Context)] = Seq(
     (
       Ast.Package.Definition.`package abc { Integer int = 4;}`,
       Model.Package.Definition.`package abc { int: scala.lang.Integer; }`,
-      Contexts.Unit(imports = Seq(Model.Context.Import.`scala.lang.Integer`))
+      Contexts.Package(
+        identifier= "abc",
+        imports = Seq(Model.Context.Import.`scala.lang.Integer`)
+      )
     )
   )
 

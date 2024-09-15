@@ -51,7 +51,6 @@ object Evaluable {
 
     def text: String = container match {
       case reference: Container.Reference => reference match
-        case valTypeRef: Value.Type.Reference  => valTypeRef.text
         case pkgRef: Package.Reference => pkgRef.text
       case null => identifier.text
     }

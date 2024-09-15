@@ -21,7 +21,7 @@ class TransformValueDeclarationTest extends AnyWordSpec with Matchers with Insid
   "AstToModelTransformer" when {
     "Positive" should {
       type Testable = ast.Value.Declaration
-      type Context = Contexts.Unit | Null
+      type Context = Contexts.Package | Null
       type Expected = model.Value.Declaration
 
       val matches: Seq[(Testable, Expected, Context)] = Seq(
@@ -34,7 +34,7 @@ class TransformValueDeclarationTest extends AnyWordSpec with Matchers with Insid
               id = base.model.Type.Id("Integer")
             )
           ),
-          fixture.Model.Context.`unit with import`
+          fixture.Model.Context.`package with import = scala.lang.Integer`
         ),
         (
           Ast.Value.Declaration.`Integer int`,
@@ -45,7 +45,7 @@ class TransformValueDeclarationTest extends AnyWordSpec with Matchers with Insid
               id = base.model.Type.Id("Integer")
             )
           ),
-          Model.Context.`unit with import and alias`
+          Model.Context.`package with import and alias`
         )
 
       )
@@ -66,14 +66,14 @@ class TransformValueDeclarationTest extends AnyWordSpec with Matchers with Insid
 
     "Negative " should {
       type Testable = ast.Value.Declaration
-      type Context = Contexts.Unit | Null
+      type Context = Contexts.Package | Null
       type Expected = CompilerError
 
       val matches: Seq[(Testable, Expected, Context)] = Seq(
         (
           Ast.Value.Declaration.`Integer int`,
           CompilationError(path = "", message = "Unknown type: Integer, did You forget to import?"),
-          fixture.Model.Context.unit
+          fixture.Model.Context.`package empty`
         )
       )
 

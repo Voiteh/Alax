@@ -15,7 +15,7 @@ class TransformValueDefinitionTest extends AnyWordSpec with Matchers with Inside
 
   val astTransformer = AstToModelTransformer()
   type Testable = ast.Value.Definition
-  type Context = Contexts.Unit
+  type Context = Contexts.Package
   type Expected = model.Value.Definition
 
   val matches: Seq[(Testable, Expected, Context)] = Seq(

@@ -1,7 +1,7 @@
 parser grammar LanguageParser;
 options { tokenVocab=LanguageLexer; }
 
-definition: valueDefinition|functionDefinition|packageDefinition|moduleDefinition;
+definition: valueDefinition|routineDefinition|packageDefinition|moduleDefinition;
 declaration: valueDeclaration|packageDeclaration|functionDeclaration|moduleDeclaration;
 
 moduleDeclaration: MODULE moduleIdentifier SEMI_COLON ;
@@ -12,18 +12,19 @@ moduleIdentifier: lowercaseIdentifier (DOT lowercaseIdentifier)*;
 
 packageDefinition: PACKAGE packageIdentifier packageBody;
 packageDeclaration: PACKAGE packageIdentifier SEMI_COLON;
-packageBody: OPEN_CURLY (valueDefinition|functionDefinition)* CLOSE_CURLY;
+packageBody: OPEN_CURLY (valueDefinition|routineDefinition)* CLOSE_CURLY;
 packageIdentifier: lowercaseIdentifier;
 packageReference: lowercaseIdentifier (DOT lowercaseIdentifier)*;
+routineDefinition: procedureDefinition|functionDefinition;
+routineParameter: valueTypeReference lowercaseIdentifier (EQUALS chainExpression)?;
+procedureDefinition: PROCEDURE evaluableIdentifier OPEN_BRACKET (routineParameter (COMMA routineParameter)*)? CLOSE_BRACKET NOT_FAT_ARROW functionBody ;
+procedureDeclaration: PROCEDURE evaluableIdentifier OPEN_BRACKET (routineParameter (COMMA routineParameter)*)? CLOSE_BRACKET SEMI_COLON;
 
-functionDefinition: sideEffectFunctionDefinition|pureFunctionDefinition;
-sideEffectFunctionDefinition: FUNCTION evaluableIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET NOT_FAT_ARROW functionBody ;
-pureFunctionDefinition: FUNCTION functionReturnType evaluableIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET FAT_ARROW functionBody;
-functionDeclaration: FUNCTION functionReturnType? evaluableIdentifier OPEN_BRACKET (functionParameter (COMMA functionParameter)*)? CLOSE_BRACKET SEMI_COLON;
-functionParameter: valueTypeReference lowercaseIdentifier (EQUALS chainExpression)?;
+functionDefinition: FUNCTION functionReturnType evaluableIdentifier OPEN_BRACKET (routineParameter (COMMA routineParameter)*)? CLOSE_BRACKET FAT_ARROW functionBody;
+functionDeclaration: FUNCTION functionReturnType evaluableIdentifier OPEN_BRACKET (routineParameter (COMMA routineParameter)*)? CLOSE_BRACKET SEMI_COLON;
 functionReturnType: valueTypeReference;
 
-functionLambdaBody: chainExpression|valueAssignmentExpression|functionCallExpression|evaluableReference SEMI_COLON;
+functionLambdaBody: chainExpression|functionCallExpression|evaluableReference SEMI_COLON;
 functionBlockBody: OPEN_CURLY (valueDeclaration|valueDefinition|valueAssignmentExpression|functionCallExpression|evaluableReference)* CLOSE_CURLY;
 functionBody: functionBlockBody|functionLambdaBody;
 
@@ -41,7 +42,7 @@ functionCallArgument: functionCallPositionalArgument|functionCallNamedArgument;
 valueAssignmentExpression: evaluableReference EQUALS chainExpression;
 
 //Refernces
-containerReference: valueTypeReference|packageReference;
+containerReference: packageReference;
 evaluableReference: (containerReference DOT)? evaluableIdentifier;
 
 evaluableIdentifier:lowercaseIdentifier;

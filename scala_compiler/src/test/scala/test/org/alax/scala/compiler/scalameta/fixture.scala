@@ -1,21 +1,14 @@
 package test.org.alax.scala.compiler.scalameta
 
 import org.alax.scala.compiler.base.model.{Declaration, Import, Type}
-import org.alax.scala.compiler.model.{Evaluable, Function, Literals, Value, Package}
+import org.alax.scala.compiler.model.{Evaluable, Function, Literals, Package, Procedure, Routine, Value}
 
 object fixture {
 
   type ScalaSourceCode = String;
 
-  object function {
-    object declaration {
-      val `abc()`: (Function.Declaration, ScalaSourceCode) = (
-        Function.Declaration(
-          identifier = "abc"
-        ),
-        "def abc(): `scala.Unit`"
-      )
-
+  object function{
+    object declaration{
       val `java.lang.String abc()`: (Function.Declaration, ScalaSourceCode) = (
         Function.Declaration(
           identifier = "abc",
@@ -25,31 +18,14 @@ object fixture {
         ),
         "def abc(): `java.lang.String`"
       )
-
-      val `abc(String abc,String def)`: (Function.Declaration, ScalaSourceCode) = (
-        Function.Declaration(
-          identifier = "abc", parameters = Seq(
-            Function.Declaration.Parameter(identifier = "abc",
-              typeReference = Value.Type.Reference(
-                id = Type.Id("String")
-              )),
-            Function.Declaration.Parameter(identifier = "def",
-              typeReference = Value.Type.Reference(
-                id = Type.Id("String")
-              ))
-          ),
-        ),
-        "def abc(abc: String, `def`: String): `scala.Unit`"
-      )
-
       val `Integer some name(java.lang.String abc, String def)`: (Function.Declaration, ScalaSourceCode) = (
         Function.Declaration(
           identifier = "some name", parameters = Seq(
-            Function.Declaration.Parameter(identifier = "abc",
+            Routine.Declaration.Parameter(identifier = "abc",
               typeReference = Value.Type.Reference(
                 id = Type.Id("java.lang.String")
               )),
-            Function.Declaration.Parameter(identifier = "def",
+            Routine.Declaration.Parameter(identifier = "def",
               typeReference = Value.Type.Reference(
                 id = Type.Id("String")
               ))
@@ -60,33 +36,62 @@ object fixture {
         ),
         "def `some name`(abc: `java.lang.String`, `def`: String): Integer"
       )
+    }
+  }
+  object procedure {
+
+    object declaration {
+      val `abc()`: (Procedure.Declaration, ScalaSourceCode) = (
+        Procedure.Declaration(
+          identifier = "abc"
+        ),
+        "def abc(): `scala.Unit`"
+      )
+
+      val `abc(String abc,String def)`: (Procedure.Declaration, ScalaSourceCode) = (
+        Procedure.Declaration(
+          identifier = "abc", parameters = Seq(
+            Routine.Declaration.Parameter(identifier = "abc",
+              typeReference = Value.Type.Reference(
+                id = Type.Id("String")
+              )),
+            Routine.Declaration.Parameter(identifier = "def",
+              typeReference = Value.Type.Reference(
+                id = Type.Id("String")
+              ))
+          ),
+        ),
+        "def abc(abc: String, `def`: String): `scala.Unit`"
+      )
+
+
 
 
     }
 
     object definition {
-      val `abc() =!> "abc"`: (Function.Definition, ScalaSourceCode) = (
-        Function.Definition(
+      val `abc() =!> "abc"`: (Procedure.Definition, ScalaSourceCode) = (
+        Procedure.Definition(
           declaration = declaration.`abc()`._1,
-          body = Function.Definition.Bodies.LambdaBody(
+          body = Routine.Definition.Lambda.Body(
             Literals.String("abc")
           )
         ),
         "def abc(): `scala.Unit` = \"abc\""
       )
-      val `abc() =!> abc`: (Function.Definition, ScalaSourceCode) = (
-        Function.Definition(
+      val `abc() =!> abc`: (Procedure.Definition, ScalaSourceCode) = (
+        Procedure.Definition(
           declaration = declaration.`abc()`._1,
-          body = Function.Definition.Bodies.LambdaBody(
+          body = Routine.Definition.Lambda.Body(
             Evaluable.Reference(identifier = "abc")
           )
         ),
         "def abc(): `scala.Unit` = abc"
       )
-      val `abc() =!> java.lang.blang.abc`: (Function.Definition, ScalaSourceCode) = (
-        Function.Definition(
+      val `abc() =!> java.lang.blang.abc`: (Procedure.Definition, ScalaSourceCode) = (
+        Procedure.Definition(
           declaration = declaration.`abc()`._1,
-          body = Function.Definition.Bodies.LambdaBody(
+          body = Routine.Definition.Lambda.Body(
             Evaluable.Reference(
               `package` = Package.Reference(Seq(
                 "java", "lang", "blang"
@@ -98,29 +103,6 @@ object fixture {
         "def abc(): `scala.Unit` = java.lang.blang.abc"
       )
 
-      val `abc() =!> value java.lang.String abc = "asd"`: (Function.Definition, ScalaSourceCode) = (
-        Function.Definition(
-          declaration = declaration.`abc()`._1,
-          body = Function.Definition.Bodies.BlockBody(
-            Seq(
-              Value.Definition(
-                declaration = Value.Declaration(
-                  identifier = "abc",
-                  typeReference = Value.Type.Reference(
-                    packageReference = Package.Reference(
-                      identifiers = Seq("java", "lang")
-                    ),
-                    id = Type.Id("String")
-                  )
-                ),
-                meaning = Literals.String("asd")
-              )
-            )
-          ),
-
-        ),
-        "def abc(): `scala.Unit` = java.lang.blang.abc"
-      )
 
     }
   }

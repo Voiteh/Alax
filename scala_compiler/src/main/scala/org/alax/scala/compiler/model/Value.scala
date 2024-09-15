@@ -1,5 +1,6 @@
 package org.alax.scala.compiler.model
 
+import org.alax.scala.compiler.base
 import org.alax.scala.compiler.base.model
 import org.alax.scala.compiler.base.model.{Declaration as BaseDeclaration, Type as BaseType}
 import org.alax.scala.compiler.base.model.{Literal, Reference}
@@ -8,6 +9,9 @@ import scala.meta.{Decl, Defn, Pat, Term, Tree, Name as MName, Type as MType}
 
 object Value {
 
+  case class Assignment(left: Value.Reference, right: base.model.Expression) extends base.model.Statement {
+
+  }
 
   case class Reference(`package`: Package.Reference | Null, identifier: Value.Declaration.Identifier) extends model.Reference {
     override val scala: Term.Name | Term.Select =
