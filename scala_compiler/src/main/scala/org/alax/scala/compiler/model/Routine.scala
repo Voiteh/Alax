@@ -75,25 +75,25 @@ object Routine {
   }
 
   //TODO write tests for that
-  case class Call(reference: Evaluable.Reference, arguments: Seq[Routine.Call.Argument | CompilerError])
+  case class Call(reference: Evaluable.Reference, arguments: Set[Routine.Call.Argument]= Set())
     extends base.model.Expression {
     override def scala: Term.Apply = Term.Apply(
       fun = reference.scala, argClause = Term.ArgClause(values = arguments.toList
-        .filter(item => item.isInstanceOf[Routine.Call.Argument])
-        .map(item => item.asInstanceOf[Routine.Call.Argument])
         .map(item => item.scala), mod = None)
     )
   }
 
   object Call {
-    abstract class Argument() extends ScalaMetaNode {
+    abstract class Argument extends ScalaMetaNode {
       override val scala: Term;
     }
+
+
 
     object Argument {
       type Identifier = String;
 
-      case class Positional(expression: Expression) extends Argument() {
+      case class Positional(expression: Expression, position:Int) extends Argument() {
         override val scala: Term = expression.scala;
       }
 

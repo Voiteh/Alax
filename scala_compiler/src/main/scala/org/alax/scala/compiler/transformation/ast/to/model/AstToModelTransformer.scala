@@ -16,14 +16,41 @@ import java.nio.file.Path
 import scala.+:
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
+import org.alax.utilities.unwrap
 
 class AstToModelTransformer {
 
   object transform {
-    private def `wrap results`[Item, Valid, Errors](items: (Seq[Item], Seq[CompilerError]))
-                                                   (validWrapper: Seq[Item] => Valid)
+
+    def location(location: ast.base.Node.Location): base.model.Trace = Trace(
+      unit = location.unit,
+      startLine = location.startLine,
+      endLine = location.endLine,
+      startIndex = location.startIndex,
+      endIndex = location.endIndex
+    )
+
+    private def parseError(error: ParseError): CompilerError = {
+      if (error.cause.isEmpty) then CompilationError(
+        trace = transform.location(error.metadata.location),
+        message = error.message
+      ) else CompilationErrors(
+        trace = transform.location(error.metadata.location),
+        message = error.message,
+        cause = error.cause.map(error => parseError(error))
+      )
+
+    }
+
+    private def `wrap results`[Item, Valid, Errors](items: Seq[Item | CompilerError])
+                                                   (validWrapper: Seq[Item] => Valid = Seq[Item])
                                                    (errorWrapper: Seq[CompilerError] => Errors): Valid | Errors = {
-      val (valid, errors) = items;
+      val (valid, errors) = items.foldRight((Seq.empty[Item], Seq.empty[CompilerError])) {
+        case (item, (valid, errors)) => item match {
+          case item: Item => (item +: valid, errors)
+          case error: CompilerError => (valid, error +: errors)
+        }
+      }
       if errors.nonEmpty then errorWrapper(errors) else validWrapper(valid)
     }
 
@@ -39,12 +66,7 @@ class AstToModelTransformer {
       private def `chain support`(chain: ast.Chain.Expression): Seq[base.model.Expression] | CompilerError = {
         val result: base.model.Expression | CompilerError = chain.expression match {
           case expression: ast.base.Expression => transform.expression(expression)
-          case error: ParseError => CompilationError(
-            path = error.metadata.location.unit,
-            message = error.message,
-            startIndex = error.metadata.location.startIndex,
-            endIndex = error.metadata.location.endIndex
-          )
+          case error: ParseError => transform.parseError(error)
         }
 
         result match {
@@ -97,12 +119,10 @@ class AstToModelTransformer {
           val packageReference: model.Package.Reference | CompilationError = if typeReference.`package` != null then
             transform.`package`.reference(typeReference.`package`)
           else imports.find(element =>
-            typeReference.identifier.text.equals(element.alias) || typeReference.identifier.text.equals(element.member)
-          ).map[model.Package.Reference | CompilationError](`import` => `import`.ancestor)
-            .getOrElse(new CompilationError(
-              path = typeReference.metadata.location.unit,
-              startIndex = typeReference.metadata.location.startIndex,
-              endIndex = typeReference.metadata.location.endIndex,
+              typeReference.identifier.text.equals(element.alias) || typeReference.identifier.text.equals(element.member)
+            ).map[model.Package.Reference | CompilationError](`import` => `import`.ancestor)
+            .getOrElse(CompilationError(
+              trace = transform.location(typeReference.metadata.location),
               message = s"Unknown type: ${typeReference.identifier.text}, did You forget to import?"
             ))
           packageReference match {
@@ -246,21 +266,31 @@ class AstToModelTransformer {
 
 
       def call(call: ast.Routine.Call.Expression)(context: Context): model.Routine.Call | CompilerError = {
-        val referenceOrError: model.Evaluable.Reference | CompilerError = transform.evaluable.reference(call.functionReference)
-        referenceOrError match {
-          case reference: model.Evaluable.Reference => model.Routine.Call(
-            reference = reference,
-            arguments = call.arguments.map(argument => transform.routine.call.argument(argument))
-          )
+        transform.evaluable.reference(call.routineReference) match {
+          case reference: model.Evaluable.Reference => {
+            call.arguments.zipWithIndex.map((argument, position) => transform.routine.call.argument(argument, position)
+              )
+              .unwrap(
+                (items: Seq[model.Routine.Call.Argument], errors: Seq[CompilerError]) => if errors.isEmpty then
+                  model.Routine.Call(
+                    reference = reference,
+                    arguments = items.toSet
+                  ) else CompilationErrors(
+                  trace = transform.trace(call.metadata.location),
+                  message = "Invalid routine call expression",
+                  cause = errors
+                )
+              )
+          }
           case err: CompilerError => err;
         }
       }
 
 
       object call {
-        def argument(argument: ast.Routine.Call.Argument): model.Routine.Call.Argument | CompilerError = {
+        def argument(argument: ast.Routine.Call.Argument, index: Int): model.Routine.Call.Argument | CompilerError = {
           argument match {
-            case positionalArgument: ast.Routine.Call.Positional.Argument => transform.routine.call.argument.positional(positionalArgument)
+            case positionalArgument: ast.Routine.Call.Positional.Argument => transform.routine.call.argument.positional(argument = positionalArgument, position = index)
             case namedArgument: ast.Routine.Call.Named.Argument => transform.routine.call.argument.named(namedArgument)
 
           }
@@ -270,11 +300,12 @@ class AstToModelTransformer {
           //TODO probably we would need to find if parameter we are referencing is contained in given function declaration
           def identifier(id: ast.Identifier.LowerCase): model.Routine.Call.Argument.Identifier | CompilerError = id.text
 
-          def positional(argument: ast.Routine.Call.Positional.Argument): model.Routine.Call.Argument.Positional | CompilerError = {
-            val expressionOrError: model.Expression.Chain | CompilerError = transform.expression.chain(argument.expression);
+          def positional(argument: ast.Routine.Call.Positional.Argument, position: Int): model.Routine.Call.Argument.Positional | CompilerError = {
+            val expressionOrError: base.model.Expression | CompilerError = transform.expression(argument.expression);
             expressionOrError match {
-              case expression: model.Expression.Chain => model.Routine.Call.Argument.Positional(
-                expression = expression
+              case expression: base.model.Expression => model.Routine.Call.Argument.Positional(
+                expression = expression,
+                position = position
               )
               case error: CompilerError => error
             }
@@ -282,10 +313,10 @@ class AstToModelTransformer {
 
           def named(argument: ast.Routine.Call.Named.Argument): model.Routine.Call.Argument.Named | CompilerError = {
             val identifierOrError: model.Routine.Call.Argument.Identifier | CompilerError = transform.routine.call.argument.identifier(argument.identifier)
-            val expressionOrError: model.Expression.Chain | CompilerError = transform.expression.chain(argument.expression);
+            val expressionOrError: base.model.Expression | CompilerError = transform.expression(argument.expression);
             identifierOrError match {
               case identifier: model.Routine.Call.Argument.Identifier => expressionOrError match {
-                case expression: model.Expression.Chain => model.Routine.Call.Argument.Named(
+                case expression: base.model.Expression => model.Routine.Call.Argument.Named(
                   identifier = identifier, expression = expression
                 )
                 case error: CompilerError => error;
@@ -355,7 +386,7 @@ class AstToModelTransformer {
 
         object body {
           def block(body: ast.Routine.Definition.Block.Body)(context: Contexts.Routine): model.Routine.Definition.Block.Body | CompilerError = {
-            val result = body.elements.map {
+            val result: Seq[Statement | Expression | CompilerError] = body.elements.map {
               case chain: Chain.Expression => transform.expression.chain(chain)
               case valueDeclaration: ast.Value.Declaration => transform.value.declaration(
                 valueDeclaration = valueDeclaration,
@@ -367,24 +398,16 @@ class AstToModelTransformer {
               )
               case valueAssignmentExpression: ast.Value.Assignment.Expression => transform.value.assignment(valueAssignmentExpression)
               case evaluableReference: ast.Evaluable.Reference => transform.evaluable.reference(evaluableReference)
-              case functionCallExpression: ast.Routine.Call.Expression => transform.routine.call(call = functionCallExpression)
+              case functionCallExpression: ast.Routine.Call.Expression => transform.routine.call(call = functionCallExpression)(context)
               case error: ParseError => CompilationError(
-                path = error.metadata.location.unit,
                 message = error.message,
-                startIndex = error.metadata.location.startIndex,
-                endIndex = error.metadata.location.endIndex
+                trace = transform.trace(error.metadata.location)
               )
-            }.foldRight((Seq[base.model.Expression | base.model.Statement](), Seq[CompilerError]())) {
-              case (result, (valid, errors)) => result match {
-                case statement: base.model.Statement => (statement +: valid, errors)
-                case expression: base.model.Expression => (expression +: valid, errors)
-                case error: CompilerError => (valid, error +: errors)
-              }
             }
             transform.`wrap results`(result) {
-              items => model.Routine.Definition.Block.Body(items)
+              (items: Seq[Statement | Expression]) => model.Routine.Definition.Block.Body(items)
             } {
-              errors => CompilationErrors("Invalid routine body definition", errors)
+              errors => CompilationErrors(message = "Invalid routine body definition", cause = errors)
             }
           }
 
@@ -397,10 +420,8 @@ class AstToModelTransformer {
               case evaluableReference: ast.Evaluable.Reference => transform.evaluable.reference(evaluableReference)
               case functionCallExpression: ast.Routine.Call.Expression => transform.routine.call(call = functionCallExpression)(context)
               case error: ParseError => CompilationError(
-                path = error.metadata.location.unit,
-                message = error.message,
-                startIndex = error.metadata.location.startIndex,
-                endIndex = error.metadata.location.endIndex
+                trace = transform.trace(error.metadata.location),
+                message = error.message
               )
             }
             result match {
@@ -479,6 +500,7 @@ class AstToModelTransformer {
               )
               case error: CompilerError => error
             }
+          case identifierError: CompilerError => identifierError
         }
 
       }
@@ -541,16 +563,12 @@ class AstToModelTransformer {
               valueDefinition = value,
               context = context
             )
-          }.foldRight((Seq.empty[model.Value.Definition], Seq.empty[CompilerError])) {
-            case (item, (valid, errors)) => item match {
-              case valueDefinition: model.Value.Definition => (valueDefinition +: valid, errors)
-              case error: CompilerError => (valid, error +: errors)
-            }
+            case parseError: ast.base.ParseError => transform.parseError(parseError)
           }
           transform.`wrap results`(results) {
             items => compiler.model.Package.Definition.Body(items)
           } {
-            errors => CompilationErrors("Invalid package definition body", errors)
+            errors => CompilationErrors(message = "Invalid package definition body", cause = errors)
           }
         }
       }
@@ -591,12 +609,21 @@ class AstToModelTransformer {
 
       object definition {
         def body(body: ast.Module.Body, context: Contexts.Package | Null = null): compiler.model.Module.Definition.Body | CompilerError = {
-          return compiler.model.Module.Definition.Body(
-            elements = body.elements.map {
-              case value: ast.Value.Definition => transform.value.definition(valueDefinition = value, context = context)
-              case error: ParseError => CompilerBugError(error)
-            })
+
+          val elements = body.elements.map {
+            case value: ast.Value.Definition => transform.value.definition(valueDefinition = value, context = context)
+            case error: ParseError => transform.parseError(error)
+          }
+          transform.`wrap results`(elements) {
+            items =>
+              compiler.model.Module.Definition.Body(
+                elements = items
+              )
+          } {
+            errors => CompilationErrors(message = "Invalid module definition body", cause = errors)
+          }
         }
+
       }
 
       def definition(definition: ast.Module.Definition, context: Contexts.Package | Null = null): compiler.model.Module.Definition | CompilerError = {
@@ -618,7 +645,8 @@ class AstToModelTransformer {
 
     def trace(location: ast.base.Node.Location): Trace = compiler.base.model.Trace(
       unit = location.unit,
-      lineNumber = location.startLine,
+      startLine = location.startLine,
+      endLine = location.endLine,
       startIndex = location.startIndex,
       endIndex = location.endIndex
     )

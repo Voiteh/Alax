@@ -1,11 +1,9 @@
 package org.alax.ast
 
 import org.alax.ast
-import org.alax.ast.Module.Element
-import org.alax.ast.Value
 import org.alax.ast.base.Node.Metadata
-import org.alax.ast.base.statements.{Declaration as BaseDeclaration, Definition as BaseDefinition}
-import org.alax.ast.base.{Expression, Node, ParseError, Statement};
+import org.alax.ast.base.statements.Declaration as BaseDeclaration
+import org.alax.ast.base.{Expression, Node, ParseError};
 
 object Routine {
 
@@ -16,7 +14,7 @@ object Routine {
 
     object Positional {
       case class Argument(
-                           expression: Chain.Expression,
+                           expression: base.Expression,
                            metadata: Metadata = Metadata.unknown
                          ) extends ast.base.Argument(metadata = metadata)
     }
@@ -24,20 +22,17 @@ object Routine {
     object Named {
       case class Argument(
                            identifier: ast.Identifier.LowerCase,
-                           expression: Chain.Expression,
+                           expression: base.Expression,
                            metadata: Metadata = Metadata.unknown
                          ) extends ast.base.Argument(metadata = metadata)
     }
 
     case class Expression(
-                           functionReference: Evaluable.Reference,
-                           arguments: Seq[Routine.Call.Argument],
+                           routineReference: Evaluable.Reference,
+                           arguments: Seq[Routine.Call.Argument] = Seq(),
                            metadata: Metadata = Metadata.unknown
                          ) extends ast.base.Expression(metadata = metadata)
 
-    case class Statement(functionReference: Evaluable.Reference,
-                         arguments: Seq[Routine.Call.Argument],
-                         metadata: Metadata = Metadata.unknown) extends ast.base.Statement(metadata = metadata)
   }
 
 

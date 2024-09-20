@@ -47,3 +47,16 @@ def equals(left: Product, right: Product, filter: (String, Any) => Boolean = (_,
 
   )
 }
+extension [Item](seq: Seq[Item]) {
+  def unwrap[Left <: Item,Right <:Item,Unwrapped]
+  (unwrapper: (lefts: Seq[Left], rights: Seq[Right]) => Unwrapped)
+  : Unwrapped = {
+    val (lefts, rights) = seq.foldRight((Seq.empty[Left], Seq.empty[Right])) {
+      case (item, (lefts, rights)) => if item.isInstanceOf[Left]
+      then (item.asInstanceOf[Left] +: lefts, rights)
+      else (lefts, item.asInstanceOf[Right] +: rights)
+    }
+    unwrapper(lefts, rights)
+
+  }
+}

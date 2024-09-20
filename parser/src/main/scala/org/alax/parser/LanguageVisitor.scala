@@ -101,6 +101,12 @@ class LanguageVisitor(
       )
       case typeId: ast.Value.Type.Identifier =>
         packageOrError match {
+          case null => ast.Value.Type.Reference(
+            `package` = null,
+            identifier = typeId,
+            metadata = metadataParser.parse.metadata(ctx)
+
+          )
           case error: ParseError => ParseError(
             metadata = metadataParser.parse.metadata(ctx),
             message = s"Invalid package reference",
@@ -112,12 +118,7 @@ class LanguageVisitor(
             metadata = metadataParser.parse.metadata(ctx)
 
           )
-          case null => ast.Value.Type.Reference(
-            `package` = null,
-            identifier = typeId,
-            metadata = metadataParser.parse.metadata(ctx)
 
-          )
         }
     }
   }
@@ -376,6 +377,11 @@ class LanguageVisitor(
     expressionOrParseError match {
       case expression: ast.base.Expression =>
         nextOrError match {
+          case null => Chain.Expression(
+            expression = expression,
+            next = null,
+            metadata = metadataParser.parse.metadata(ctx)
+          )
           case chain: Chain.Expression => Chain.Expression(
             expression = expression,
             next = chain,
@@ -386,11 +392,7 @@ class LanguageVisitor(
             metadata = metadataParser.parse.metadata(ctx),
             cause = Seq(error)
           )
-          case null => Chain.Expression(
-            expression = expression,
-            next = null,
-            metadata = metadataParser.parse.metadata(ctx)
-          )
+
         }
       case error: ParseError => ParseError(
         message = "Invalid chain expression",
@@ -650,7 +652,8 @@ class LanguageVisitor(
     val chainExpressionOrError: ast.Chain.Expression | ParseError = visitChainExpression(ctx.chainExpression())
     chainExpressionOrError match {
       case chainExpression: ast.Chain.Expression => ast.Routine.Call.Positional.Argument(
-        expression = chainExpression, metadata = metadataParser.parse.metadata(ctx)
+        expression = chainExpression,
+        metadata = metadataParser.parse.metadata(ctx)
       )
       case error: ParseError => new ParseError(
         metadata = metadataParser.parse.metadata(ctx),
@@ -701,7 +704,7 @@ class LanguageVisitor(
             case error: ParseError => errors.addOne(error)
           }
         if (errors.isEmpty) then ast.Routine.Call.Expression(
-          functionReference = reference,
+          routineReference = reference,
           arguments = arguments.toSeq,
           metadata = metadataParser.parse.metadata(ctx),
         ) else new ParseError(
@@ -727,6 +730,10 @@ class LanguageVisitor(
       .orNull
     idOrError match {
       case valueId: ast.Evaluable.Identifier => containerOrError match {
+        case null => ast.Evaluable.Reference(
+          identifier = valueId,
+          metadata = metadataParser.parse.metadata(ctx)
+        )
         case typeId: ast.Container.Reference => ast.Evaluable.Reference(
           identifier = valueId,
           container = typeId,
@@ -737,10 +744,7 @@ class LanguageVisitor(
           message = "Invalid evaluable reference",
           cause = Seq(typeError)
         )
-        case null => ast.Evaluable.Reference(
-          identifier = valueId,
-          metadata = metadataParser.parse.metadata(ctx)
-        )
+
       }
       case idError: ParseError => new ParseError(
         metadata = metadataParser.parse.metadata(ctx),

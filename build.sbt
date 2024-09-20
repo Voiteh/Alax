@@ -1,7 +1,7 @@
 import sbt.Keys.libraryDependencies
 
 lazy val commonSettings = Seq(
-  scalaVersion := "3.1.3",
+  scalaVersion := "3.5.1",
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % "2.13.10"
   )

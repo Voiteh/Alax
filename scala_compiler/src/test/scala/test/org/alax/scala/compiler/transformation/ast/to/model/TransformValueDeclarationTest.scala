@@ -72,7 +72,7 @@ class TransformValueDeclarationTest extends AnyWordSpec with Matchers with Insid
       val matches: Seq[(Testable, Expected, Context)] = Seq(
         (
           Ast.Value.Declaration.`Integer int`,
-          CompilationError(path = "", message = "Unknown type: Integer, did You forget to import?"),
+          CompilationError(fixture.Model.Trace.`invalid trace`, message = "Unknown type: Integer, did You forget to import?"),
           fixture.Model.Context.`package empty`
         )
       )
@@ -84,7 +84,8 @@ class TransformValueDeclarationTest extends AnyWordSpec with Matchers with Insid
             context = context
           )
           inside(result) {
-            case error: CompilerError => error mustBe expected
+            case error: CompilerError =>
+              error mustBe expected
             case other =>
               fail(s"Invalid result: expected error but was: $other")
           }

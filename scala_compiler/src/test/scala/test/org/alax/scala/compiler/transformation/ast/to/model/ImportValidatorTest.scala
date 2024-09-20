@@ -14,7 +14,7 @@ class ImportValidatorTest extends AnyWordSpec{
     val imports=Model.Context.Imports.`duplicate main ancestor imports`;
     "wrapped into Tracable and validated, then" must{
       val tracables=imports
-        .map(item => new Tracable(trace = Model.Context.Trace.`empty trace`,transformed = item ));
+        .map(item => new Tracable(trace = Model.Trace.`empty trace`,transformed = item ));
       "return errors" in {
         val result=ImportsValidator.validate(tracables);
         result must have size 2;
@@ -25,7 +25,7 @@ class ImportValidatorTest extends AnyWordSpec{
     val imports = Model.Context.Imports.`duplicate nested ancestor imports`;
     "wrapped into Tracable and validated, then" must {
       val tracables = imports
-        .map(item => new Tracable(trace = Model.Context.Trace.`empty trace`, transformed = item));
+        .map(item => new Tracable(trace = Model.Trace.`empty trace`, transformed = item));
       "return errors" in {
         val result = ImportsValidator.validate(tracables);
         result must have size 2;
@@ -36,7 +36,7 @@ class ImportValidatorTest extends AnyWordSpec{
     val imports = Model.Context.Imports.`duplicate nested with different top ancestor imports`;
     "wrapped into Tracable and validated, then" must {
       val tracables = imports
-        .map(item => new Tracable(trace = Model.Context.Trace.`empty trace`, transformed = item));
+        .map(item => new Tracable(trace = Model.Trace.`empty trace`, transformed = item));
       "return empty sequence" in {
         val result = ImportsValidator.validate(tracables);
         result must have size 0;
@@ -49,7 +49,7 @@ class ImportValidatorTest extends AnyWordSpec{
     val imports = Model.Context.Imports.`duplicate member imports`;
     "wrapped into Tracable and validated, then" must {
       val tracables = imports
-        .map(item => new Tracable(trace = Model.Context.Trace.`empty trace`, transformed = item));
+        .map(item => new Tracable(trace = Model.Trace.`empty trace`, transformed = item));
       "return errors" in {
         val result = ImportsValidator.validate(tracables);
         result must have size 2;
@@ -60,7 +60,7 @@ class ImportValidatorTest extends AnyWordSpec{
     val imports = Model.Context.Imports.`duplicate member imports` ++ Model.Context.Imports.`non duplicating imports ` ;
     "wrapped into Tracable and validated, then" must {
       val tracables = imports
-        .map(item => new Tracable(trace = Model.Context.Trace.`empty trace`, transformed = item));
+        .map(item => new Tracable(trace = Model.Trace.`empty trace`, transformed = item));
       "return errors" in {
         val result = ImportsValidator.validate(tracables);
         result must have size 2;
@@ -72,7 +72,7 @@ class ImportValidatorTest extends AnyWordSpec{
     val imports = Model.Context.Imports.`duplicate member imports` ++ Model.Context.Imports.`duplicate nested ancestor imports`;
     "wrapped into Tracable and validated, then" must {
       val tracables = imports
-        .map(item => new Tracable(trace = Model.Context.Trace.`empty trace`, transformed = item));
+        .map(item => new Tracable(trace = Model.Trace.`empty trace`, transformed = item));
       "return errors" in {
         val result = ImportsValidator.validate(tracables);
         result must have size 5;

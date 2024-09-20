@@ -2,7 +2,7 @@ package test.org.alax.scala.compiler.transformation.ast.to.model.fixture
 
 import org.alax.ast
 import org.alax.scala.compiler
-import org.alax.scala.compiler.base.model
+import org.alax.scala.compiler.base
 import org.alax.scala.compiler.base.model.{Import, Trace, Type}
 import org.alax.scala.compiler.model.{Literals, Value as CompilerValue, Package as PackageModel}
 import org.alax.scala.compiler.transformation
@@ -14,12 +14,32 @@ import scala.annotation.targetName
 
 object Model {
 
+  object Trace {
+    val `invalid trace` = new Trace(
+      unit = "",
+      startLine = -1,
+      endLine = -1,
+      startIndex = -1,
+      endIndex = -1
+    )
+    val `empty trace` = new Trace(
+      unit = "",
+      startLine = 0,
+      endLine = 0,
+      startIndex = 0,
+      endIndex = 0
+    )
+  }
+
+  object Expression {
+    object Literal {
+      val `1`: compiler.model.Literals.Integer = compiler.model.Literals.Integer(1)
+      val `"str"`: compiler.model.Literals.String = compiler.model.Literals.String("str")
+    }
+  }
+
   object Context {
 
-
-    object Trace {
-      val `empty trace` = new Trace(unit = "", lineNumber = 0, startIndex = 0, endIndex = 0)
-    }
 
     object Import {
       val `scala.lang.Integer`: Import = compiler.base.model.Import(
@@ -70,12 +90,12 @@ object Model {
       identifier = "bleh"
     )
     val `package with import = scala.lang.Integer` = Contexts.Package(
-      identifier= "with import",
+      identifier = "with import",
       imports = Seq(Import.`scala.lang.Integer`)
     )
-    val `package empty` = Contexts.Package(identifier="empty",imports = Seq.empty)
+    val `package empty` = Contexts.Package(identifier = "empty", imports = Seq.empty)
     val `package with import and alias`: Contexts.Package = Contexts.Package(
-      identifier= "with import and alias",
+      identifier = "with import and alias",
       imports =
         Seq(
           Import.`scala.lang.Integer`,
@@ -110,6 +130,7 @@ object Model {
   object Package {
     object Reference {
       val `package scala.lang` = compiler.model.Package.Reference(Seq("scala", "lang"))
+      val `package abc` = compiler.model.Package.Reference(Seq("abc"))
     }
 
     object Declaration {
@@ -160,13 +181,13 @@ object Model {
       }
 
       object Parameter {
-          val `java.lang.Integer param` = compiler.model.Routine.Declaration.Parameter(
-            identifier = "param",
-            typeReference = compiler.model.Value.Type.Reference(
-              packageReference = compiler.model.Package.Reference(Seq("java", "lang")),
-              id = compiler.base.model.Type.Id("Integer")
-            )
+        val `java.lang.Integer param` = compiler.model.Routine.Declaration.Parameter(
+          identifier = "param",
+          typeReference = compiler.model.Value.Type.Reference(
+            packageReference = compiler.model.Package.Reference(Seq("java", "lang")),
+            id = compiler.base.model.Type.Id("Integer")
           )
+        )
       }
 
       val `procedure bleh()` = compiler.model.Procedure.Declaration(
@@ -191,7 +212,55 @@ object Model {
     }
   }
 
-  object Routine{
+  object Routine {
+    object Reference {
+      val `abc.bleh` = compiler.model.Evaluable.Reference(
+        identifier = "bleh",
+        `package` = Package.Reference.`package abc`
+      )
+    }
+
+    object Call {
+      val `abc.bleh()` = compiler.model.Routine.Call(
+        reference = Routine.Reference.`abc.bleh`,
+
+      )
+      val `abc.bleh(1,"str")` = compiler.model.Routine.Call(
+        reference = Routine.Reference.`abc.bleh`,
+        arguments = Set(Positional.Argument.`1`, Positional.Argument.`"str"`)
+      )
+      val `abc.bleh(int=1,str="str")` = compiler.model.Routine.Call(
+        reference = Routine.Reference.`abc.bleh`,
+        arguments = Set( Named.Argument.`int=1`,Named.Argument.`str="str"`)
+      )
+
+      object Positional {
+        object Argument {
+          val `1`: compiler.model.Routine.Call.Argument.Positional = compiler.model.Routine.Call.Argument.Positional(
+            expression = Model.Expression.Literal.`1`,
+            position = 0
+          )
+          val `"str"`: compiler.model.Routine.Call.Argument.Positional = compiler.model.Routine.Call.Argument.Positional(
+            expression = Model.Expression.Literal.`"str"`,
+            position = 1
+          )
+        }
+      }
+
+      object Named {
+        object Argument {
+          val `int=1`: compiler.model.Routine.Call.Argument.Named = compiler.model.Routine.Call.Argument.Named(
+            identifier = "int",
+            expression = Model.Expression.Literal.`1`
+          )
+          val `str="str"`: compiler.model.Routine.Call.Argument.Named = compiler.model.Routine.Call.Argument.Named(
+            identifier = "str",
+            expression = Model.Expression.Literal.`"str"`
+          )
+        }
+      }
+    }
+
     object Declaration {
       object Identifier {
         val bleh = "bleh";
@@ -208,6 +277,7 @@ object Model {
       }
     }
   }
+
   object Procedure {
 
 
@@ -216,9 +286,6 @@ object Model {
     }
 
     object Declaration {
-
-
-
 
 
       val `procedure bleh()` = compiler.model.Procedure.Declaration(
