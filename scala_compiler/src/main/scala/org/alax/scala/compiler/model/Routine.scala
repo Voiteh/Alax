@@ -6,15 +6,16 @@ import org.alax.scala.compiler.base
 import org.alax.scala.compiler.model
 import org.alax.scala.compiler.base.model.Declaration.Identifier
 import org.alax.scala.compiler.base.model.{CompilerError, Expression, ScalaMetaNode, Scope, Statement}
+import org.alax.scala.compiler.model.Routine.Call.Argument
 
 object Routine {
 
-  abstract class Declaration(override val identifier: Identifier, parameters: Seq[model.Routine.Declaration.Parameter|CompilerError])
+  abstract class Declaration(override val identifier: Identifier, parameters: Seq[model.Routine.Declaration.Parameter | CompilerError])
     extends base.model.Declaration(
       identifier = identifier
     )
 
-  abstract class Definition(override val declaration: Declaration, body: Definition.Body|CompilerError) extends base.model.Definition(
+  abstract class Definition(override val declaration: Declaration, body: Definition.Body | CompilerError) extends base.model.Definition(
     declaration = declaration, meaning = body
   )
 
@@ -74,13 +75,40 @@ object Routine {
 
   }
 
-  //TODO write tests for that
-  case class Call(reference: Evaluable.Reference, arguments: Set[Routine.Call.Argument]= Set())
-    extends base.model.Expression {
-    override def scala: Term.Apply = Term.Apply(
-      fun = reference.scala, argClause = Term.ArgClause(values = arguments.toList
-        .map(item => item.scala), mod = None)
-    )
+  object Positional {
+    object Call {
+      case class Argument(expression: Expression) extends Routine.Call.Argument() {
+        override val scala: Term = expression.scala;
+      }
+    }
+
+
+    case class Call(override val reference: Evaluable.Reference, override val arguments: Seq[Positional.Call.Argument] = Seq()) extends Routine.Call(reference, arguments) {
+      override def scala: Term.Apply = Term.Apply(
+        fun = reference.scala, argClause = Term.ArgClause(values = arguments.toList
+          .map(item => item.scala), mod = None)
+      )
+    }
+  }
+
+  object Named {
+    object Call {
+      case class Argument(identifier: Routine.Call.Argument.Identifier, expression: Expression) extends Routine.Call.Argument() {
+        override val scala: Term.Assign = Term.Assign(lhs = Term.Name(identifier), rhs = expression.scala)
+      }
+    }
+
+    case class Call(override val reference: Evaluable.Reference, override val arguments: Set[Named.Call.Argument] = Set()) extends Routine.Call(reference, arguments) {
+      override def scala: Term.Apply = Term.Apply(
+        fun = reference.scala,
+        argClause = Term.ArgClause(values = arguments.toList
+          .map(item => item.scala), mod = None)
+      )
+    }
+  }
+
+  abstract class Call(val reference: Evaluable.Reference, val arguments: Iterable[Routine.Call.Argument]) extends base.model.Expression {
+
   }
 
   object Call {
@@ -89,17 +117,9 @@ object Routine {
     }
 
 
-
     object Argument {
       type Identifier = String;
 
-      case class Positional(expression: Expression, position:Int) extends Argument() {
-        override val scala: Term = expression.scala;
-      }
-
-      case class Named(identifier: Argument.Identifier, expression: Expression) extends Argument() {
-        override val scala: Term.Assign = Term.Assign(lhs = Term.Name(identifier), rhs = expression.scala)
-      }
     }
 
 

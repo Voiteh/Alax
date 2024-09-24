@@ -170,6 +170,12 @@ object Ast {
           routineReference = Reference.`abc.bleh`,
           arguments = Seq(Named.Argument.`int=1`, Named.Argument.`str="str"`)
         )
+
+        val `abc.bleh(1,str="str")` = ast.Routine.Call.Expression(
+          routineReference = Reference.`abc.bleh`,
+          arguments = Seq(Positional.Argument.`1`, Named.Argument.`str="str"`)
+        )
+
       }
     }
   }

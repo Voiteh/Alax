@@ -220,46 +220,50 @@ object Model {
       )
     }
 
-    object Call {
-      val `abc.bleh()` = compiler.model.Routine.Call(
-        reference = Routine.Reference.`abc.bleh`,
+    object Positional {
 
-      )
-      val `abc.bleh(1,"str")` = compiler.model.Routine.Call(
-        reference = Routine.Reference.`abc.bleh`,
-        arguments = Set(Positional.Argument.`1`, Positional.Argument.`"str"`)
-      )
-      val `abc.bleh(int=1,str="str")` = compiler.model.Routine.Call(
-        reference = Routine.Reference.`abc.bleh`,
-        arguments = Set( Named.Argument.`int=1`,Named.Argument.`str="str"`)
-      )
-
-      object Positional {
+      object Call {
         object Argument {
-          val `1`: compiler.model.Routine.Call.Argument.Positional = compiler.model.Routine.Call.Argument.Positional(
-            expression = Model.Expression.Literal.`1`,
-            position = 0
+          val `1`: compiler.model.Routine.Positional.Call.Argument = compiler.model.Routine.Positional.Call.Argument(
+            expression = Model.Expression.Literal.`1`
           )
-          val `"str"`: compiler.model.Routine.Call.Argument.Positional = compiler.model.Routine.Call.Argument.Positional(
-            expression = Model.Expression.Literal.`"str"`,
-            position = 1
+          val `"str"`: compiler.model.Routine.Positional.Call.Argument = compiler.model.Routine.Positional.Call.Argument(
+            expression = Model.Expression.Literal.`"str"`
           )
         }
-      }
 
-      object Named {
+        val `abc.bleh()` = compiler.model.Routine.Positional.Call(
+          reference = Routine.Reference.`abc.bleh`,
+        )
+        val `abc.bleh(1,"str")` = compiler.model.Routine.Positional.Call(
+          reference = Routine.Reference.`abc.bleh`,
+          arguments = Seq(Argument.`1`, Argument.`"str"`)
+        )
+      }
+    }
+
+    object Named {
+      object Call {
         object Argument {
-          val `int=1`: compiler.model.Routine.Call.Argument.Named = compiler.model.Routine.Call.Argument.Named(
+          val `int=1`: compiler.model.Routine.Named.Call.Argument = compiler.model.Routine.Named.Call.Argument(
             identifier = "int",
             expression = Model.Expression.Literal.`1`
           )
-          val `str="str"`: compiler.model.Routine.Call.Argument.Named = compiler.model.Routine.Call.Argument.Named(
+          val `str="str"`: compiler.model.Routine.Named.Call.Argument = compiler.model.Routine.Named.Call.Argument(
             identifier = "str",
             expression = Model.Expression.Literal.`"str"`
           )
         }
+
+        val `abc.bleh(int=1,str="str")` = compiler.model.Routine.Named.Call(
+          reference = Routine.Reference.`abc.bleh`,
+          arguments = Set(Argument.`int=1`, Argument.`str="str"`)
+        )
+
+
       }
     }
+
 
     object Declaration {
       object Identifier {

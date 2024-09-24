@@ -268,14 +268,23 @@ class AstToModelTransformer {
       def call(call: ast.Routine.Call.Expression)(context: Context): model.Routine.Call | CompilerError = {
         transform.evaluable.reference(call.routineReference) match {
           case reference: model.Evaluable.Reference => {
-            call.arguments.zipWithIndex.map((argument, position) => transform.routine.call.argument(argument, position)
-              )
+            call.arguments.map(argument => transform.routine.call.argument(argument))
               .unwrap(
                 (items: Seq[model.Routine.Call.Argument], errors: Seq[CompilerError]) => if errors.isEmpty then
-                  model.Routine.Call(
-                    reference = reference,
-                    arguments = items.toSet
-                  ) else CompilationErrors(
+                  items.unwrap(
+                    (positional: Seq[model.Routine.Positional.Call.Argument], named: Seq[model.Routine.Named.Call.Argument]) =>
+                      if positional.nonEmpty && named.nonEmpty then CompilationError(
+                        trace = transform.trace(call.metadata.location),
+                        message = "Mixed arguments (positional/named) not supported"
+                      )
+                      else if named.nonEmpty then model.Routine.Named.Call(
+                        reference = reference, arguments = named.toSet
+                      )
+                      else model.Routine.Positional.Call(
+                        reference = reference, arguments = positional
+                      )
+                  )
+                else CompilationErrors(
                   trace = transform.trace(call.metadata.location),
                   message = "Invalid routine call expression",
                   cause = errors
@@ -288,9 +297,9 @@ class AstToModelTransformer {
 
 
       object call {
-        def argument(argument: ast.Routine.Call.Argument, index: Int): model.Routine.Call.Argument | CompilerError = {
+        def argument(argument: ast.Routine.Call.Argument): model.Routine.Call.Argument | CompilerError = {
           argument match {
-            case positionalArgument: ast.Routine.Call.Positional.Argument => transform.routine.call.argument.positional(argument = positionalArgument, position = index)
+            case positionalArgument: ast.Routine.Call.Positional.Argument => transform.routine.call.argument.positional(argument = positionalArgument)
             case namedArgument: ast.Routine.Call.Named.Argument => transform.routine.call.argument.named(namedArgument)
 
           }
@@ -300,23 +309,22 @@ class AstToModelTransformer {
           //TODO probably we would need to find if parameter we are referencing is contained in given function declaration
           def identifier(id: ast.Identifier.LowerCase): model.Routine.Call.Argument.Identifier | CompilerError = id.text
 
-          def positional(argument: ast.Routine.Call.Positional.Argument, position: Int): model.Routine.Call.Argument.Positional | CompilerError = {
+          def positional(argument: ast.Routine.Call.Positional.Argument): model.Routine.Positional.Call.Argument | CompilerError = {
             val expressionOrError: base.model.Expression | CompilerError = transform.expression(argument.expression);
             expressionOrError match {
-              case expression: base.model.Expression => model.Routine.Call.Argument.Positional(
-                expression = expression,
-                position = position
+              case expression: base.model.Expression => model.Routine.Positional.Call.Argument(
+                expression = expression
               )
               case error: CompilerError => error
             }
           }
 
-          def named(argument: ast.Routine.Call.Named.Argument): model.Routine.Call.Argument.Named | CompilerError = {
+          def named(argument: ast.Routine.Call.Named.Argument): model.Routine.Named.Call.Argument | CompilerError = {
             val identifierOrError: model.Routine.Call.Argument.Identifier | CompilerError = transform.routine.call.argument.identifier(argument.identifier)
             val expressionOrError: base.model.Expression | CompilerError = transform.expression(argument.expression);
             identifierOrError match {
               case identifier: model.Routine.Call.Argument.Identifier => expressionOrError match {
-                case expression: base.model.Expression => model.Routine.Call.Argument.Named(
+                case expression: base.model.Expression => model.Routine.Named.Call.Argument(
                   identifier = identifier, expression = expression
                 )
                 case error: CompilerError => error;

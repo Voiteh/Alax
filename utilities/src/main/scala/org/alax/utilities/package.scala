@@ -1,5 +1,7 @@
 package org.alax.utilities
 
+import scala.reflect.ClassTag
+
 
 def toString(product: Product): String = product.productElementNames.zip(product.productIterator)
   .map { case (name, value) => s"$name = $value" }
@@ -48,13 +50,14 @@ def equals(left: Product, right: Product, filter: (String, Any) => Boolean = (_,
   )
 }
 extension [Item](seq: Seq[Item]) {
-  def unwrap[Left <: Item,Right <:Item,Unwrapped]
+  def unwrap[Left <: Item: ClassTag,Right <:Item:ClassTag,Unwrapped]
   (unwrapper: (lefts: Seq[Left], rights: Seq[Right]) => Unwrapped)
   : Unwrapped = {
     val (lefts, rights) = seq.foldRight((Seq.empty[Left], Seq.empty[Right])) {
-      case (item, (lefts, rights)) => if item.isInstanceOf[Left]
-      then (item.asInstanceOf[Left] +: lefts, rights)
-      else (lefts, item.asInstanceOf[Right] +: rights)
+      case (item, (lefts, rights)) => item match {
+        case left:Left => (left +: lefts, rights)
+        case right:Right => (lefts, right +: rights)
+      }
     }
     unwrapper(lefts, rights)
 
