@@ -1,8 +1,72 @@
 package test.org.alax.parser
 
+
+import org.alax.ast;
+import test.org.alax.parser.base.Match
 object fixture {
 
+  object procedure {
+    object definition {
+      val `procedure abc(String one)=!>one;`: Match = Match(
+        text = "procedure abc(String one)=!>one;",
+        node = ast.Procedure.Definition(
+          identifier = ast.Evaluable.Identifier("abc"),
+          parameters = Seq(
+            ast.Routine.Declaration.Parameter(
+              identifier = ast.Identifier.LowerCase("one"),
+              `type` = ast.Value.Type.Reference(
+                `package` = null,
+                identifier = ast.Identifier.UpperCase("String")
+              )
+            )
+          ),
+          body = ast.Routine.Definition.Lambda.Body(
+            element = ast.Evaluable.Reference(
+              identifier = ast.Evaluable.Identifier("one"),
+            )
+          ),
+        )
+      )
 
+    }
+
+    object declaration {
+
+    }
+  }
+
+
+  object function {
+    object definition {
+      val `function String abc(String one)=>one;`: Match = Match(
+        text = "function String abc(String one)=>one;",
+        node = ast.Function.Definition(
+          returnTypeReference = ast.Value.Type.Reference(
+            `package` = null,
+            identifier = ast.Identifier.UpperCase(
+              "String"
+            ),
+          ),
+          identifier = ast.Evaluable.Identifier("abc"),
+          parameters = Seq(
+            ast.Routine.Declaration.Parameter(
+              identifier = ast.Identifier.LowerCase("one"),
+              `type` = ast.Value.Type.Reference(
+                `package` = null,
+                identifier = ast.Identifier.UpperCase("String")
+              )
+            )
+          ),
+          body = ast.Routine.Definition.Lambda.Body(
+            element = ast.Evaluable.Reference(
+              identifier = ast.Evaluable.Identifier("one"),
+            )
+          ),
+        )
+      )
+
+    }
+  }
   object `import` {
     object statement {
       object simple {
@@ -33,12 +97,14 @@ object fixture {
     val `a_sd 123`: String = "a_sd def"
     val `_ad`: String = "_ad"
     val `123`: String = "123"
+
     object lowercase {
       val `asd`: String = "asd"
       val `a_sd 123`: String = "a_sd def"
       val `_ad`: String = "_ad"
       val `123`: String = "123"
     }
+
     object uppercase {
       val `Asd`: String = "Asd"
       val `A_sd Def`: String = "A_sd Def"
@@ -97,6 +163,7 @@ object fixture {
     val `-10` = "-10"
     val `-99.123` = "-99.123"
   }
+
 
 
 }

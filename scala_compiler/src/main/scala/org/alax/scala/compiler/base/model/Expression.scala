@@ -8,3 +8,4 @@ import scala.meta.{Term,Ref}
 abstract class Expression extends ScalaMetaNode {
   def scala: Term = ???;
 }
+

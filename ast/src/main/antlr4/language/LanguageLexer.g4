@@ -12,7 +12,8 @@ OUTER:'outer';
 RETURN: 'return' ;
 PACKAGE: 'package' ;
 MODULE: 'module' ;
-
+FUNCTION: 'function';
+PROCEDURE: 'procedure';
 fragment TRUE: 'true';
 fragment FALSE: 'false';
 

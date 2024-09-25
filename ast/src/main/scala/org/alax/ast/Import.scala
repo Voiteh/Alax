@@ -3,8 +3,6 @@ package org.alax.ast
 import org.alax.ast
 import org.alax.ast.base.Node.Metadata
 import org.alax.ast.base.statements.Declaration as BaseDeclaration
-import org.alax.ast.partial.Identifier
-import org.alax.ast.partial.Identifier.{LowerCase, UpperCase}
 
 object Import {
 
@@ -15,10 +13,7 @@ object Import {
 
     def prefix: Seq[ast.Identifier] = parts.dropRight(1);
 
-    def suffix: ast.Identifier = parts.last;
-  }
-
-  object Identifier {
+    def suffix:ast.Identifier = parts.last;
   }
 
   abstract class Declaration(

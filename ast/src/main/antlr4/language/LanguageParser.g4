@@ -1,58 +1,53 @@
 parser grammar LanguageParser;
 options { tokenVocab=LanguageLexer; }
 
-
-
-
-definition: valueDefinition|functionDefinition|packageDefinition|moduleDefinition;
+definition: valueDefinition|routineDefinition|packageDefinition|moduleDefinition;
 declaration: valueDeclaration|packageDeclaration|functionDeclaration|moduleDeclaration;
-
 
 moduleDeclaration: MODULE moduleIdentifier SEMI_COLON ;
 moduleDefinition: MODULE moduleIdentifier moduleBody;
-moduleBody: OPEN_CURLY (valueDefinition*)  CLOSE_CURLY;
+moduleBody: OPEN_CURLY (valueDefinition)* CLOSE_CURLY;
+//TODO find another way for identifying modules, it is cumbersome with all that com.bleh.blah.bluh especially when not owning com.bleh domain
 moduleIdentifier: lowercaseIdentifier (DOT lowercaseIdentifier)*;
-
 
 packageDefinition: PACKAGE packageIdentifier packageBody;
 packageDeclaration: PACKAGE packageIdentifier SEMI_COLON;
-packageBody:OPEN_CURLY (valueDefinition|functionDefinition)*  CLOSE_CURLY;
+packageBody: OPEN_CURLY (valueDefinition|routineDefinition)* CLOSE_CURLY;
 packageIdentifier: lowercaseIdentifier;
+packageReference: lowercaseIdentifier (DOT lowercaseIdentifier)*;
+routineDefinition: procedureDefinition|functionDefinition;
+routineParameter: valueTypeReference lowercaseIdentifier (EQUALS chainExpression)?;
+procedureDefinition: PROCEDURE evaluableIdentifier OPEN_BRACKET (routineParameter (COMMA routineParameter)*)? CLOSE_BRACKET NOT_FAT_ARROW functionBody ;
+procedureDeclaration: PROCEDURE evaluableIdentifier OPEN_BRACKET (routineParameter (COMMA routineParameter)*)? CLOSE_BRACKET SEMI_COLON;
 
-functionDefinition: valueTypeIdentifier? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET FAT_ARROW|NOT_FAT_ARROW functionalBody;
-functionDeclaration: valueTypeIdentifier? functionIdentifier OPEN_BRACKET functionParameters? CLOSE_BRACKET SEMI_COLON;
-functionalBody: (expression SEMI_COLON)| OPEN_CURLY functionalBodyStatement* CLOSE_CURLY;
-functionalBodyStatement:  valueDeclaration|valueDefinition|returnStatement|assignmentStatement;
-functionIdentifier: lowercaseIdentifier;
+functionDefinition: FUNCTION functionReturnType evaluableIdentifier OPEN_BRACKET (routineParameter (COMMA routineParameter)*)? CLOSE_BRACKET FAT_ARROW functionBody;
+functionDeclaration: FUNCTION functionReturnType evaluableIdentifier OPEN_BRACKET (routineParameter (COMMA routineParameter)*)? CLOSE_BRACKET SEMI_COLON;
+functionReturnType: valueTypeReference;
+
+functionLambdaBody: chainExpression|functionCallExpression|evaluableReference SEMI_COLON;
+functionBlockBody: OPEN_CURLY (valueDeclaration|valueDefinition|valueAssignmentExpression|functionCallExpression|evaluableReference)* CLOSE_CURLY;
+functionBody: functionBlockBody|functionLambdaBody;
+
+valueDefinition: accessModifier? VALUE valueTypeReference evaluableIdentifier EQUALS expression SEMI_COLON ;
+valueDeclaration: accessModifier? VALUE valueTypeReference evaluableIdentifier SEMI_COLON;
+valueTypeReference: (packageReference DOT)? valueTypeIdentifier;
+valueTypeIdentifier: uppercaseIdentifier;
 
 
-functionParameters: functionParameter (COMMA functionParameter)*;
-functionParameter: valueTypeIdentifier lowercaseIdentifier (EQUALS literalExpression|referenceExpression)?;
+functionCallExpression: evaluableReference OPEN_BRACKET (functionCallArgument (COMMA functionCallArgument)*)?  CLOSE_BRACKET;
+functionCallPositionalArgument: chainExpression;
+functionCallNamedArgument: lowercaseIdentifier EQUALS chainExpression;
+functionCallArgument: functionCallPositionalArgument|functionCallNamedArgument;
 
-valueDefinition: accessModifier? VALUE valueTypeIdentifier valueIdentifier EQUALS expression SEMI_COLON ;
-valueDeclaration: accessModifier? VALUE valueTypeIdentifier valueIdentifier SEMI_COLON;
-valueIdentifier: lowercaseIdentifier;
-
-
-
-
-functionCallExpression: accessor? OPEN_BRACKET functionCallArguments?  CLOSE_BRACKET;
-functionCallArguments:  positionalArguments| namedArguments ;
-positionalArguments: expression (COMMA expression)*;
-namedArguments: lowercaseIdentifier EQUALS expression (COMMA lowercaseIdentifier EQUALS expression)*;
-
-assignmentStatement: accessor? functionOrValueReference EQUALS expression SEMI_COLON;
-returnStatement: RETURN expression SEMI_COLON;
+valueAssignmentExpression: evaluableReference EQUALS chainExpression;
 
 //Refernces
-valueTypeIdentifier: (identifier (DOT identifier)* DOT)* uppercaseIdentifier  ;
+containerReference: packageReference;
+evaluableReference: (containerReference DOT)? evaluableIdentifier;
 
-functionOrValueReference: (accessor DOT)* (importIdentifier DOT)* memberName=lowercaseIdentifier;
-
-referenceExpression: valueTypeIdentifier|functionOrValueReference;
+evaluableIdentifier:lowercaseIdentifier;
 
 accessModifier: SHARED|PROTECTED;
-accessor:THIS|SUPER|OUTER;
 
 //Imports
 nestedImportDeclaration: IMPORT imports SEMI_COLON;
@@ -74,4 +69,6 @@ identifier: (LOWERCASE_WORD|UPPERCASE_WORD)+;
 
 literalExpression: BOOLEAN_LITERAL|CHARACTER_LITERAL|INTEGER_LITERAL|FLOAT_LITERAL|STRING_LITERAL;
 
-expression: literalExpression|functionCallExpression|referenceExpression;
+chainExpression: expression (DOT chainExpression)?;
+
+expression: literalExpression|functionCallExpression|evaluableReference;

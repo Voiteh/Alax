@@ -2,8 +2,7 @@ package test.org.alax.parser
 
 import org.alax.ast.LanguageParser.{AS, ValueDefinitionContext}
 import org.alax.ast.base.Node.Metadata
-import org.alax.ast.partial.Identifier
-import org.alax.ast.base.{ParseError, Partial}
+import org.alax.ast.base.{ParseError}
 import org.alax.ast
 import org.alax.ast.{LanguageLexer, LanguageParser, Literals}
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
@@ -32,7 +31,7 @@ class ParseValueDefinitionTest extends AnyWordSpec {
           case ast.Value.Definition(name, typeReference, initialization, _) =>
             name.text mustBe "bool"
             inside(typeReference) {
-              case typeReference: ast.Value.Type.Identifier => {
+              case typeReference: ast.Value.Type.Reference => {
                 typeReference.text mustBe "java.lang.Boolean"
               }
             }
@@ -55,9 +54,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         inside(result.asInstanceOf[ast.Value.Definition]) {
           case ast.Value.Definition(name, typeReference, initialization, _) =>
             name.text mustBe "char"
-            typeReference mustBe a[ast.Value.Type.Identifier]
+            typeReference mustBe a[ast.Value.Type.Reference]
             inside(typeReference) {
-              case typeReference: ast.Value.Type.Identifier =>
+              case typeReference: ast.Value.Type.Reference =>
                 typeReference.text mustBe "java.lang.Character"
 
             }
@@ -77,9 +76,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         inside(result.asInstanceOf[ast.Value.Definition]) {
           case ast.Value.Definition(name, typeReference, initialization, _) =>
             name.text mustBe "string"
-            typeReference mustBe a[ast.Value.Type.Identifier]
+            typeReference mustBe a[ast.Value.Type.Reference]
             inside(typeReference) {
-              case typeReference: ast.Value.Type.Identifier => {
+              case typeReference: ast.Value.Type.Reference => {
                 typeReference.text mustBe "java.lang.String"
               }
 
@@ -100,9 +99,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         inside(result.asInstanceOf[ast.Value.Definition]) {
           case ast.Value.Definition(name, typeReference, initialization, _) =>
             name.text mustBe "int"
-            typeReference mustBe a[ast.Value.Type.Identifier]
+            typeReference mustBe a[ast.Value.Type.Reference]
             inside(typeReference) {
-              case typeReference: ast.Value.Type.Identifier =>
+              case typeReference: ast.Value.Type.Reference =>
                 typeReference.text mustBe "Integer"
 
             }
@@ -122,9 +121,9 @@ class ParseValueDefinitionTest extends AnyWordSpec {
         inside(result.asInstanceOf[ast.Value.Definition]) {
           case ast.Value.Definition(name, typeReference, initialization, _) =>
             name.text mustBe "float"
-            typeReference mustBe a[ast.Value.Type.Identifier]
+            typeReference mustBe a[ast.Value.Type.Reference]
             inside(typeReference) {
-              case typeReference: ast.Value.Type.Identifier =>
+              case typeReference: ast.Value.Type.Reference =>
                 typeReference.text mustBe "Float"
 
             }

@@ -2,7 +2,7 @@ package test.org.alax.parser.base
 
 import org.alax.ast.LanguageParser
 import org.alax.ast.base.Node
-import org.alax.parser.{LanguageVisitor, IdentifierParser, MetadataParser}
+import org.alax.parser.{LanguageVisitor, MetadataParser}
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream, ParserRuleContext}
 import org.alax.ast.{LanguageLexer, LanguageParser}
 

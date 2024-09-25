@@ -55,11 +55,11 @@ class ParseValueDeclarationTest extends AnyWordSpec {
           .visit((visitor, context) => visitor.visitValueDeclaration(context))
         result mustBe a[ast.Value.Declaration];
         inside(result.asInstanceOf[ast.Value.Declaration]) {
-          case ast.Value.Declaration(name: ast.Value.Identifier, tpe: ast.Value.Type.Identifier, _) =>
-            name.text mustBe "some long item"
-            tpe mustBe a[ast.Value.Type.Identifier]
+          case ast.Value.Declaration(identifier: ast.Evaluable.Identifier, tpe: ast.Value.Type.Reference, _) =>
+            identifier.text mustBe "some long item"
+            tpe mustBe a[ast.Value.Type.Reference]
             inside(tpe) {
-              case typeIdentifier:ast.Value.Type.Identifier =>
+              case typeIdentifier:ast.Value.Type.Reference =>
                 typeIdentifier.text mustBe "Long Integer"
             }
         }

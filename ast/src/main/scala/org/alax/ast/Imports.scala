@@ -2,7 +2,6 @@ package org.alax.ast
 
 import org.alax.ast.base.Node.Metadata
 import org.alax.ast.Import
-import org.alax.ast.partial.Identifier.*
 
 object Imports {
 

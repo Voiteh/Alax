@@ -1,52 +1,46 @@
 package org.alax.ast
 
 import org.alax.ast
-import org.alax.ast.base.{Expression, Partial}
+import org.alax.ast.base.{Expression as BaseExpression, Statement as BaseStatement}
 import org.alax.ast.base.Node.Metadata
-import org.alax.ast.base.statements.Declaration as BaseDeclaration
-import org.alax.ast.base.statements.Definition as BaseDefinition
-import org.alax.ast.base.Partial.Type.Reference as BaseReference
-import org.alax.ast.partial.Identifier
+import org.alax.ast.Evaluable
 
 object Value {
 
-  case class Declaration(identifier: Identifier,
-                         typeReference: Value.Type.Identifier,
+  case class Declaration(identifier: Evaluable.Identifier,
+                         typeReference: Value.Type.Reference,
                          metadata: Metadata = Metadata.unknown
-                        ) extends BaseDeclaration(metadata = metadata);
+                        ) extends Evaluable.Declaration(identifier = identifier, metadata = metadata);
 
   case class Definition(
-                         name: Identifier,
-                         typeReference: Value.Type.Identifier,
-                         initialization: Expression,
+                         identifier: Evaluable.Identifier,
+                         typeReference: Value.Type.Reference,
+                         initialization: BaseExpression,
                          metadata: Metadata = Metadata.unknown
-                       ) extends BaseDefinition(metadata = metadata) {
-
-  }
-
-  case class Identifier(value: String, metadata: Metadata) extends Partial.Identifier(metadata = metadata) {
-    assert(value.matches("^[a-z][a-zA-Z0-9\\s]*[a-zA-Z0-9]$"))
-
-    override def text: String = value
-  }
-
-  object Identifier {
-    def matches(value: String): Boolean = value.matches("^[a-z][a-z0-9\\s]*[a-z0-9]$")
-  }
-
-  case class Type() {
+                       )
+    extends Evaluable.Definition[BaseExpression](
+      metadata = metadata,
+      identifier = identifier,
+      definable = initialization
+    ) {
 
   }
 
   object Type {
+    type Identifier = ast.Identifier.UpperCase;
 
-    case class Identifier(prefix: Seq[ast.Identifier] =Seq(), suffix: ast.Identifier.UpperCase, metadata: Metadata = Metadata.unknown) extends ast.base.Identifier(metadata = metadata) {
+    case class Reference(identifier: Identifier, `package`: ast.Package.Reference | Null = null, metadata: Metadata = Metadata.unknown) extends ast.base.expressions.Reference(metadata = metadata) {
 
-      def text: String = if prefix.isEmpty
-      then suffix.text
-      else s"${ast.base.Identifier.fold(prefix,".")}.${suffix.text}"
+      def text: String = `package` match {
+        case reference: ast.Package.Reference => s"${reference.text}.${identifier.text}"
+        case null => identifier.text
+      }
 
     }
+  }
+
+  object Assignment {
+    case class Expression(left: Evaluable.Reference, right: Chain.Expression, metadata: Metadata) extends BaseExpression(metadata = metadata)
   }
 
 
